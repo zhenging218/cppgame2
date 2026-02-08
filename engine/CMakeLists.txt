@@ -1,0 +1,28 @@
+cmake_minimum_required(VERSION 3.24)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_SXX_STANDARD REQUIRED True)
+
+set(ENGINE_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(ENGINE_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+add_library(engine STATIC
+	${ENGINE_SRC_DIR}/memory/memory_control_block.cpp
+	${ENGINE_SRC_DIR}/memory/reference_counter.cpp
+	${ENGINE_SRC_DIR}/maths/vector2.cpp
+	${ENGINE_SRC_DIR}/maths/vector3.cpp
+	${ENGINE_SRC_DIR}/maths/vector4.cpp
+	${ENGINE_SRC_DIR}/maths/quaternion.cpp
+	${ENGINE_SRC_DIR}/maths/matrix2x2.cpp
+	${ENGINE_SRC_DIR}/maths/matrix3x3.cpp
+	${ENGINE_SRC_DIR}/maths/matrix4x4.cpp
+	${ENGINE_SRC_DIR}/maths/triangle.cpp
+	${ENGINE_SRC_DIR}/maths/transform.cpp
+	${ENGINE_SRC_DIR}/maths/math_helper.cpp
+)
+
+target_include_directories(engine PUBLIC ${ENGINE_INC_DIR})
+target_precompile_headers(engine PUBLIC ${ENGINE_INC_DIR}/engine.hpp)
+
+set(CPP_GAME_ENGINE engine PARENT_SCOPE)
+set(CPP_GAME_ENGINE_NOT_LINKED 0 PARENT_SCOPE)
