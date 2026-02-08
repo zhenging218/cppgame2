@@ -4,11 +4,18 @@
 
 namespace cppengine {
     class Scene;
+    class GameObject;
 
     class Component {
     private:
         friend class Scene;
+        TypeDescriptor const *descriptor;
         ObjectHandle<Scene> scene;
+
+    protected:
+
+        GameObject getGameObject() const;
+
     public:
 
         virtual ~Component() = 0;

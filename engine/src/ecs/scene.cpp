@@ -5,6 +5,35 @@
 namespace cppengine {
     Scene::Scene() : nextId(1) {}
 
+    std::string const & Scene::getNameOfEntity(uint64_t id) const {
+        return entities.at(id);
+    }
+
+    void Scene::setNameOfEntity(std::uint64_t id, std::string const &name) {
+        if (entities.contains(id)) {
+            entities[id] = name;
+        }
+    }
+
+    void Scene::setNameOfEntity(std::uint64_t id, std::string &&name) {
+        if (entities.contains(id)) {
+            entities[id] = std::move(name);
+        }
+    }
+
+    std::uint64_t Scene::getEntityOfComponent(Component const *component) const {
+        auto result = std::ranges::find_if(ecs, [&component](auto const &value) {
+            return value.second.contains(component->descriptor);
+        });
+
+        if (result != ecs.end()) {
+            return result->first;
+        }
+
+        return 0;
+    }
+
+
     std::uint64_t Scene::createEntity() {
         auto id = nextId++;
         entities[id] = "entity";
@@ -36,7 +65,7 @@ namespace cppengine {
         entities.erase(id);
     }
 
-    ObjectHandle<Transform> Scene::getTransform(std::uint64_t id) const {
+    ObjectHandle<Transform> Scene::getTransformOfEntity(std::uint64_t id) const {
         return transforms.at(id);
     }
 }

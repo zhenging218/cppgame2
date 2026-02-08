@@ -49,9 +49,7 @@ namespace cppengine {
         ObjectHandle<T> getComponent(std::uint64_t ownerId) const {
             TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
             if (ecs.contains(ownerId) && ecs.at(ownerId).contains(descriptor)) {
-                return dynamic_handle_cast<T>(std::find_if(components.begin(), components.end(), [&descriptor, &ownerId](const component_list_type::value_type &value) {
-                        return descriptor == value.first && value.second.contains(ownerId);
-                    })->second[ownerId]);
+                return dynamic_handle_cast<T>(dynamic_handle_cast<T>(components.at(descriptor).at(ownerId)));
             }
 
             return nullptr;
@@ -63,15 +61,15 @@ namespace cppengine {
 
             if (ecs.contains(ownerId)) {
                 if (ecs.at(ownerId).contains(descriptor)) {
-                    return dynamic_handle_cast<T>(std::find_if(components.begin(), components.end(), [&descriptor, &ownerId](const component_list_type::value_type &value) {
-                        return descriptor == value.first && value.second.contains(ownerId);
-                    })->second[ownerId]);
+                    return dynamic_handle_cast<T>(components.at(descriptor).at(ownerId));
                 }
 
-                auto handle = createHandle<T>(std::forward<Args>(args)...);
+                ObjectHandle<Component> handle = createHandle<T>(std::forward<Args>(args)...);
+                handle->scene = wrapWithHandle(this);
+                handle->descriptor = descriptor;
                 components[descriptor][ownerId] = handle;
                 ecs[ownerId].insert(descriptor);
-                return handle;
+                return dynamic_handle_cast<T>(handle);
             }
 
             return nullptr;
@@ -82,17 +80,18 @@ namespace cppengine {
             TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
 
             if (ecs.contains(ownerId) && ecs.at(ownerId).contains(descriptor)) {
-                std::find_if(components.begin(), components.end(), [&descriptor, &ownerId](const component_list_type::value_type &value) {
-                    return descriptor == value.first && value.second.contains(ownerId);
-                })->second.erase(ownerId);
-
+                components.at(descriptor).erase(ownerId);
                 ecs.at(ownerId).erase(descriptor);
             }
         }
 
         std::uint64_t createEntity();
         void destroyEntity(std::uint64_t id);
-        ObjectHandle<Transform> getTransform(std::uint64_t id) const;
+        ObjectHandle<Transform> getTransformOfEntity(std::uint64_t id) const;
+
+        std::string const &getNameOfEntity(uint64_t id) const;
+        void setNameOfEntity(std::uint64_t id, std::string const &name);
+        void setNameOfEntity(std::uint64_t id, std::string &&name);
 
         template <typename T>
         std::uint64_t getEntityOfComponent(ObjectHandle<T> component) {
@@ -113,6 +112,8 @@ namespace cppengine {
 
             return 0;
         }
+
+        std::uint64_t getEntityOfComponent(Component const *component) const;
 
         template <typename T>
         std::vector<ObjectHandle<T>> getAllComponentsOfType() const {
