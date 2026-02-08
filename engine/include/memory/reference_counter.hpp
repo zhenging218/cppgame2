@@ -1,8 +1,8 @@
 #pragma once
 
-namespace cppengine {
-    struct MemoryControlBlock;
+#include "memory/memory_control_block.hpp"
 
+namespace cppengine {
     class ReferenceCounter {
     private:
 
@@ -149,6 +149,19 @@ namespace cppengine {
 
         virtual deallocator_type getDeallocator() const override {
             return counter->getDeallocator();
+        }
+    };
+
+    template <typename T>
+    class UnownedTypeReference : public EmptyReferenceCounter {
+    private:
+        T *data;
+    public:
+        UnownedTypeReference(T &reference) : EmptyReferenceCounter(), data(&reference) {
+        }
+
+        virtual void *getData() const override {
+            return reinterpret_cast<T*>(data);
         }
     };
 }

@@ -234,4 +234,9 @@ namespace cppengine {
     ObjectHandle<T> createHandle(Args &&... args) {
         return ObjectHandle<T>(new T{std::forward<Args>(args)...});
     }
+
+    template <typename T>
+    ObjectHandle<T> wrapWithHandle(T &&obj) {
+        return ObjectHandle<T>(std::forward<T>(obj), new UnownedTypeReference<T>());
+    }
 }
