@@ -9,198 +9,200 @@
 #include "memory/memory_control_block.hpp"
 #include "memory/object_handle.hpp"
 
-struct PageInfo {
-    PageInfo * next;
-};
+namespace cppengine {
+    struct PageInfo {
+        PageInfo * next;
+    };
 
-struct MemoryBlockInfo {
-    MemoryControlBlock* referenceCounter;
-    MemoryBlockInfo *next;
-};
+    struct MemoryBlockInfo {
+        MemoryControlBlock* referenceCounter;
+        MemoryBlockInfo *next;
+    };
 
-template <typename T, std::size_t PageSize = 4096>
-class ObjectAllocator {
-public:
-    static ObjectAllocator& getInstance();
+    template <typename T, std::size_t PageSize = 4096>
+    class ObjectAllocator {
+    public:
+        static ObjectAllocator& getInstance();
 
-private:
-    using byte_type = std::uint8_t;
-    using byte_pointer_type = byte_type *;
+    private:
+        using byte_type = std::uint8_t;
+        using byte_pointer_type = byte_type *;
 
-    using object_type = T;
-    using const_object_type = const T;
-    using object_reference = object_type &;
-    using const_object_reference = const_object_type &;
-    using object_pointer = object_type *;
-    using const_object_pointer = const_object_type *;
+        using object_type = T;
+        using const_object_type = const T;
+        using object_reference = object_type &;
+        using const_object_reference = const_object_type &;
+        using object_pointer = object_type *;
+        using const_object_pointer = const_object_type *;
 
-    using deallocator_pointer = void(*)(void*);
-    
-    static constexpr std::size_t BYTE_SIZE = sizeof(byte_type);
-    static constexpr std::size_t BYTE_POINTER_SIZE = sizeof(void*);
-    static constexpr std::size_t OBJECT_SIZE = sizeof(object_type);
+        using deallocator_pointer = void(*)(void*);
 
-    static constexpr std::size_t PAGE_SIZE = PageSize;
+        static constexpr std::size_t BYTE_SIZE = sizeof(byte_type);
+        static constexpr std::size_t BYTE_POINTER_SIZE = sizeof(void*);
+        static constexpr std::size_t OBJECT_SIZE = sizeof(object_type);
 
-    static constexpr std::size_t ALIGNMENT_SIZE = alignof(object_type);
+        static constexpr std::size_t PAGE_SIZE = PageSize;
 
-    static constexpr std::size_t PAGE_HEADER_SIZE = sizeof(PageInfo);
-    static constexpr std::size_t BLOCK_AREA_OFFSET = (alignof(object_type) - (PAGE_HEADER_SIZE % alignof(object_type))) % alignof(object_type);
+        static constexpr std::size_t ALIGNMENT_SIZE = alignof(object_type);
 
-    static constexpr std::size_t BLOCK_HEADER_SIZE = sizeof(MemoryBlockInfo);
+        static constexpr std::size_t PAGE_HEADER_SIZE = sizeof(PageInfo);
+        static constexpr std::size_t BLOCK_AREA_OFFSET = (alignof(object_type) - (PAGE_HEADER_SIZE % alignof(object_type))) % alignof(object_type);
 
-    static constexpr std::size_t DATA_AREA_OFFSET = (alignof(object_type) - (BLOCK_HEADER_SIZE % alignof(object_type))) % alignof(object_type);
-    static constexpr std::size_t BLOCK_SIZE = BLOCK_HEADER_SIZE + DATA_AREA_OFFSET + OBJECT_SIZE;
+        static constexpr std::size_t BLOCK_HEADER_SIZE = sizeof(MemoryBlockInfo);
 
-    static constexpr std::size_t PAGE_BLOCK_COUNT = (PAGE_SIZE - PAGE_HEADER_SIZE - BLOCK_AREA_OFFSET) / BLOCK_SIZE;
+        static constexpr std::size_t DATA_AREA_OFFSET = (alignof(object_type) - (BLOCK_HEADER_SIZE % alignof(object_type))) % alignof(object_type);
+        static constexpr std::size_t BLOCK_SIZE = BLOCK_HEADER_SIZE + DATA_AREA_OFFSET + OBJECT_SIZE;
 
-    std::size_t totalPages;
-    std::size_t allocated;
-    std::size_t available;
+        static constexpr std::size_t PAGE_BLOCK_COUNT = (PAGE_SIZE - PAGE_HEADER_SIZE - BLOCK_AREA_OFFSET) / BLOCK_SIZE;
 
-    PageInfo * pages;
-    MemoryBlockInfo * freeList;
+        std::size_t totalPages;
+        std::size_t allocated;
+        std::size_t available;
 
-    void *allocate() {
-        return std::malloc(PAGE_SIZE);
-    }
+        PageInfo * pages;
+        MemoryBlockInfo * freeList;
 
-    void deallocate(void *data) {
-        std::free(data);
-    }
+        void *allocate() {
+            return std::malloc(PAGE_SIZE);
+        }
 
-    static void deallocatePolymorphicObject(void* data) {
-        auto& instance = getInstance();
-        MemoryBlockInfo* block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(data) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
-        block->referenceCounter->active = false;
-        object_pointer target = reinterpret_cast<object_pointer>(data);
-        target->~object_type();
-        block->next = instance.freeList;
-        instance.freeList = block;
-        instance.allocated--;
-        instance.available++;
-    }
+        void deallocate(void *data) {
+            std::free(data);
+        }
 
-    void initialiseBlocks(PageInfo* page) {
-        void *blocks = reinterpret_cast<byte_pointer_type>(page) + PAGE_HEADER_SIZE + BLOCK_AREA_OFFSET;
+        static void deallocatePolymorphicObject(void* data) {
+            auto& instance = getInstance();
+            MemoryBlockInfo* block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(data) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
+            block->referenceCounter->active = false;
+            object_pointer target = reinterpret_cast<object_pointer>(data);
+            target->~object_type();
+            block->next = instance.freeList;
+            instance.freeList = block;
+            instance.allocated--;
+            instance.available++;
+        }
 
-        MemoryBlockInfo *first = reinterpret_cast<MemoryBlockInfo*>(blocks);
-        MemoryBlockInfo *curr = first;
-        MemoryBlockInfo *prev = nullptr;
+        void initialiseBlocks(PageInfo* page) {
+            void *blocks = reinterpret_cast<byte_pointer_type>(page) + PAGE_HEADER_SIZE + BLOCK_AREA_OFFSET;
 
-        for(int i = 0; i < PAGE_BLOCK_COUNT; ++i) {
-            curr->referenceCounter = new MemoryControlBlock(&deallocatePolymorphicObject);
-            curr->next = nullptr;
+            MemoryBlockInfo *first = reinterpret_cast<MemoryBlockInfo*>(blocks);
+            MemoryBlockInfo *curr = first;
+            MemoryBlockInfo *prev = nullptr;
+
+            for(int i = 0; i < PAGE_BLOCK_COUNT; ++i) {
+                curr->referenceCounter = new MemoryControlBlock(&deallocatePolymorphicObject);
+                curr->next = nullptr;
+
+                if(prev != nullptr) {
+                    prev->next = curr;
+                }
+
+                prev = curr;
+                curr = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_SIZE);
+            }
 
             if(prev != nullptr) {
-                prev->next = curr;
+                prev->next = freeList;
             }
 
-            prev = curr;
-            curr = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_SIZE);
+            available += PAGE_BLOCK_COUNT;
+            freeList = first;
         }
 
-        if(prev != nullptr) {
-            prev->next = freeList;
+        void destroyBlocks(PageInfo* page) {
+            void* blocks = reinterpret_cast<byte_pointer_type>(page) + PAGE_HEADER_SIZE + BLOCK_AREA_OFFSET;
+
+            MemoryBlockInfo* curr = reinterpret_cast<MemoryBlockInfo*>(blocks);
+
+            for (int i = 0; i < PAGE_BLOCK_COUNT; ++i) {
+
+                if (curr->referenceCounter->active) {
+                    reinterpret_cast<object_pointer>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_HEADER_SIZE + DATA_AREA_OFFSET)->~T();
+                }
+
+                delete curr->referenceCounter;
+
+                curr = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_SIZE);
+            }
         }
 
-        available += PAGE_BLOCK_COUNT;
-        freeList = first;
-    }
+        void createPage() {
+            PageInfo *page = reinterpret_cast<PageInfo*>(std::malloc(PAGE_SIZE));
+            if(page != nullptr) {
+                page->next = pages;
+            }
+            pages = page;
+            totalPages++;
+            initialiseBlocks(page);
+        }
 
-    void destroyBlocks(PageInfo* page) {
-        void* blocks = reinterpret_cast<byte_pointer_type>(page) + PAGE_HEADER_SIZE + BLOCK_AREA_OFFSET;
+        ObjectAllocator() : totalPages(0), allocated(0), available(0), pages(nullptr), freeList(nullptr)
+        {}
 
-        MemoryBlockInfo* curr = reinterpret_cast<MemoryBlockInfo*>(blocks);
+        ObjectAllocator(ObjectAllocator const &) = delete;
+        ObjectAllocator &operator=(ObjectAllocator const &) = delete;
+    public:
+        ~ObjectAllocator() {
+            for (int i = 0; i < totalPages && pages != nullptr; ++i) {
+                void* toFree = pages;
+                destroyBlocks(pages);
+                pages = pages->next;
 
-        for (int i = 0; i < PAGE_BLOCK_COUNT; ++i) {
+                std::free(toFree);
+            }
+        }
 
-            if (curr->referenceCounter->active) {
-                reinterpret_cast<object_pointer>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_HEADER_SIZE + DATA_AREA_OFFSET)->~T();
+        template <typename U, typename = typename std::is_base_of<T, U>::type>
+        void destroy(U *object) {
+            MemoryBlockInfo * block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(object) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
+            (block->referenceCounter->deallocator)(reinterpret_cast<void*>(object));
+        }
+
+        template <typename ... Args>
+        ObjectHandle<object_type> createHandle(Args &&... args) {
+            if(freeList == nullptr) {
+                createPage();
             }
 
-            delete curr->referenceCounter;
+            MemoryBlockInfo *block = freeList;
+            byte_pointer_type data_area = reinterpret_cast<byte_pointer_type>(block) + BLOCK_HEADER_SIZE + DATA_AREA_OFFSET;
 
-            curr = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_SIZE);
-        }
-    }
+            block->referenceCounter->active = true;
+            freeList = block->next;
+            block->next = nullptr;
 
-    void createPage() {
-        PageInfo *page = reinterpret_cast<PageInfo*>(std::malloc(PAGE_SIZE));
-        if(page != nullptr) {
-            page->next = pages;
-        }
-        pages = page;
-        totalPages++;
-        initialiseBlocks(page);
-    }
+            object_pointer constructed = new (data_area) T(std::forward<Args>(args)...);
 
-    ObjectAllocator() : totalPages(0), allocated(0), available(0), pages(nullptr), freeList(nullptr)
-    {}
+            allocated++;
+            available--;
 
-    ObjectAllocator(ObjectAllocator const &) = delete;
-    ObjectAllocator &operator=(ObjectAllocator const &) = delete;
-public:
-    ~ObjectAllocator() {
-        for (int i = 0; i < totalPages && pages != nullptr; ++i) {
-            void* toFree = pages;
-            destroyBlocks(pages);
-            pages = pages->next;
-
-            std::free(toFree);
-        }
-    }
-
-    template <typename U, typename = typename std::is_base_of<T, U>::type>
-    void destroy(U *object) {
-        MemoryBlockInfo * block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(object) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
-        (block->referenceCounter->deallocator)(reinterpret_cast<void*>(object));
-    }
-
-    template <typename ... Args>
-    ObjectHandle<object_type> createHandle(Args &&... args) {
-        if(freeList == nullptr) {
-            createPage();
+            return ObjectHandle<T>(
+                constructed, block->referenceCounter
+            );
         }
 
-        MemoryBlockInfo *block = freeList;
-        byte_pointer_type data_area = reinterpret_cast<byte_pointer_type>(block) + BLOCK_HEADER_SIZE + DATA_AREA_OFFSET;
+        std::size_t getTotalPages() const {
+            return totalPages;
+        }
 
-        block->referenceCounter->active = true;
-        freeList = block->next;
-        block->next = nullptr;
+        std::size_t getAvaiableBlockCount() const {
+            return available;
+        }
 
-        object_pointer constructed = new (data_area) T(std::forward<Args>(args)...);
+        std::size_t getAllocatedBlockCount() const {
+            return allocated;
+        }
+    };
 
-        allocated++;
-        available--;
+    template <typename T, std::size_t PageSize>
+    class ObjectAllocator<const T, PageSize>;
 
-        return ObjectHandle<T>(
-            constructed, block->referenceCounter
-        );
+    template <typename T, std::size_t PageSize>
+    class ObjectAllocator<T&, PageSize>;
+
+    template <typename T, std::size_t PageSize>
+    ObjectAllocator<T, PageSize>& ObjectAllocator<T, PageSize>::getInstance() {
+        static ObjectAllocator instance;
+        return instance;
     }
-
-    std::size_t getTotalPages() const {
-        return totalPages;
-    }
-
-    std::size_t getAvaiableBlockCount() const {
-        return available;
-    }
-
-    std::size_t getAllocatedBlockCount() const {
-        return allocated;
-    }
-};
-
-template <typename T, std::size_t PageSize>
-class ObjectAllocator<const T, PageSize>;
-
-template <typename T, std::size_t PageSize>
-class ObjectAllocator<T&, PageSize>;
-
-template <typename T, std::size_t PageSize>
-ObjectAllocator<T, PageSize>& ObjectAllocator<T, PageSize>::getInstance() {
-    static ObjectAllocator instance;
-    return instance;
 }

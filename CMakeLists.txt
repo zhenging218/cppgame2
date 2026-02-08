@@ -11,9 +11,10 @@ set(CPP_GAME_ENGINE)
 set(CPP_GAME_INTEGRATION)
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/engine/")
-add_subdirectory("${CMAKE_SOURCE_DIR}/raylib_integraion/")
-add_subdirectory("${CMAKE_SOURCE_DIR}/game")
+add_subdirectory("${CMAKE_SOURCE_DIR}/raylib_integration/")
 
-# ─── Demo Application ────────────────────────────────────────────────────────
-add_executable(demo src/main.cpp)
-target_link_libraries(demo PRIVATE engine raylib_integration)
+if(${CPP_GAME_ENGINE_NOT_LINKED} OR ${CPP_GAME_INTEGRATION_NOT_LINKED})
+    message(FATAL_ERROR "essential libraries could not be linked, please check settings.")
+else()
+add_subdirectory("${CMAKE_SOURCE_DIR}/game")
+endif()

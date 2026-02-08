@@ -19,6 +19,7 @@ add_library(engine STATIC
 	${ENGINE_SRC_DIR}/maths/triangle.cpp
 	${ENGINE_SRC_DIR}/maths/transform.cpp
 	${ENGINE_SRC_DIR}/maths/math_helper.cpp
+	${ENGINE_SRC_DIR}/ecs/scene.cpp
 )
 
 target_include_directories(engine PUBLIC ${ENGINE_INC_DIR})

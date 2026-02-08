@@ -16,10 +16,10 @@ set(INTEGRATION_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INTEGRATION_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_library(raylib_integration STATIC
-	${INTEGRATION_SRC_DIR}/integration.cpp
+	${INTEGRATION_SRC_DIR}/raylib_integration.cpp
 )
 
-target_include_directories(raylib_integration PUBLIC ${ENGINE_SRC_DIR} ${INTEGRATION_INC_DIR})
+target_include_directories(raylib_integration PUBLIC ${ENGINE_INC_DIR} ${INTEGRATION_INC_DIR})
 target_precompile_headers(raylib_integration PUBLIC ${INTEGRATION_INC_DIR}/raylib_integration.hpp)
 
 target_link_libraries(raylib_integration PUBLIC raylib)
