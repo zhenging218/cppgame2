@@ -23,11 +23,10 @@ namespace cppengine {
 
         bool dirty;
 
-        Transform();
-
         void propagateChanges();
         void updateMatrix();
     public:
+        Transform();
         Transform(Transform const &other) = delete;
         Transform &operator=(Transform const &other) = delete;
 

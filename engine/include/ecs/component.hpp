@@ -3,6 +3,8 @@
 #include "memory/object_handle.hpp"
 
 namespace cppengine {
+    class Scene;
+
     class Component {
     private:
         friend class Scene;

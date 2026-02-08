@@ -83,6 +83,8 @@ namespace cppengine {
                 dirty = true;
             }
 
+            parent = newParent;
+
             if(newParent != nullptr) {
                 newParent->addChild(*this);
                 dirty = true;
@@ -101,8 +103,8 @@ namespace cppengine {
         auto result = std::find_if(children.begin(), children.end(), [&childToRemove](Transform *child) { return &childToRemove == child; });
 
         if(result != children.end()) {
-            childToRemove.setParent(nullptr);
-            children.erase(result, result);
+            childToRemove.parent = nullptr;
+            children.erase(result);
         }
     }
 
