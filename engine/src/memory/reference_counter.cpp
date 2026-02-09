@@ -3,8 +3,8 @@
 namespace cppengine {
     void dummyDeallocator(void*) {}
 
-    ReferenceCounter::ReferenceCounter() { signalAcquisition(); }
-    ReferenceCounter::~ReferenceCounter() { signalDestruction(); }
+    ReferenceCounter::ReferenceCounter() {}
+    ReferenceCounter::~ReferenceCounter() {}
 
     EmptyReferenceCounter::EmptyReferenceCounter()
         : ReferenceCounter(), count(0), weakCount(0) {

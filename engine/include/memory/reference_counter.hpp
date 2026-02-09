@@ -6,16 +6,10 @@ namespace cppengine {
     class ReferenceCounter {
     private:
 
-        void signalAcquisition() const;
-        void signalDestruction() const;
-
     protected:
         using deallocator_type = void(*)(void*);
         using count_getter_type = std::size_t& (*)(void*);
         using count_manipulator_type = void(*)(std::size_t&);
-
-        static void incrementingAcquirer(std::size_t& count);
-        static void decrementingReleaser(std::size_t& count);
 
     public:
         ReferenceCounter();

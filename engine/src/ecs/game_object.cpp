@@ -7,6 +7,19 @@ namespace cppengine {
 
     }
 
+    GameObject::GameObject(const GameObject &other)
+            : id{other.id} {
+    }
+
+    GameObject::GameObject(GameObject &&other) noexcept
+        : id{other.id} {
+    }
+
+    GameObject & GameObject::operator=(GameObject const &other) {
+        id = other.id;
+        return *this;
+    }
+
     std::string const &GameObject::getName() const {
         return scene->getNameOfEntity(id);
     }

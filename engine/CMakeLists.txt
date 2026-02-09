@@ -6,9 +6,12 @@ set(CMAKE_SXX_STANDARD REQUIRED True)
 set(ENGINE_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(ENGINE_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_library(engine STATIC
+set(ENGINE_MEMORY_SRCS
 	${ENGINE_SRC_DIR}/memory/memory_control_block.cpp
 	${ENGINE_SRC_DIR}/memory/reference_counter.cpp
+)
+
+set(ENGINE_MATH_SRCS
 	${ENGINE_SRC_DIR}/maths/vector2.cpp
 	${ENGINE_SRC_DIR}/maths/vector3.cpp
 	${ENGINE_SRC_DIR}/maths/vector4.cpp
@@ -19,9 +22,26 @@ add_library(engine STATIC
 	${ENGINE_SRC_DIR}/maths/triangle.cpp
 	${ENGINE_SRC_DIR}/maths/transform.cpp
 	${ENGINE_SRC_DIR}/maths/math_helper.cpp
+)
+
+set(ENGINE_ECS_SRCS
 	${ENGINE_SRC_DIR}/ecs/component.cpp
 	${ENGINE_SRC_DIR}/ecs/game_object.cpp
 	${ENGINE_SRC_DIR}/ecs/scene.cpp
+)
+
+set(ENGINE_INTEGRATION_SRCS
+	${ENGINE_SRC_DIR}/integration/window.cpp
+	${ENGINE_SRC_DIR}/integration/window_context.cpp
+	${ENGINE_SRC_DIR}/integration/graphics.cpp
+	${ENGINE_SRC_DIR}/integration/graphics_context.cpp
+)
+
+add_library(engine STATIC
+	${ENGINE_MEMORY_SRCS}
+	${ENGINE_MATH_SRCS}
+	${ENGINE_ECS_SRCS}
+	${ENGINE_INTEGRATION_SRCS}
 )
 
 target_include_directories(engine PUBLIC ${ENGINE_INC_DIR})

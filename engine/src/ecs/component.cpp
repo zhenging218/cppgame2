@@ -9,4 +9,8 @@ namespace cppengine {
         result.scene = scene;
         return result;
     }
+
+    Component::~Component() {
+
+    }
 }

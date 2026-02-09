@@ -28,22 +28,8 @@ namespace cppengine {
         Scene(const Scene &other) = delete;
         Scene & operator=(const Scene &other) = delete;
 
-        Scene(Scene &&other) noexcept
-            : nextId(other.nextId),
-              entities(std::move(other.entities)),
-              transforms(std::move(other.transforms)),
-              ecs(std::move(other.ecs)),
-              components(std::move(other.components)) {
-        }
-
-        Scene & operator=(Scene &&other) noexcept {
-            std::swap(nextId, other.nextId);
-            std::swap(entities, other.entities);
-            std::swap(transforms, other.transforms);
-            std::swap(ecs, other.ecs);
-            std::swap(components, other.components);
-            return *this;
-        }
+        Scene(Scene &&other) noexcept;
+        Scene & operator=(Scene &&other) noexcept;
 
         template <typename T>
         ObjectHandle<T> getComponent(std::uint64_t ownerId) const {

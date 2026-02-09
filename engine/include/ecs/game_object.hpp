@@ -16,18 +16,11 @@ namespace cppengine {
     public:
         GameObject();
 
-        GameObject(const GameObject &other)
-            : id{other.id} {
-        }
+        GameObject(const GameObject &other);
 
-        GameObject(GameObject &&other) noexcept
-            : id{other.id} {
-        }
+        GameObject(GameObject &&other) noexcept;
 
-        GameObject & operator=(GameObject other) {
-            std::swap(*this, other);
-            return *this;
-        }
+        GameObject & operator=(GameObject const &other);
 
         template <typename T>
         ObjectHandle<T> getComponent() const {

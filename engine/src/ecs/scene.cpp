@@ -5,6 +5,23 @@
 namespace cppengine {
     Scene::Scene() : nextId(1) {}
 
+    Scene::Scene(Scene &&other) noexcept
+            : nextId(other.nextId),
+              entities(std::move(other.entities)),
+              transforms(std::move(other.transforms)),
+              ecs(std::move(other.ecs)),
+              components(std::move(other.components)) {
+    }
+
+    Scene & Scene::operator=(Scene &&other) noexcept {
+        std::swap(nextId, other.nextId);
+        std::swap(entities, other.entities);
+        std::swap(transforms, other.transforms);
+        std::swap(ecs, other.ecs);
+        std::swap(components, other.components);
+        return *this;
+    }
+
     std::string const & Scene::getNameOfEntity(uint64_t id) const {
         return entities.at(id);
     }
