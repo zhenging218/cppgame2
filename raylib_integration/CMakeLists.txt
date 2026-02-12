@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 # ─── Raylib ──────────────────────────────────────────────────────────────────
-# Fetch raylib from GitHub if not found locally
+if("${INTEGRATION_API}" STREQUAL "RAYLIB")
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/raylib)
 
@@ -25,3 +25,5 @@ target_compile_definitions(raylib_integration PUBLIC RAYLIB_STATIC)
 
 set(CPP_GAME_INTEGRATION raylib_integration PARENT_SCOPE)
 set(CPP_GAME_INTEGRATION_NOT_LINKED 0 PARENT_SCOPE)
+
+endif()
