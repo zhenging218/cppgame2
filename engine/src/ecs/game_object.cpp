@@ -3,7 +3,7 @@
 #include "engine.hpp"
 
 namespace cppengine {
-    GameObject::GameObject() {
+    GameObject::GameObject(const std::uint64_t id_) : id(id_) {
 
     }
 
@@ -21,18 +21,18 @@ namespace cppengine {
     }
 
     std::string const &GameObject::getName() const {
-        return scene->getNameOfEntity(id);
+        return SceneManager::getInstance().getNameOfEntity(id);
     }
 
     void GameObject::setName(std::string const &name) {
-        return scene->setNameOfEntity(id, name);
+        return SceneManager::getInstance().setNameOfEntity(id, name);
     }
 
     void GameObject::setName(std::string &&name) {
-        return scene->setNameOfEntity(id, std::move(name));
+        return SceneManager::getInstance().setNameOfEntity(id, std::move(name));
     }
 
     ObjectHandle<Transform> GameObject::getTransform() const {
-        return scene->getTransformOfEntity(id);
+        return SceneManager::getInstance().getTransformOfEntity(id);
     }
 }

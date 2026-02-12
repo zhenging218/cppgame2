@@ -149,9 +149,9 @@ namespace cppengine {
     }
 
     float determinant(Matrix3x3 const &m) {
-        return MathHelper::determiant2D(m.m00, m.m11, m.m12, m.m21, m.m22)
-        - MathHelper::determiant2D(m.m01, m.m10, m.m12, m.m20, m.m22)
-        + MathHelper::determiant2D(m.m02, m.m10, m.m11, m.m20, m.m21);
+        return MathHelper::determinant2D(m.m00, m.m11, m.m12, m.m21, m.m22)
+        - MathHelper::determinant2D(m.m01, m.m10, m.m12, m.m20, m.m22)
+        + MathHelper::determinant2D(m.m02, m.m10, m.m11, m.m20, m.m21);
     }
 
     Matrix3x3 transpose(Matrix3x3 const &m) {

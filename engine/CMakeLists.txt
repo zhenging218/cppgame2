@@ -25,9 +25,12 @@ set(ENGINE_MATH_SRCS
 )
 
 set(ENGINE_ECS_SRCS
+	${ENGINE_SRC_DIR}/ecs/time.cpp
+	${ENGINE_SRC_DIR}/ecs/enum_scene_state.cpp
 	${ENGINE_SRC_DIR}/ecs/component.cpp
 	${ENGINE_SRC_DIR}/ecs/game_object.cpp
 	${ENGINE_SRC_DIR}/ecs/scene.cpp
+	${ENGINE_SRC_DIR}/ecs/scene_manager.cpp
 )
 
 set(ENGINE_INTEGRATION_SRCS

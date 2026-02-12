@@ -4,11 +4,11 @@
 
 namespace cppengine {
     namespace MathHelper {
-        inline float determiant2D(const float &v,
+        float determinant2D(const float &v,
         const float &a, const float &b,
         const float &c, const float &d);
 
-        inline float determinant3D(const float &v,
+        float determinant3D(const float &v,
             const float& a, const float& b, const float &c,
             const float& d, const float& e, const float &f,
             const float &g, const float &h, const float &i);

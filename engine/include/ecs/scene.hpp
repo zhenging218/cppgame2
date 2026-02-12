@@ -32,7 +32,7 @@ namespace cppengine {
         Scene & operator=(Scene &&other) noexcept;
 
         template <typename T>
-        ObjectHandle<T> getComponent(std::uint64_t ownerId) const {
+        ObjectHandle<T> getComponent(const std::uint64_t ownerId) const {
             TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
             if (ecs.contains(ownerId) && ecs.at(ownerId).contains(descriptor)) {
                 return dynamic_handle_cast<T>(dynamic_handle_cast<T>(components.at(descriptor).at(ownerId)));
@@ -42,7 +42,7 @@ namespace cppengine {
         }
 
         template <typename T, typename ... Args>
-        ObjectHandle<T> addComponent(std::uint64_t ownerId, Args &&... args) {
+        ObjectHandle<T> addComponent(const std::uint64_t ownerId, Args &&... args) {
             TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
 
             if (ecs.contains(ownerId)) {
@@ -51,7 +51,6 @@ namespace cppengine {
                 }
 
                 ObjectHandle<Component> handle = createHandle<T>(std::forward<Args>(args)...);
-                handle->scene = wrapWithHandle(this);
                 handle->descriptor = descriptor;
                 components[descriptor][ownerId] = handle;
                 ecs[ownerId].insert(descriptor);
@@ -62,7 +61,7 @@ namespace cppengine {
         }
 
         template <typename T>
-        void removeComponent(std::uint64_t ownerId) {
+        void removeComponent(const std::uint64_t ownerId) {
             TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
 
             if (ecs.contains(ownerId) && ecs.at(ownerId).contains(descriptor)) {
@@ -72,12 +71,12 @@ namespace cppengine {
         }
 
         std::uint64_t createEntity();
-        void destroyEntity(std::uint64_t id);
-        ObjectHandle<Transform> getTransformOfEntity(std::uint64_t id) const;
+        void destroyEntity(const std::uint64_t id);
+        ObjectHandle<Transform> getTransformOfEntity(const std::uint64_t id) const;
 
         std::string const &getNameOfEntity(uint64_t id) const;
-        void setNameOfEntity(std::uint64_t id, std::string const &name);
-        void setNameOfEntity(std::uint64_t id, std::string &&name);
+        void setNameOfEntity(const std::uint64_t id, std::string const &name);
+        void setNameOfEntity(const std::uint64_t id, std::string &&name);
 
         template <typename T>
         std::uint64_t getEntityOfComponent(ObjectHandle<T> component) {

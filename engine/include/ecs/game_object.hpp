@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "scene.hpp"
+#include "scene_manager.hpp"
 #include "memory/object_handle.hpp"
 
 namespace cppengine {
@@ -12,9 +13,8 @@ namespace cppengine {
         friend class Component;
 
         std::uint64_t id;
-        ObjectHandle<Scene> scene;
     public:
-        GameObject();
+        GameObject(const std::uint64_t id_);
 
         GameObject(const GameObject &other);
 
@@ -24,17 +24,17 @@ namespace cppengine {
 
         template <typename T>
         ObjectHandle<T> getComponent() const {
-            return scene->getComponent<T>(id);
+            return SceneManager::getInstance().getComponent<T>(id);
         }
 
         template <typename T, typename ... Args>
         ObjectHandle<T> addComponent(Args &&...args) {
-            return scene->addComponent<T>(std::forward<Args>(args)...);
+            return SceneManager::getInstance().addComponent<T>(id, std::forward<Args>(args)...);
         }
 
         template <typename T>
         void removeComponent() {
-            scene->removeComponent<T>(id);
+            SceneManager::getInstance().removeComponent<T>(id);
         }
 
         std::string const &getName() const;
