@@ -5,12 +5,10 @@
 
 namespace cppengine {
     class Time {
-    private:
-
     public:
 
-        using frame_time_type = std::chrono::time_point<std::chrono::high_resolution_clock>;
-        using delta_time_type = double;
+        using frame_time_type = decltype(std::chrono::high_resolution_clock::now());
+        using delta_time_type = float;
         using frame_duration_type = std::chrono::duration<delta_time_type>;
         using time_difference_type = decltype(std::declval<frame_duration_type const &>() - std::declval<frame_duration_type const &>());
 
@@ -18,11 +16,17 @@ namespace cppengine {
 
         static Time &getInstance();
 
+        void advance();
+
         Time();
         Time(Time const &) = delete;
         Time(Time &&) noexcept = delete;
         Time &operator=(Time const &) = delete;
         Time &operator=(Time &&) noexcept = delete;
+
+    private:
+        frame_time_type before;
+        delta_time_type dt;
     };
 }
 

@@ -25,6 +25,7 @@ int main() {
 				cppengine::Graphics::getInstance().endDraw();
 
 				cppengine::Window::getInstance().endFrame();
+				cppengine::Time::getInstance().advance();
 				break;
 			case cppengine::SceneState::TEARDOWN:
 				break;

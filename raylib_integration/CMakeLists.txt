@@ -3,7 +3,14 @@ cmake_minimum_required(VERSION 3.24)
 # ─── Raylib ──────────────────────────────────────────────────────────────────
 if("${INTEGRATION_API}" STREQUAL "RAYLIB")
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/raylib)
+include(FetchContent)
+FetchContent_Declare(
+		raylib
+		GIT_REPOSITORY  https://github.com/raysan5/raylib.git
+		GIT_TAG         5.5
+)
+FetchContent_MakeAvailable(raylib)
+
 
 set(ENGINE_INC_DIR ${CMAKE_SOURCE_DIR}/engine/include)
 
