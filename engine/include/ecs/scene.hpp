@@ -34,8 +34,19 @@ namespace cppengine {
         template <typename T>
         ObjectHandle<T> getComponent(const std::uint64_t ownerId) const {
             TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
-            if (ecs.contains(ownerId) && ecs.at(ownerId).contains(descriptor)) {
-                return dynamic_handle_cast<T>(dynamic_handle_cast<T>(components.at(descriptor).at(ownerId)));
+            if (ecs.contains(ownerId)) {
+                auto const &entityComponents = ecs.at(ownerId);
+                if (entityComponents.contains(descriptor)) {
+                    return dynamic_handle_cast<T>(components.at(descriptor).at(ownerId));
+                }
+
+                auto result = std::find_if(entityComponents.begin(), entityComponents.end(), [&descriptor](auto componentType) {
+                    return TypeDescriptor::isSuperType<T>(componentType);
+                });
+
+                if (result != entityComponents.end()) {
+                    return dynamic_handle_cast<T>(components.at(*result).at(ownerId));
+                }
             }
 
             return nullptr;
@@ -79,8 +90,9 @@ namespace cppengine {
         void setNameOfEntity(const std::uint64_t id, std::string &&name);
 
         template <typename T>
-        std::uint64_t getEntityOfComponent(ObjectHandle<T> component) {
-            TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
+        std::uint64_t getEntityOfComponent(ObjectHandle<T> component) const {
+            // no need poly check, descriptor should always tally
+            TypeDescriptor const *descriptor = dynamic_handle_cast<Component>(component)->descriptor;
             auto component_list = std::find_if(components.begin(), components.end(), [&descriptor](const component_list_type::value_type &value) {
                 return descriptor == value.first;
             });
@@ -103,6 +115,11 @@ namespace cppengine {
         template <typename T>
         std::vector<ObjectHandle<T>> getAllComponentsOfType() const {
             TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
+
+            // todo: refactor this method
+            // get list of all components that T == component type or T super of component type
+            // get the components into list
+            // return
 
             if (components.contains(descriptor)) {
                 auto const &targets = components.at(descriptor);
