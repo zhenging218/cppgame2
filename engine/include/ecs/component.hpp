@@ -11,21 +11,22 @@ namespace cppengine {
     private:
         friend class Scene;
         TypeDescriptor const *descriptor;
-
     protected:
-
+        Component() = default;
         GameObject getGameObject() const;
         GameObject createGameObject() const;
 
     public:
 
-        virtual void init() = 0;
-        virtual void update() = 0;
+        virtual void init();
+        virtual void update();
+        virtual void teardown();
 
 
-        virtual ~Component() = default;
+        virtual ~Component() = 0;
     };
 
+    inline Component::~Component() = default;
 }
 
 #endif

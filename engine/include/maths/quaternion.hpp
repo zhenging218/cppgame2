@@ -7,8 +7,9 @@ namespace cppengine {
 
     class Quaternion {
     public:
+        static constexpr inline std::size_t value_count = 4;
         union {
-            float idx[4];
+            float idx[value_count];
             struct {
                 float i, j, k, w;
             };

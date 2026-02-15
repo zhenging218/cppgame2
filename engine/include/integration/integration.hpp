@@ -3,5 +3,6 @@
 
 #include "window_context.hpp"
 #include "renderer_context.hpp"
+#include "draw_context.hpp"
 
 #endif

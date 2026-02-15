@@ -26,7 +26,6 @@ set(ENGINE_MATH_SRCS
 )
 
 set(ENGINE_ECS_SRCS
-	${ENGINE_SRC_DIR}/ecs/time.cpp
 	${ENGINE_SRC_DIR}/ecs/enum_scene_state.cpp
 	${ENGINE_SRC_DIR}/ecs/component.cpp
 	${ENGINE_SRC_DIR}/ecs/game_object.cpp
@@ -35,11 +34,19 @@ set(ENGINE_ECS_SRCS
 )
 
 set(ENGINE_GRAPHICS_SRCS
+	${ENGINE_SRC_DIR}/graphics/triangle_primitive.cpp
 	${ENGINE_SRC_DIR}/graphics/renderer.cpp
 )
 
 set(ENGINE_PLATFORM_SRCS
+	${ENGINE_SRC_DIR}/platform/time.cpp
 	${ENGINE_SRC_DIR}/platform/window.cpp
+)
+
+set(ENGINE_INTEGRATION_SRCS
+		${ENGINE_SRC_DIR}/integration/window_context.cpp
+		${ENGINE_SRC_DIR}/integration/renderer_context.cpp
+		${ENGINE_SRC_DIR}/integration/draw_context.cpp
 )
 
 add_library(engine STATIC
@@ -48,6 +55,7 @@ add_library(engine STATIC
 	${ENGINE_ECS_SRCS}
 	${ENGINE_GRAPHICS_SRCS}
 	${ENGINE_PLATFORM_SRCS}
+	${ENGINE_INTEGRATION_SRCS}
 )
 
 target_include_directories(engine PUBLIC ${ENGINE_INC_DIR})

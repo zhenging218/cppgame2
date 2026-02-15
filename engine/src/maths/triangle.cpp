@@ -1,4 +1,4 @@
-#include "maths/triangle.hpp"
+#include "engine.hpp"
 
 namespace cppengine {
     Triangle::vertex_type& Triangle::operator[](int i) {

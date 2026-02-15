@@ -4,9 +4,10 @@
 
 namespace cppengine {
     class Matrix2x2 {
+        static constexpr inline std::size_t value_count = 4;
     public:
         union {
-            float idx[4];
+            float idx[value_count];
             struct {
                 float m00, m01,
                       m10, m11;

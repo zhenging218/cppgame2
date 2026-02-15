@@ -6,9 +6,12 @@ namespace cppengine {
     class Quaternion;
 
     class Vector3 {
+
     public:
+        static constexpr inline std::size_t value_count = 3;
+
         union {
-            float idx[3];
+            float idx[value_count];
             struct {
                 float x, y, z;
             };

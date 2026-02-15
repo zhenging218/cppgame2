@@ -5,8 +5,9 @@
 namespace cppengine {
     class Vector2 {
     public:
+        static constexpr inline std::size_t value_count = 2;
         union {
-            float idx[2];
+            float idx[value_count];
             struct {
                 float x, y;
             };

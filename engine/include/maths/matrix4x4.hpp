@@ -8,8 +8,9 @@ namespace cppengine {
 
     class Matrix4x4 {
     public:
+        static constexpr inline std::size_t value_count = 16;
         union {
-            float idx[16];
+            float idx[value_count];
             struct {
                 float m00, m01, m02, m03,
                       m10, m11, m12, m13,

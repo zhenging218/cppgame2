@@ -6,9 +6,10 @@ namespace cppengine {
     class Vector3;
 
     class Matrix3x3 {
+        static constexpr inline std::size_t value_count = 9;
     public:
         union {
-            float idx[9];
+            float idx[value_count];
             struct {
                 float m00, m01, m02,
                       m10, m11, m12,

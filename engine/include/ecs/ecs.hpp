@@ -1,7 +1,6 @@
 #ifndef ECS_HPP
 #define ECS_HPP
 
-#include "time.hpp"
 #include "component.hpp"
 #include "game_object.hpp"
 #include "scene.hpp"

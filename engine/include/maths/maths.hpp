@@ -4,6 +4,7 @@
 #include "vector2.hpp"
 #include "vector3.hpp"
 #include "vector4.hpp"
+#include "triangle.hpp"
 #include "quaternion.hpp"
 #include "matrix2x2.hpp"
 #include "matrix3x3.hpp"

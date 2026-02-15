@@ -14,6 +14,8 @@ namespace cppengine {
 
         void EndDraw() override;
 
+        ObjectHandle<DrawContext> createDrawContext() override;
+
         ~RaylibRendererContext() override = default;
     };
 }

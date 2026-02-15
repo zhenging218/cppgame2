@@ -58,6 +58,8 @@ namespace cppengine {
         ObjectHandle<T> addComponent(const std::uint64_t ownerId, Args &&... args) {
             TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
 
+            // todo: get the most super class of descriptor and check if entity already has a descriptor with most super class that matches
+
             if (ecs.contains(ownerId)) {
                 if (ecs.at(ownerId).contains(descriptor)) {
                     return dynamic_handle_cast<T>(components.at(descriptor).at(ownerId));
