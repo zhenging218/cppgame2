@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <map>
 #include <set>
+#include <unordered_map>
 
 #include "component.hpp"
 #include "maths/transform.hpp"
@@ -12,16 +13,17 @@
 namespace cppengine {
     class Scene {
     private:
-        using entity_list_type = std::map<std::uint64_t, std::string>;
-        using transform_graph_type = std::map<std::uint64_t, ObjectHandle<Transform>>;
-        using entity_component_list_type = std::map<std::uint64_t, std::set<TypeDescriptor const *>>;
-        using component_list_type = std::map<TypeDescriptor const *, std::map<std::uint64_t, ObjectHandle<Component>>>;
+        using entity_map_type = std::unordered_map<std::uint64_t, std::string>;
+        using transform_graph_type = std::unordered_map<std::uint64_t, ObjectHandle<Transform>>;
+        using entity_component_map_type = std::unordered_map<uint64_t, std::set<TypeDescriptor const *>>;
+        using component_entity_map_type = std::map<std::uint64_t, ObjectHandle<Component>>;
+        using component_map_type = std::map<TypeDescriptor const *, component_entity_map_type>;
 
         std::uint64_t nextId;
-        entity_list_type entities;
+        entity_map_type entities;
         transform_graph_type transforms;
-        entity_component_list_type ecs;
-        component_list_type components;
+        entity_component_map_type ecs;
+        component_map_type components;
 
     public:
         Scene();
@@ -93,7 +95,7 @@ namespace cppengine {
         std::uint64_t getEntityOfComponent(ObjectHandle<T> component) const {
             // no need poly check, descriptor should always tally
             TypeDescriptor const *descriptor = dynamic_handle_cast<Component>(component)->descriptor;
-            auto component_list = std::find_if(components.begin(), components.end(), [&descriptor](const component_list_type::value_type &value) {
+            auto component_list = std::find_if(components.begin(), components.end(), [&descriptor](const component_map_type::value_type &value) {
                 return descriptor == value.first;
             });
 
@@ -116,20 +118,25 @@ namespace cppengine {
         std::vector<ObjectHandle<T>> getAllComponentsOfType() const {
             TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
 
-            // todo: refactor this method
-            // get list of all components that T == component type or T super of component type
-            // get the components into list
-            // return
+            std::vector<ObjectHandle<T>> results;
 
             if (components.contains(descriptor)) {
-                auto const &targets = components.at(descriptor);
-                std::vector<ObjectHandle<T>> results;
-                results.reserve(targets.size());
-                std::transform(targets.begin(), targets.end(), std::back_inserter(results), [](auto const &handle) { return handle.second; });
-                return results;
+                auto const &entityMap = components.at(descriptor);
+                results.reserve(entityMap.size());
+                std::transform(entityMap.begin(), entityMap.end(), std::back_inserter(results), [](auto const &component) {
+                    return dynamic_handle_cast<T>(component.second);
+                });
             }
 
-            return {};
+            for (auto const &[componentType, entityMap] : components) {
+                if (componentType != descriptor && TypeDescriptor::isSuperType(descriptor, componentType)) {
+                    std::transform(entityMap.begin(), entityMap.end(), std::back_inserter(results), [](auto const &component) {
+                        return dynamic_handle_cast<T>(component.second);
+                    });
+                }
+            }
+
+            return results;
         }
     };
 }

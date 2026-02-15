@@ -12,6 +12,15 @@ int main() {
 
 	while (!cppengine::Window::getInstance().windowShouldClose()) {
 
+		cppengine::Window::getInstance().beginFrame();
+		cppengine::Graphics::getInstance().beginDraw();
+		cppengine::Graphics::getInstance().draw();
+		cppengine::Graphics::getInstance().endDraw();
+		cppengine::Window::getInstance().endFrame();
+		cppengine::Time::getInstance().advance();
+
+		// switch to actual scene state game loop after implementing levels
+		/*
 		switch (cppengine::SceneManager::getInstance().getState()) {
 			case cppengine::SceneState::SETUP:
 				break;
@@ -33,6 +42,7 @@ int main() {
 
 				break;
 		}
+		*/
 
 	}
 

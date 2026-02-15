@@ -1,10 +1,9 @@
 #pragma once
 
 #include <type_traits>
-#include <vector>
-#include <stack>
+#include <cstdint>
+#include <new>
 #include <utility>
-#include <algorithm>
 
 #include "memory/memory_control_block.hpp"
 #include "memory/object_handle.hpp"
@@ -35,10 +34,6 @@ namespace cppengine {
         using object_pointer = object_type *;
         using const_object_pointer = const_object_type *;
 
-        using deallocator_pointer = void(*)(void*);
-
-        static constexpr std::size_t BYTE_SIZE = sizeof(byte_type);
-        static constexpr std::size_t BYTE_POINTER_SIZE = sizeof(void*);
         static constexpr std::size_t OBJECT_SIZE = sizeof(object_type);
 
         static constexpr std::size_t PAGE_SIZE = PageSize;
@@ -46,14 +41,16 @@ namespace cppengine {
         static constexpr std::size_t ALIGNMENT_SIZE = alignof(object_type);
 
         static constexpr std::size_t PAGE_HEADER_SIZE = sizeof(PageInfo);
-        static constexpr std::size_t BLOCK_AREA_OFFSET = (alignof(object_type) - (PAGE_HEADER_SIZE % alignof(object_type))) % alignof(object_type);
-
         static constexpr std::size_t BLOCK_HEADER_SIZE = sizeof(MemoryBlockInfo);
 
-        static constexpr std::size_t DATA_AREA_OFFSET = (alignof(object_type) - (BLOCK_HEADER_SIZE % alignof(object_type))) % alignof(object_type);
+        static constexpr std::size_t BLOCK_AREA_OFFSET = (ALIGNMENT_SIZE - (PAGE_HEADER_SIZE % ALIGNMENT_SIZE)) % ALIGNMENT_SIZE;
+        static constexpr std::size_t DATA_AREA_OFFSET = (ALIGNMENT_SIZE - (BLOCK_HEADER_SIZE % ALIGNMENT_SIZE)) % ALIGNMENT_SIZE;
+
         static constexpr std::size_t BLOCK_SIZE = BLOCK_HEADER_SIZE + DATA_AREA_OFFSET + OBJECT_SIZE;
 
         static constexpr std::size_t PAGE_BLOCK_COUNT = (PAGE_SIZE - PAGE_HEADER_SIZE - BLOCK_AREA_OFFSET) / BLOCK_SIZE;
+
+        static_assert(PAGE_BLOCK_COUNT > 0, "page size is too small to hold any objects");
 
         std::size_t totalPages;
         std::size_t allocated;
@@ -61,14 +58,6 @@ namespace cppengine {
 
         PageInfo * pages;
         MemoryBlockInfo * freeList;
-
-        void *allocate() {
-            return std::malloc(PAGE_SIZE);
-        }
-
-        void deallocate(void *data) {
-            std::free(data);
-        }
 
         static void deallocatePolymorphicObject(void* data) {
             auto& instance = getInstance();
@@ -89,8 +78,8 @@ namespace cppengine {
             MemoryBlockInfo *curr = first;
             MemoryBlockInfo *prev = nullptr;
 
-            for(int i = 0; i < PAGE_BLOCK_COUNT; ++i) {
-                curr->referenceCounter = new MemoryControlBlock(&deallocatePolymorphicObject);
+            for(std::size_t i = 0; i < PAGE_BLOCK_COUNT; ++i) {
+                curr->referenceCounter = nullptr;
                 curr->next = nullptr;
 
                 if(prev != nullptr) {
@@ -99,6 +88,15 @@ namespace cppengine {
 
                 prev = curr;
                 curr = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_SIZE);
+            }
+
+            curr = first;
+            prev = nullptr;
+
+            while (curr != nullptr) {
+                curr->referenceCounter = new MemoryControlBlock(&deallocatePolymorphicObject);
+                prev = curr;
+                curr = curr->next;
             }
 
             if(prev != nullptr) {
@@ -114,7 +112,7 @@ namespace cppengine {
 
             MemoryBlockInfo* curr = reinterpret_cast<MemoryBlockInfo*>(blocks);
 
-            for (int i = 0; i < PAGE_BLOCK_COUNT; ++i) {
+            for (std::size_t i = 0; i < PAGE_BLOCK_COUNT; ++i) {
 
                 if (curr->referenceCounter->active) {
                     reinterpret_cast<object_pointer>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_HEADER_SIZE + DATA_AREA_OFFSET)->~T();
@@ -130,10 +128,12 @@ namespace cppengine {
             PageInfo *page = reinterpret_cast<PageInfo*>(std::malloc(PAGE_SIZE));
             if(page != nullptr) {
                 page->next = pages;
+                pages = page;
+                totalPages++;
+                initialiseBlocks(page);
+            } else {
+                throw std::bad_alloc();
             }
-            pages = page;
-            totalPages++;
-            initialiseBlocks(page);
         }
 
         ObjectAllocator() : totalPages(0), allocated(0), available(0), pages(nullptr), freeList(nullptr)
@@ -143,16 +143,15 @@ namespace cppengine {
         ObjectAllocator &operator=(ObjectAllocator const &) = delete;
     public:
         ~ObjectAllocator() {
-            for (int i = 0; i < totalPages && pages != nullptr; ++i) {
-                void* toFree = pages;
-                destroyBlocks(pages);
+            while (pages != nullptr) {
+                PageInfo* toFree = pages;
                 pages = pages->next;
-
+                destroyBlocks(toFree);
                 std::free(toFree);
             }
         }
 
-        template <typename U, typename = typename std::is_base_of<T, U>::type>
+        template <typename U, typename = typename std::enable_if<std::is_base_of<T, U>::value>::type>
         void destroy(U *object) {
             MemoryBlockInfo * block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(object) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
             (block->referenceCounter->deallocator)(reinterpret_cast<void*>(object));
@@ -171,7 +170,7 @@ namespace cppengine {
             freeList = block->next;
             block->next = nullptr;
 
-            object_pointer constructed = new (data_area) T(std::forward<Args>(args)...);
+            object_pointer constructed = std::launder(new (data_area) T(std::forward<Args>(args)...));
 
             allocated++;
             available--;
@@ -185,7 +184,7 @@ namespace cppengine {
             return totalPages;
         }
 
-        std::size_t getAvaiableBlockCount() const {
+        std::size_t getAvailableBlockCount() const {
             return available;
         }
 
