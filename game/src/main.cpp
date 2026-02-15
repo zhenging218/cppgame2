@@ -6,16 +6,16 @@ int main() {
 
 	cppengine::Window::getInstance().initialise();
 	cppengine::Window::getInstance().createWindow(800, 600, "test window");
-	cppengine::Graphics::getInstance().initialise();
+	cppengine::Renderer::getInstance().initialise();
 
 	cppengine::SceneManager::getInstance().initialise();
 
 	while (!cppengine::Window::getInstance().windowShouldClose()) {
 
 		cppengine::Window::getInstance().beginFrame();
-		cppengine::Graphics::getInstance().beginDraw();
-		cppengine::Graphics::getInstance().draw();
-		cppengine::Graphics::getInstance().endDraw();
+		cppengine::Renderer::getInstance().beginDraw();
+		cppengine::Renderer::getInstance().draw();
+		cppengine::Renderer::getInstance().endDraw();
 		cppengine::Window::getInstance().endFrame();
 		cppengine::Time::getInstance().advance();
 
@@ -47,7 +47,7 @@ int main() {
 	}
 
 	cppengine::SceneManager::getInstance().shutdown();
-	cppengine::Graphics::getInstance().shutdown();
+	cppengine::Renderer::getInstance().shutdown();
 	cppengine::Window::getInstance().closeWindow();
 	cppengine::Window::getInstance().shutdown();
 	

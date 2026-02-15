@@ -34,18 +34,20 @@ set(ENGINE_ECS_SRCS
 	${ENGINE_SRC_DIR}/ecs/scene_manager.cpp
 )
 
-set(ENGINE_INTEGRATION_SRCS
-	${ENGINE_SRC_DIR}/integration/window.cpp
-	${ENGINE_SRC_DIR}/integration/window_context.cpp
-	${ENGINE_SRC_DIR}/integration/graphics.cpp
-	${ENGINE_SRC_DIR}/integration/graphics_context.cpp
+set(ENGINE_GRAPHICS_SRCS
+	${ENGINE_SRC_DIR}/graphics/renderer.cpp
+)
+
+set(ENGINE_PLATFORM_SRCS
+	${ENGINE_SRC_DIR}/platform/window.cpp
 )
 
 add_library(engine STATIC
 	${ENGINE_MEMORY_SRCS}
 	${ENGINE_MATH_SRCS}
 	${ENGINE_ECS_SRCS}
-	${ENGINE_INTEGRATION_SRCS}
+	${ENGINE_GRAPHICS_SRCS}
+	${ENGINE_PLATFORM_SRCS}
 )
 
 target_include_directories(engine PUBLIC ${ENGINE_INC_DIR})

@@ -1,10 +1,10 @@
 #ifndef RAYLIB_GRAPHICS_CONTEXT_HPP
 #define RAYLIB_GRAPHICS_CONTEXT_HPP
 
-#include "integration/graphics_context.hpp"
+#include "integration/renderer_context.hpp"
 
 namespace cppengine {
-    class RaylibGraphicsContext : public GraphicsContext {
+    class RaylibRendererContext : public RendererContext {
     private:
 
     public:
@@ -14,7 +14,7 @@ namespace cppengine {
 
         void EndDraw() override;
 
-        ~RaylibGraphicsContext() override = default;
+        ~RaylibRendererContext() override = default;
     };
 }
 
