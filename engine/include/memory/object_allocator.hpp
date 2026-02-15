@@ -118,10 +118,8 @@ namespace cppengine {
                     if (curr->referenceCounter->active) {
                         reinterpret_cast<object_pointer>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_HEADER_SIZE + DATA_AREA_OFFSET)->~T();
                     }
+                    delete curr->referenceCounter;
                 }
-
-                delete curr->referenceCounter;
-
                 curr = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_SIZE);
             }
         }
