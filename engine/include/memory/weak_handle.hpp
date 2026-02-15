@@ -59,6 +59,10 @@ namespace cppengine {
 
 		~WeakHandle() {
 			counter->weakRelease();
+
+			if (counter->getCount() <= 0 && counter->getWeakCount() <= 0) {
+				delete counter;
+			}
 		}
 
 		template<typename U, typename = typename std::enable_if<std::is_assignable<T*&, U*>::value &&

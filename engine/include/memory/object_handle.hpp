@@ -66,10 +66,10 @@ namespace cppengine {
             if (counter->getCount() <= 0) {
                 auto deallocator = counter->getDeallocator();
                 deallocator(reinterpret_cast<void*>(const_cast<typename std::remove_const<T>::type*>(object)));
+            }
 
-                if (counter->getWeakCount() <= 0) {
-                    delete counter;
-                }
+            if (counter->getCount() <= 0 && counter->getWeakCount() <= 0) {
+                delete counter;
             }
         }
 
