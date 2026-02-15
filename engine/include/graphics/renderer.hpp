@@ -1,6 +1,8 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
+#include "memory/object_handle.hpp"
+
 namespace cppengine {
     class RendererContext;
 
