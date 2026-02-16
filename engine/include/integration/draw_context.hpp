@@ -9,6 +9,7 @@ namespace cppengine {
     private:
 
     public:
+        virtual void begin() = 0;
         virtual void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform) = 0;
         virtual void flush() = 0;
         virtual ~DrawContext() = 0;

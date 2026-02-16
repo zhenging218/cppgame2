@@ -4,7 +4,9 @@
 
 namespace cppengine {
     ObjectHandle<DrawContext> RaylibRendererContext::createDrawContext(ObjectHandle<Camera> camera) {
-        return ObjectHandle(new RaylibDrawContext2D());
+        ObjectHandle<Camera2D> camera2D = dynamic_handle_cast<Camera2D>(camera);
+        // todo:
+        return ObjectHandle(new RaylibDrawContext2D(::Camera2D()));
     }
 
     void RaylibRendererContext::BeginDraw() {}
