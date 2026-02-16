@@ -2,13 +2,15 @@
 #define DRAW_CONTEXT_HPP
 
 namespace cppengine {
-    class TrianglePrimitive;
+    struct Triangle;
+    class Matrix4x4;
 
     class DrawContext {
     private:
 
     public:
-        virtual void renderTriangle(TrianglePrimitive const &triangle) = 0;
+        virtual void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform) = 0;
+        virtual void flush() = 0;
         virtual ~DrawContext() = 0;
     };
 

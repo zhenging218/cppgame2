@@ -9,10 +9,11 @@ namespace cppengine {
     class Renderable : public Component {
     private:
 
+    protected:
+        ObjectHandle<Transform> transform;
+
     public:
-        // takes in a DrawContext, which represent the current draw batch
-        // DrawContext will expose interface to draw primitives or complex model meshes.
-        virtual void render(DrawContext &context) const = 0;
+        void init() override;
     };
 }
 

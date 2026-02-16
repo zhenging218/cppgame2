@@ -34,6 +34,7 @@ set(ENGINE_ECS_SRCS
 )
 
 set(ENGINE_GRAPHICS_SRCS
+	${ENGINE_SRC_DIR}/graphics/renderable.cpp
 	${ENGINE_SRC_DIR}/graphics/triangle_primitive.cpp
 	${ENGINE_SRC_DIR}/graphics/renderer.cpp
 )

@@ -14,7 +14,7 @@ namespace cppengine {
 
         void EndDraw() override;
 
-        ObjectHandle<DrawContext> createDrawContext() override;
+        ObjectHandle<DrawContext> createDrawContext(ObjectHandle<Camera> camera) override;
 
         ~RaylibRendererContext() override = default;
     };
