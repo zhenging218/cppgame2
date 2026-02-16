@@ -20,6 +20,14 @@ namespace cppengine {
         EndDrawing();
     }
 
+    int RaylibWindowContext::getWidth() const {
+        return GetScreenWidth();
+    }
+
+    int RaylibWindowContext::getHeight() const {
+        return GetScreenHeight();
+    }
+
     void RaylibWindowContext::closeWindow() {
         CloseWindow();
     }

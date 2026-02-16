@@ -16,6 +16,9 @@ namespace cppengine {
 
         void closeWindow() override;
 
+        int getWidth() const override;
+        int getHeight() const override;
+
         ~RaylibWindowContext() override = default;
     };
 }

@@ -26,6 +26,9 @@ namespace cppengine {
         void closeWindow();
         void shutdown();
 
+        int getWidth() const;
+        int getHeight() const;
+
         static Window &getInstance();
     };
 }

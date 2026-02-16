@@ -7,7 +7,7 @@ namespace cppengine {
     class Camera : public Component {
     public:
         virtual CameraMode getMode() const = 0;
-        virtual ~Camera() override = 0;
+        ~Camera() override = 0;
     };
 
     inline Camera::~Camera() = default;

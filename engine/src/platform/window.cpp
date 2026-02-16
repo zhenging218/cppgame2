@@ -37,4 +37,12 @@ namespace cppengine {
     void Window::shutdown() {
         context = nullptr;
     }
+
+    int Window::getWidth() const {
+        return context->getWidth();
+    }
+
+    int Window::getHeight() const {
+        return context->getHeight();
+    }
 }

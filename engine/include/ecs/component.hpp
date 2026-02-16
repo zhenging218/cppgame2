@@ -13,11 +13,12 @@ namespace cppengine {
         TypeDescriptor const *descriptor;
     protected:
         Component() = default;
-        GameObject getGameObject() const;
+
         GameObject createGameObject() const;
 
     public:
 
+        GameObject getGameObject() const;
         virtual void init();
         virtual void update();
         virtual void teardown();
