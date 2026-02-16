@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <map>
 #include <set>
+#include <stack>
 #include <unordered_map>
 
 #include "component.hpp"
@@ -57,8 +58,6 @@ namespace cppengine {
         template <typename T, typename ... Args>
         ObjectHandle<T> addComponent(const std::uint64_t ownerId, Args &&... args) {
             TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
-
-            // todo: get the most super class of descriptor and check if entity already has a descriptor with most super class that matches
 
             if (ecs.contains(ownerId)) {
                 if (ecs.at(ownerId).contains(descriptor)) {
@@ -115,6 +114,21 @@ namespace cppengine {
         }
 
         std::uint64_t getEntityOfComponent(Component const *component) const;
+
+        template<typename T>
+        std::vector<ObjectHandle<T>> getAllComponentsOfType(const std::uint64_t ownerId) const {
+            TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
+            std::vector<ObjectHandle<T>> results;
+            if (ecs.contains(ownerId)) {
+                auto const &componentsOfEntity = ecs.at(ownerId);
+                std::for_each(componentsOfEntity.begin(), componentsOfEntity.end(), [this, &results, &descriptor, &ownerId](TypeDescriptor const *componentType) {
+                    if (TypeDescriptor::isSuperType(descriptor, componentType)) {
+                        results.push_back(dynamic_handle_cast<T>(components.at(componentType).at(ownerId)));
+                    }
+                });
+            }
+            return results;
+        }
 
         template <typename T>
         std::vector<ObjectHandle<T>> getAllComponentsOfType() const {
