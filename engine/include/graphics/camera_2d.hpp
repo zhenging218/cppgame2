@@ -9,7 +9,10 @@ namespace cppengine {
 
     public:
         CameraMode getMode() const override;
+        ~Camera2D() override = default;
     };
 }
+
+DECL_POLY_TYPE(cppengine::Camera2D, cppengine::Camera)
 
 #endif

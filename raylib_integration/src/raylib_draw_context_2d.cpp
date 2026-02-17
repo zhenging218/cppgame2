@@ -31,12 +31,12 @@ namespace cppengine {
         Vector4 j = transform * Vector4(triangle.vertices[1].x, triangle.vertices[1].y, triangle.vertices[1].z, 1);
         Vector4 k = transform * Vector4(triangle.vertices[2].x, triangle.vertices[2].y, triangle.vertices[2].z, 1);
 
-        commands.emplace_back([&i, &j, &k]() {
+        commands.emplace_back([i, j, k]() {
             DrawTriangle(
                 ::Vector2{i.x / i.w, i.y / i.w},
                 ::Vector2{j.x / j.w, j.y / j.w},
                 ::Vector2{k.x / k.w, k.y / k.w},
-                Color(255, 0, 0) // hardcode first, support colours later
+                RED // hardcode first, support colours later
             );
         });
     }
@@ -54,10 +54,10 @@ namespace cppengine {
     }
 
     void RaylibDrawContext2D::flush() {
-
         for (auto const &command : commands) {
             command();
         }
+        commands.clear();
 
         ::EndMode2D();
         ::EndScissorMode();

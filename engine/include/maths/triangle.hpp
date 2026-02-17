@@ -12,7 +12,10 @@ namespace cppengine {
         vertex_type vertices[3];
 
         constexpr inline Triangle(vertex_type const& v0, vertex_type const& v1, vertex_type const& v2) noexcept : vertices{ v0, v1, v2 } {}
-        constexpr inline Triangle() : Triangle(vertex_type{}, vertex_type{}, vertex_type{}) {}
+        constexpr inline Triangle() : Triangle(
+            {0.0f, -0.577f, 0.0f},
+            {-0.5f, 0.289f, 0.0f},
+            {0.5f, 0.289f, 0.0f}) {}
 
         constexpr operator value_type*() noexcept { return MathHelper::StructToArrayConverter<Triangle, value_type>::convert(*this); };
         constexpr operator const value_type* () const noexcept { return MathHelper::StructToArrayConverter<Triangle, value_type>::convert(*this); }

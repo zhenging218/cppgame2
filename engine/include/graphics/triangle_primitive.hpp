@@ -15,4 +15,6 @@ namespace cppengine {
     };
 }
 
+DECL_POLY_TYPE(cppengine::TrianglePrimitive, cppengine::Renderable)
+
 #endif

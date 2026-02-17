@@ -28,7 +28,7 @@ add_library(raylib_integration STATIC
 target_include_directories(raylib_integration PUBLIC ${ENGINE_INC_DIR} ${INTEGRATION_INC_DIR})
 target_precompile_headers(raylib_integration PUBLIC ${INTEGRATION_INC_DIR}/raylib_integration.hpp)
 
-target_link_libraries(raylib_integration PUBLIC raylib)
+target_link_libraries(raylib_integration PUBLIC raylib engine)
 target_compile_definitions(raylib_integration PUBLIC RAYLIB_STATIC)
 
 set(CPP_GAME_INTEGRATION raylib_integration PARENT_SCOPE)

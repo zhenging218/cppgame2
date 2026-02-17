@@ -5,7 +5,7 @@ namespace cppengine {
     struct Rectangle2D {
         float x, y, width, height;
 
-        constexpr Rectangle2D() = default;
+        constexpr Rectangle2D() : x(0), y(0), width(1), height(1) {}
         constexpr Rectangle2D(const float x_, const float y_, const float width_, const float height_)
             : x(x_), y(y_), width(width_), height(height_) {}
 

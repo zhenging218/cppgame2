@@ -2,6 +2,7 @@
 #define RENDERABLE_HPP
 
 #include "ecs/component.hpp"
+#include "maths/transform.hpp"
 
 namespace cppengine {
     class DrawContext;

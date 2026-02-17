@@ -21,7 +21,7 @@ namespace cppengine {
     }
 
     void Renderer::initialise() {
-
+        context = createContext();
     }
 
     void Renderer::shutdown() {
