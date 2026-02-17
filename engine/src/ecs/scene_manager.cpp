@@ -29,6 +29,10 @@ namespace cppengine {
         return scene->getTransformOfEntity(id);
     }
 
+    std::uint64_t SceneManager::getEntityOfTransform(ObjectHandle<Transform> transform) const {
+        return scene->getEntityOfTransform(transform);
+    }
+
     void SceneManager::initialise() {
 
     }

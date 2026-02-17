@@ -10,6 +10,8 @@ namespace cppengine {
     public:
         TrianglePrimitive() = default;
         explicit TrianglePrimitive(Triangle const &t);
+
+        Triangle const &getTriangle() const;
     };
 }
 

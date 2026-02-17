@@ -5,10 +5,9 @@
 #include <cmath>
 
 namespace cppengine {
-    ObjectHandle<DrawContext> RaylibRendererContext::createDrawContext(ObjectHandle<Camera> camera) {
+    ObjectHandle<DrawContext> RaylibRendererContext::createDrawContext(ObjectHandle<Camera> camera, ObjectHandle<Transform> transform) {
         // for now always assume camera is 2D
         ObjectHandle<Camera2D> camera2D = dynamic_handle_cast<Camera2D>(camera);
-        ObjectHandle<Transform> transform = camera->getGameObject().getTransform();
 
         ::Camera2D cameraImpl;
 

@@ -39,17 +39,29 @@ namespace cppengine {
     }
 
     std::uint64_t Scene::getEntityOfComponent(Component const *component) const {
-        auto result = std::ranges::find_if(ecs, [&component](auto const &value) {
-            return value.second.contains(component->descriptor);
-        });
+        if (component != nullptr) {
+            auto result = std::ranges::find_if(ecs, [&component](auto const &value) {
+                return value.second.contains(component->descriptor);
+            });
 
-        if (result != ecs.end()) {
-            return result->first;
+            if (result != ecs.end()) {
+                return result->first;
+            }
         }
 
         return 0;
     }
 
+    std::uint64_t Scene::getEntityOfTransform(ObjectHandle<Transform> transform) const {
+        if (transform != nullptr) {
+            for (auto const &[id, t] : transforms) {
+                if (t == transform) {
+                    return id;
+                }
+            }
+        }
+        return 0;
+    }
 
     std::uint64_t Scene::createEntity() {
         auto id = nextId++;

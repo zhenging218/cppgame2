@@ -63,11 +63,18 @@ namespace cppengine {
         void setNameOfEntity(const std::uint64_t id, std::string &&name);
 
         std::uint64_t getEntityOfComponent(Component const *component) const;
+        std::uint64_t getEntityOfTransform(ObjectHandle<Transform> transform) const;
 
         template <typename T>
         std::vector<ObjectHandle<T>> getAllComponentsOfType() const {
             return scene->getAllComponentsOfType<T>();
         }
+
+        template <typename T, typename ... Rest>
+        std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> getAllComponentSets() const {
+            return scene->getAllComponentSets<T, Rest...>();
+        }
+
     };
 }
 

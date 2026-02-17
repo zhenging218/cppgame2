@@ -3,6 +3,7 @@
 
 #include "memory/object_handle.hpp"
 #include "graphics/camera.hpp"
+#include "maths/transform.hpp"
 
 namespace cppengine {
     class DrawContext;
@@ -11,9 +12,10 @@ namespace cppengine {
     private:
 
     protected:
-        virtual ObjectHandle<DrawContext> createDrawContext(ObjectHandle<Camera> camera) = 0;
+
 
     public:
+        virtual ObjectHandle<DrawContext> createDrawContext(ObjectHandle<Camera> camera, ObjectHandle<Transform> transform) = 0;
         virtual void BeginDraw() = 0;
         virtual void draw() = 0;
         virtual void EndDraw() = 0;
