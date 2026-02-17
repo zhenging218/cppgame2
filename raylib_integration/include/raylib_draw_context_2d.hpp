@@ -10,9 +10,10 @@ namespace cppengine {
     class RaylibDrawContext2D : public DrawContext {
     private:
         std::vector<std::function<void()>> commands;
+        Rectangle2D viewport;
         ::Camera2D camera;
     public:
-        RaylibDrawContext2D(::Camera2D const &camera_);
+        RaylibDrawContext2D(Rectangle2D const &viewport_, Transform const &transform);
         void begin() override;
         void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform) override;
         void flush() override;

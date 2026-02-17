@@ -20,9 +20,7 @@ namespace cppengine {
         void initialise();
         void shutdown();
 
-        void beginDraw();
         void draw();
-        void endDraw();
 
         static Renderer &getInstance();
     };

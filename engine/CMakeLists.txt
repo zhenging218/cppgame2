@@ -21,6 +21,7 @@ set(ENGINE_MATH_SRCS
 	${ENGINE_SRC_DIR}/maths/matrix3x3.cpp
 	${ENGINE_SRC_DIR}/maths/matrix4x4.cpp
 	${ENGINE_SRC_DIR}/maths/triangle.cpp
+	${ENGINE_SRC_DIR}/maths/rectangle_2d.cpp
 	${ENGINE_SRC_DIR}/maths/transform.cpp
 	${ENGINE_SRC_DIR}/maths/math_helper.cpp
 )
@@ -35,6 +36,7 @@ set(ENGINE_ECS_SRCS
 
 set(ENGINE_GRAPHICS_SRCS
 	${ENGINE_SRC_DIR}/graphics/renderable.cpp
+	${ENGINE_SRC_DIR}/graphics/camera.cpp
 	${ENGINE_SRC_DIR}/graphics/triangle_primitive.cpp
 	${ENGINE_SRC_DIR}/graphics/renderer.cpp
 )

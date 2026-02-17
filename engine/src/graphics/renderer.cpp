@@ -1,5 +1,19 @@
+#include <iostream>
+
 #include "engine.hpp"
 #include "graphics/triangle_primitive.hpp"
+
+namespace {
+    cppengine::Rectangle2D getAbsoluteViewport(
+        cppengine::Rectangle2D const &relativeViewport, int screenWidth, int screenHeight) {
+        return {
+            screenWidth * relativeViewport.x,
+            screenHeight * relativeViewport.y,
+            screenWidth * relativeViewport.width,
+            screenHeight * relativeViewport.height
+        };
+    }
+}
 
 namespace cppengine {
     Renderer::Renderer() {
@@ -14,16 +28,17 @@ namespace cppengine {
 
     }
 
-    void Renderer::beginDraw() {
-
-    }
-
     void Renderer::draw() {
         auto cameras = SceneManager::getInstance().getAllComponentSets<Transform, Camera>();
 
         for (auto const &[transform, camera] : cameras) {
 
-            auto drawContext = context->createDrawContext(camera, transform);
+            auto const &relativeViewport = camera->getViewport();
+            auto absoluteViewport = getAbsoluteViewport(relativeViewport,
+                Window::getInstance().getWidth(), Window::getInstance().getHeight());
+
+            auto drawContext =
+                context->createDrawContext(camera->getMode(), absoluteViewport, *transform);
 
             drawContext->begin();
 
@@ -34,10 +49,6 @@ namespace cppengine {
 
             drawContext->flush();
         }
-    }
-
-    void Renderer::endDraw() {
-
     }
 
     Renderer &Renderer::getInstance() {

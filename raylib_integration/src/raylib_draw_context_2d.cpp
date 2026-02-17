@@ -3,8 +3,26 @@
 
 #include "raylib.h"
 
+namespace {
+    ::Camera2D createCamera(cppengine::Rectangle2D const &viewport, cppengine::Transform const &transform) {
+        auto position = transform.getPosition();
+        auto scale = transform.getScale();
+        auto rotation = cppengine::Vector3(transform.getRotation());
+
+        ::Camera2D camera;
+
+        camera.target = {position.x, position.y};
+        camera.offset = { viewport.width / 2.0f, viewport.height / 2.0f };
+        camera.zoom = (scale.x + scale.y) / 2;
+        camera.rotation = rotation.z * (180.0f / PI);
+
+        return camera;
+    }
+}
+
 namespace cppengine {
-    RaylibDrawContext2D::RaylibDrawContext2D(::Camera2D const &camera_) : camera(camera_) {
+    RaylibDrawContext2D::RaylibDrawContext2D(Rectangle2D const &viewport_, Transform const &transform)
+    : viewport(viewport_), camera(createCamera(viewport_, transform)) {
 
     }
 
@@ -24,6 +42,14 @@ namespace cppengine {
     }
 
     void RaylibDrawContext2D::begin() {
+        // get absolute viewport
+        ::BeginScissorMode(
+            static_cast<int>(viewport.x),
+            static_cast<int>(viewport.y),
+            static_cast<int>(viewport.width),
+            static_cast<int>(viewport.height)
+        );
+
         ::BeginMode2D(camera);
     }
 
@@ -34,5 +60,6 @@ namespace cppengine {
         }
 
         ::EndMode2D();
+        ::EndScissorMode();
     }
 }

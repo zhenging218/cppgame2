@@ -10,39 +10,26 @@ int main() {
 
 	cppengine::SceneManager::getInstance().initialise();
 
+	cppengine::SceneManager::getInstance().loadLevel<cppgame::TestLevel>();
+
 	while (!cppengine::Window::getInstance().windowShouldClose()) {
 
-		cppengine::Window::getInstance().beginFrame();
-		cppengine::Renderer::getInstance().beginDraw();
-		cppengine::Renderer::getInstance().draw();
-		cppengine::Renderer::getInstance().endDraw();
-		cppengine::Window::getInstance().endFrame();
-		cppengine::Time::getInstance().advance();
-
-		// switch to actual scene state game loop after implementing levels
-		/*
 		switch (cppengine::SceneManager::getInstance().getState()) {
 			case cppengine::SceneState::SETUP:
+				cppengine::SceneManager::getInstance().setup();
 				break;
 			case cppengine::SceneState::UPDATE:
 				cppengine::Window::getInstance().beginFrame();
-
-				cppengine::Graphics::getInstance().beginDraw();
-
-				cppengine::Graphics::getInstance().draw();
-
-				cppengine::Graphics::getInstance().endDraw();
-
+				cppengine::Renderer::getInstance().draw();
 				cppengine::Window::getInstance().endFrame();
 				cppengine::Time::getInstance().advance();
 				break;
 			case cppengine::SceneState::TEARDOWN:
+				cppengine::SceneManager::getInstance().teardown();
 				break;
 			case cppengine::SceneState::INITIALISE:
-
 				break;
 		}
-		*/
 
 	}
 

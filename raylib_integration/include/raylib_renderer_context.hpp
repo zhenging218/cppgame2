@@ -8,13 +8,8 @@ namespace cppengine {
     private:
 
     public:
-        void BeginDraw() override;
-
-        void draw() override;
-
-        void EndDraw() override;
-
-        ObjectHandle<DrawContext> createDrawContext(ObjectHandle<Camera> camera, ObjectHandle<Transform> transform) override;
+        ObjectHandle<DrawContext> createDrawContext(CameraMode mode,
+            Rectangle2D const &absoluteViewport, Transform const &transform) override;
 
         ~RaylibRendererContext() override = default;
     };
