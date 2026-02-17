@@ -4,16 +4,16 @@ namespace cppengine {
     SceneState &operator++(SceneState &s) {
         switch (s) {
             case SceneState::INITIALISE:
-                s = SceneState::SETUP;
+                s = SceneState::LOAD;
                 break;
-            case SceneState::SETUP:
+            case SceneState::LOAD:
                 s = SceneState::UPDATE;
                 break;
             case SceneState::UPDATE:
-                s = SceneState::TEARDOWN;
+                s = SceneState::UNLOAD;
                 break;
-            case SceneState::TEARDOWN:
-                s = SceneState::SETUP;
+            case SceneState::UNLOAD:
+                s = SceneState::LOAD;
                 break;
         }
 

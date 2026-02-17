@@ -31,8 +31,9 @@ namespace cppengine {
             ++state;
         }
 
-        void setup();
-        void teardown();
+        void load();
+        void update();
+        void unload();
 
         SceneState getState() const;
         void shutdown();

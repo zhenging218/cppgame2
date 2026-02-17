@@ -2,6 +2,7 @@
 #define CPP_GAME_HPPP
 
 #include "engine.hpp"
+#include "test_component.hpp"
 #include "test_level.hpp"
 
 #endif

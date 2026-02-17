@@ -41,14 +41,21 @@ namespace cppengine {
 
     }
 
-    void SceneManager::setup() {
+    void SceneManager::load() {
         scene = createHandle<Scene>();
         nextScene->setup(scene);
         nextScene = nullptr;
         ++state;
     }
 
-    void SceneManager::teardown() {
+    void SceneManager::update() {
+        auto components = scene->getAllComponents();
+        std::ranges::for_each(components, [](auto const &component) {
+           component->update();
+        });
+    }
+
+    void SceneManager::unload() {
         scene = nullptr;
         ++state;
     }

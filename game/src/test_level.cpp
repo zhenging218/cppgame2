@@ -8,6 +8,7 @@ namespace cppgame {
 
         auto triangle = scene->createEntity();
         auto primitive = scene->addComponent<cppengine::TrianglePrimitive>(triangle);
+        scene->addComponent<TestComponent>(triangle);
         auto primitiveGo = primitive->getGameObject();
         primitiveGo.getTransform()->setScale({100, 100, 1});
 

@@ -97,4 +97,23 @@ namespace cppengine {
     ObjectHandle<Transform> Scene::getTransformOfEntity(std::uint64_t id) const {
         return transforms.at(id);
     }
+
+    std::vector<ObjectHandle<Component>> Scene::getAllComponents() const {
+        std::vector<ObjectHandle<Component>> results;
+
+        std::size_t total = 0;
+        for (auto const &[descriptor, componentInstances] : components) {
+            total += componentInstances.size();
+        }
+
+        results.reserve(total);
+
+        for (auto const &[descriptor, componentInstances] : components) {
+            std::ranges::transform(componentInstances, std::back_inserter(results), [](auto const &instance) {
+                return instance.second;
+            });
+        }
+
+        return results;
+    }
 }

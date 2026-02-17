@@ -4,9 +4,9 @@
 namespace cppengine {
     enum class SceneState {
         INITIALISE,
-        SETUP,
+        LOAD,
         UPDATE,
-        TEARDOWN
+        UNLOAD
     };
 
     SceneState &operator++(SceneState &s);

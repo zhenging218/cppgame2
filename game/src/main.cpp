@@ -15,17 +15,18 @@ int main() {
 	while (!cppengine::Window::getInstance().windowShouldClose()) {
 
 		switch (cppengine::SceneManager::getInstance().getState()) {
-			case cppengine::SceneState::SETUP:
-				cppengine::SceneManager::getInstance().setup();
+			case cppengine::SceneState::LOAD:
+				cppengine::SceneManager::getInstance().load();
 				break;
 			case cppengine::SceneState::UPDATE:
 				cppengine::Window::getInstance().beginFrame();
+				cppengine::SceneManager::getInstance().update();
 				cppengine::Renderer::getInstance().draw();
 				cppengine::Window::getInstance().endFrame();
 				cppengine::Time::getInstance().advance();
 				break;
-			case cppengine::SceneState::TEARDOWN:
-				cppengine::SceneManager::getInstance().teardown();
+			case cppengine::SceneState::UNLOAD:
+				cppengine::SceneManager::getInstance().unload();
 				break;
 			case cppengine::SceneState::INITIALISE:
 				break;

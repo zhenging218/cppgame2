@@ -4,6 +4,7 @@ set(GAME_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(GAME_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_executable(demo
+        ${GAME_SRC_DIR}/test_component.cpp
         ${GAME_SRC_DIR}/test_level.cpp
         ${GAME_SRC_DIR}/main.cpp
 )

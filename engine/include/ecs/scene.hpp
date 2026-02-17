@@ -2,10 +2,8 @@
 #define SCENE_HPP
 #include <algorithm>
 #include <cstdint>
-#include <map>
-#include <set>
-#include <stack>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "component.hpp"
 #include "maths/transform.hpp"
@@ -22,9 +20,9 @@ namespace cppengine {
     private:
         using entity_map_type = std::unordered_map<std::uint64_t, std::string>;
         using transform_graph_type = std::unordered_map<std::uint64_t, ObjectHandle<Transform>>;
-        using entity_component_map_type = std::unordered_map<uint64_t, std::set<TypeDescriptor const *>>;
-        using component_entity_map_type = std::map<std::uint64_t, ObjectHandle<Component>>;
-        using component_map_type = std::map<TypeDescriptor const *, component_entity_map_type>;
+        using entity_component_map_type = std::unordered_map<uint64_t, std::unordered_set<TypeDescriptor const *>>;
+        using component_entity_map_type = std::unordered_map<std::uint64_t, ObjectHandle<Component>>;
+        using component_map_type = std::unordered_map<TypeDescriptor const *, component_entity_map_type>;
 
         std::uint64_t nextId;
         entity_map_type entities;
@@ -49,6 +47,8 @@ namespace cppengine {
         void setNameOfEntity(const std::uint64_t id, std::string &&name);
         std::uint64_t getEntityOfComponent(Component const *component) const;
         std::uint64_t getEntityOfTransform(ObjectHandle<Transform> transform) const;
+
+        std::vector<ObjectHandle<Component>> getAllComponents() const;
 
         template <typename T> requires (ComponentType<T> || TransformType<T>)
         ObjectHandle<T> getComponent(const std::uint64_t ownerId) const {
@@ -155,21 +155,12 @@ namespace cppengine {
             std::vector<ObjectHandle<T>> results;
 
             if (components.contains(descriptor)) {
-                auto const &entityMap = components.at(descriptor);
-                results.reserve(entityMap.size());
-                std::transform(entityMap.begin(), entityMap.end(), std::back_inserter(results),
+            auto const &entityMap = components.at(descriptor);
+            results.reserve(entityMap.size());
+            std::ranges::transform(entityMap, std::back_inserter(results),
                     [](auto const &component) {
                     return dynamic_handle_cast<T>(component.second);
                 });
-            }
-
-            for (auto const &[componentType, entityMap] : components) {
-                if (componentType != descriptor && TypeDescriptor::isSuperType(descriptor, componentType)) {
-                    std::transform(entityMap.begin(), entityMap.end(), std::back_inserter(results),
-                        [](auto const &component) {
-                        return dynamic_handle_cast<T>(component.second);
-                    });
-                }
             }
 
             return results;
