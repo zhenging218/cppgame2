@@ -16,6 +16,7 @@ namespace cppengine {
 
         static Time &getInstance();
 
+        void reset();
         void advance();
 
         Time();

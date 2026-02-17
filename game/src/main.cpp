@@ -17,6 +17,7 @@ int main() {
 		switch (cppengine::SceneManager::getInstance().getState()) {
 			case cppengine::SceneState::LOAD:
 				cppengine::SceneManager::getInstance().load();
+				cppengine::Time::getInstance().reset();
 				break;
 			case cppengine::SceneState::INIT:
 				cppengine::SceneManager::getInstance().init();

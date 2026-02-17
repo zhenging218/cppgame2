@@ -9,6 +9,11 @@ namespace cppengine {
         return getInstance().dt;
     }
 
+    void Time::reset() {
+        before = std::chrono::high_resolution_clock::now();
+        dt = 0.f;
+    }
+
     void Time::advance() {
         auto now = std::chrono::high_resolution_clock::now();
         time_difference_type timeTaken = now - before;
