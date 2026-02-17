@@ -3,7 +3,15 @@
 #include <iostream>
 
 namespace cppgame {
+    void TestComponent::init() {
+        std::cout << "init called\n";
+    }
+
     void TestComponent::update() {
-        std::cout << "updating with dt = " << cppengine::Time::deltaTime() << "\n";
+
+    }
+
+    void TestComponent::teardown() {
+        std::cout << "teardown called\n";
     }
 }

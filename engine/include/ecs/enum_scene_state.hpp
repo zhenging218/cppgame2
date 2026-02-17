@@ -3,9 +3,11 @@
 
 namespace cppengine {
     enum class SceneState {
-        INITIALISE,
+        STARTUP,
         LOAD,
+        INIT,
         UPDATE,
+        TEARDOWN,
         UNLOAD
     };
 

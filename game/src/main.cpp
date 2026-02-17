@@ -18,6 +18,9 @@ int main() {
 			case cppengine::SceneState::LOAD:
 				cppengine::SceneManager::getInstance().load();
 				break;
+			case cppengine::SceneState::INIT:
+				cppengine::SceneManager::getInstance().init();
+				break;
 			case cppengine::SceneState::UPDATE:
 				cppengine::Window::getInstance().beginFrame();
 				cppengine::SceneManager::getInstance().update();
@@ -25,10 +28,14 @@ int main() {
 				cppengine::Window::getInstance().endFrame();
 				cppengine::Time::getInstance().advance();
 				break;
+			case cppengine::SceneState::TEARDOWN:
+				cppengine::SceneManager::getInstance().teardown();
+				break;
 			case cppengine::SceneState::UNLOAD:
 				cppengine::SceneManager::getInstance().unload();
 				break;
-			case cppengine::SceneState::INITIALISE:
+
+			case cppengine::SceneState::STARTUP:
 				break;
 		}
 

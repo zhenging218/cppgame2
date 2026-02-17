@@ -32,7 +32,9 @@ namespace cppengine {
         }
 
         void load();
+        void init();
         void update();
+        void teardown();
         void unload();
 
         SceneState getState() const;
@@ -40,11 +42,15 @@ namespace cppengine {
 
         template <typename T, typename ... Args>
         ObjectHandle<T> addComponent(const std::uint64_t id, Args &&... args) {
-            return scene->addComponent<T>(id, std::forward<Args>(args)...);
+            auto component = scene->addComponent<T>(id, std::forward<Args>(args)...);
+            component->init();
+            return component;
         }
 
         template <typename T>
         void removeComponent(const std::uint64_t id) {
+            auto component = scene->getComponent<T>(id);
+            component->teardown();
             scene->removeComponent<T>(id);
         }
 
