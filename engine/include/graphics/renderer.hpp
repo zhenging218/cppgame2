@@ -23,6 +23,8 @@ namespace cppengine {
         void draw();
 
         static Renderer &getInstance();
+
+        static TextureHandle loadTexture(std::string const &path);
     };
 }
 

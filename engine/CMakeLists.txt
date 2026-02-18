@@ -35,7 +35,9 @@ set(ENGINE_ECS_SRCS
 )
 
 set(ENGINE_GRAPHICS_SRCS
+	${ENGINE_SRC_DIR}/graphics/colour.cpp
 	${ENGINE_SRC_DIR}/graphics/renderable.cpp
+	${ENGINE_SRC_DIR}/graphics/enum_camera_mode.cpp
 	${ENGINE_SRC_DIR}/graphics/camera.cpp
 	${ENGINE_SRC_DIR}/graphics/camera_2d.cpp
 	${ENGINE_SRC_DIR}/graphics/triangle_primitive.cpp

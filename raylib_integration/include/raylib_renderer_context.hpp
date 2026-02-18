@@ -13,6 +13,7 @@ namespace cppengine {
 
         void beginDraw() override;
         void endDraw() override;
+        TextureHandle loadTexture(std::string const &path) override;
 
         ~RaylibRendererContext() override = default;
     };

@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "engine.hpp"
-#include "graphics/triangle_primitive.hpp"
 
 namespace {
     cppengine::Rectangle2D getAbsoluteViewport(
@@ -31,6 +30,11 @@ namespace cppengine {
     void Renderer::draw() {
         auto cameras = SceneManager::getInstance().getAllComponentSets<Transform, Camera>();
         auto triangles = SceneManager::getInstance().getAllComponentSets<Transform, TrianglePrimitive>();
+
+        std::sort(cameras.begin(), cameras.end(),
+            [](auto const &lhs, auto const &rhs) {
+                return std::get<ObjectHandle<Camera>>(lhs)->getMode() < std::get<ObjectHandle<Camera>>(rhs)->getMode();
+            });
 
         context->beginDraw();
 

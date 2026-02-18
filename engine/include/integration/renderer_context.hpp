@@ -3,6 +3,7 @@
 
 #include "memory/object_handle.hpp"
 #include "graphics/camera.hpp"
+#include "graphics/texture_handle.hpp"
 #include "maths/rectangle_2d.hpp"
 #include "maths/transform.hpp"
 
@@ -19,6 +20,8 @@ namespace cppengine {
         virtual void endDraw() = 0;
 
         virtual ~RendererContext() = 0;
+
+        virtual TextureHandle loadTexture(std::string const &path) = 0;
     };
 
     inline RendererContext::~RendererContext() = default;

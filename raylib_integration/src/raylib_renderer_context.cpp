@@ -15,6 +15,10 @@ namespace cppengine {
         ClearBackground(::BLACK);
     }
 
+    TextureHandle RaylibRendererContext::loadTexture(std::string const &path) {
+        return TextureHandle();
+    }
+
     void RaylibRendererContext::endDraw() {
 
     }
