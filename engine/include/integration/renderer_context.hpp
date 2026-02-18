@@ -11,8 +11,13 @@ namespace cppengine {
 
     class RendererContext {
     public:
+        virtual void beginDraw() = 0;
+
         virtual ObjectHandle<DrawContext> createDrawContext(
             CameraMode mode,Rectangle2D const &absoluteViewport, Transform const &transform) = 0;
+
+        virtual void endDraw() = 0;
+
         virtual ~RendererContext() = 0;
     };
 

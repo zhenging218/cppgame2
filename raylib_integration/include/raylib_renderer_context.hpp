@@ -11,6 +11,9 @@ namespace cppengine {
         ObjectHandle<DrawContext> createDrawContext(CameraMode mode,
             Rectangle2D const &absoluteViewport, Transform const &transform) override;
 
+        void beginDraw() override;
+        void endDraw() override;
+
         ~RaylibRendererContext() override = default;
     };
 }

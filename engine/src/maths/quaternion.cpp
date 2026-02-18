@@ -9,15 +9,31 @@
 #include <cstring>
 #include <limits>
 
-namespace cppengine {
-    namespace {
-        static constexpr float epsilon = std::numeric_limits<float>::epsilon();
+namespace {
+    constexpr float epsilon = std::numeric_limits<float>::epsilon();
+
+    float magnitudeImpl(float i, float j, float k, float w) {
+        return std::sqrt(i * i + j * j + k * k + w * w);
     }
+}
+
+namespace cppengine {
+
 
     constexpr const Quaternion Quaternion::identity{};
 
     Quaternion::Quaternion(Vector3 const &eulerAngles) : Quaternion() {
+        float cx = std::cos(eulerAngles.x * 0.5f);
+        float sx = std::sin(eulerAngles.x * 0.5f);
+        float cy = std::cos(eulerAngles.y * 0.5f);
+        float sy = std::sin(eulerAngles.y * 0.5f);
+        float cz = std::cos(eulerAngles.z * 0.5f);
+        float sz = std::sin(eulerAngles.z * 0.5f);
 
+        i = sx * cy * cz - cx * sy * sz;
+        j = cx * sy * cz + sx * cy * sz;
+        k = cx * cy * sz - sx * sy * cz;
+        w = cx * cy * cz + sx * sy * sz;
     }
 
     Quaternion::Quaternion(Matrix4x4 const &rotation) : Quaternion() {
@@ -44,12 +60,18 @@ namespace cppengine {
                 k = (rotation.m12 + rotation.m21) / s;
             } else {
                 float s = 2.f * std::sqrt(1.f + rotation.m22 - rotation.m00 - rotation.m11);
-                w = (rotation.m11 - rotation.m01) / s;
-                i = (rotation.m02 - rotation.m20) / s;
-                j = (rotation.m12 - rotation.m21) / s;
+                w = (rotation.m10 - rotation.m01) / s;
+                i = (rotation.m02 + rotation.m20) / s;
+                j = (rotation.m12 + rotation.m21) / s;
                 k = 0.25f * s;
             }
         }
+
+        float m = magnitudeImpl(i, j, k, w);
+        i = i/m;
+        j = j/m;
+        k = k/m;
+        w = w/m;
     }
 
     float &Quaternion::operator[](int i) {
@@ -86,13 +108,13 @@ namespace cppengine {
     }
 
     float magnitude(Quaternion const &q) {
-        return std::sqrt(q.i * q.i + q.j * q.j + q.k * q.k + q.w * q.w);
+        return magnitudeImpl(q.i, q.j, q.k, q.w);
     }
 
     Quaternion normalise(Quaternion const &q) {
-        float m = magnitude(q);
+        float m = magnitudeImpl(q.i, q.j, q.k, q.w);
 
-        return Quaternion(q.i / m, q.j / m, q.k / m, q.w / m);
+        return {q.i / m, q.j / m, q.k / m, q.w / m };
     }
 
     std::ostream &operator<<(std::ostream &os, Quaternion const &q) {

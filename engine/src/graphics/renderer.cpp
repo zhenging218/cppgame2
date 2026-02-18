@@ -30,6 +30,9 @@ namespace cppengine {
 
     void Renderer::draw() {
         auto cameras = SceneManager::getInstance().getAllComponentSets<Transform, Camera>();
+        auto triangles = SceneManager::getInstance().getAllComponentSets<Transform, TrianglePrimitive>();
+
+        context->beginDraw();
 
         for (auto const &[transform, camera] : cameras) {
 
@@ -42,13 +45,14 @@ namespace cppengine {
 
             drawContext->begin();
 
-            auto triangles = SceneManager::getInstance().getAllComponentSets<Transform, TrianglePrimitive>();
             for (auto const &[triangle_transform, triangle] : triangles) {
                 drawContext->renderTriangle(triangle->getTriangle(), triangle_transform->getMatrix());
             }
 
             drawContext->flush();
         }
+
+        context->endDraw();
     }
 
     Renderer &Renderer::getInstance() {

@@ -5,7 +5,7 @@
 namespace cppgame {
     class TestComponent : public cppengine::Component {
     private:
-
+        cppengine::ObjectHandle<cppengine::Transform> transform;
     public:
 
         void init() override;

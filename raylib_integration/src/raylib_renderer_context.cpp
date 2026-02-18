@@ -10,4 +10,12 @@ namespace cppengine {
         // for now always assume camera is 2D
         return ObjectHandle(new RaylibDrawContext2D(absoluteViewport, transform));
     }
+
+    void RaylibRendererContext::beginDraw() {
+        ClearBackground(::BLACK);
+    }
+
+    void RaylibRendererContext::endDraw() {
+
+    }
 }
