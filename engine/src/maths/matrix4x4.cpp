@@ -35,11 +35,11 @@ namespace cppengine {
         float zw = rotation.k * rotation.w;
 
         m00 = 1 - 2 * (yy + zz);
-        m01 = 2 * (xy - zw);
+        m01 = 2 * (xy + zw);
         m02 = 2 * (xz + yw);
         m03 = 0;
 
-        m10 = 2 * (xy + zw);
+        m10 = 2 * (xy - zw);
         m11 = 1 - 2 * (xx + zz);
         m12 = 2 * (yz - xw);
         m13 = 0;
