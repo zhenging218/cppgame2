@@ -45,6 +45,7 @@ set(ENGINE_GRAPHICS_SRCS
 set(ENGINE_PLATFORM_SRCS
 	${ENGINE_SRC_DIR}/platform/time.cpp
 	${ENGINE_SRC_DIR}/platform/window.cpp
+	${ENGINE_SRC_DIR}/platform/input.cpp
 )
 
 set(ENGINE_INTEGRATION_SRCS

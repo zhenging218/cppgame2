@@ -20,6 +20,8 @@ set(INTEGRATION_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_library(raylib_integration STATIC
 	${INTEGRATION_SRC_DIR}/raylib_window.cpp
 	${INTEGRATION_SRC_DIR}/raylib_window_context.cpp
+	${INTEGRATION_SRC_DIR}/raylib_input.cpp
+	${INTEGRATION_SRC_DIR}/raylib_input_context.cpp
 	${INTEGRATION_SRC_DIR}/raylib_renderer.cpp
 	${INTEGRATION_SRC_DIR}/raylib_renderer_context.cpp
 	${INTEGRATION_SRC_DIR}/raylib_draw_context_2d.cpp

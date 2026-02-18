@@ -6,6 +6,7 @@ int main() {
 
 	cppengine::Window::getInstance().initialise();
 	cppengine::Window::getInstance().createWindow(800, 600, "test window");
+	cppengine::Input::getInstance().initialise();
 	cppengine::Renderer::getInstance().initialise();
 
 	cppengine::SceneManager::getInstance().initialise();
@@ -24,6 +25,7 @@ int main() {
 				break;
 			case cppengine::SceneState::UPDATE:
 				cppengine::Window::getInstance().beginFrame();
+				cppengine::Input::getInstance().getInputs();
 				cppengine::SceneManager::getInstance().update();
 				cppengine::Renderer::getInstance().draw();
 				cppengine::Window::getInstance().endFrame();
@@ -44,6 +46,7 @@ int main() {
 
 	cppengine::SceneManager::getInstance().shutdown();
 	cppengine::Renderer::getInstance().shutdown();
+	cppengine::Input::getInstance().shutdown();
 	cppengine::Window::getInstance().closeWindow();
 	cppengine::Window::getInstance().shutdown();
 	

@@ -3,5 +3,6 @@
 
 #include "time.hpp"
 #include "window.hpp"
+#include "input.hpp"
 
 #endif
