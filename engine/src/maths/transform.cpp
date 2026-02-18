@@ -14,12 +14,12 @@ namespace cppengine {
                 0,      0,       0,          1
        };
 
-            return Matrix4x4 {
+            return translationMatrix *= rotationMatrix *= Matrix4x4 {
                 scale.x,       0,       0,       0,
                       0, scale.y,       0,       0,
                       0,       0, scale.z,       0,
                       0,       0,       0,       1
-            } *= rotationMatrix *= translationMatrix;
+            };
         }
     }
 

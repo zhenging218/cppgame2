@@ -20,23 +20,23 @@ namespace cppgame {
         bool moved = false;
 
         if (cppengine::Input::isKeyDown(cppengine::KeyCode::W)) {
-            translation += cppengine::Vector3{0.f, -5.f * dt, 0.f};
+            translation += cppengine::Vector3{0.f, -50.f * dt, 0.f};
             moved = true;
         }
 
         if (cppengine::Input::isKeyDown(cppengine::KeyCode::A)) {
-            translation += cppengine::Vector3{-5.f * dt, 0.f, 0.f};
+            translation += cppengine::Vector3{-50.f * dt, 0.f, 0.f};
             moved = true;
         }
 
         if (cppengine::Input::isKeyDown(cppengine::KeyCode::S)) {
-            translation += cppengine::Vector3{0.f, 5.f * dt, 0.f};
+            translation += cppengine::Vector3{0.f, 50.f * dt, 0.f};
 
             moved = true;
         }
 
         if (cppengine::Input::isKeyDown(cppengine::KeyCode::D)) {
-            translation += cppengine::Vector3{5.f * dt, 0.f, 0.f};
+            translation += cppengine::Vector3{50.f * dt, 0.f, 0.f};
             moved = true;
         }
 
