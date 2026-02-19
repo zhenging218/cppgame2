@@ -1,6 +1,6 @@
 #ifndef INPUT_CONTEXT_HPP
 #define INPUT_CONTEXT_HPP
-#include "platform/enum_key_code.hpp"
+#include "enum_key_code.hpp"
 
 namespace cppengine {
     class InputContext {

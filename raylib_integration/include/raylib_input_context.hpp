@@ -1,6 +1,6 @@
 #ifndef RAYLIB_INPUT_CONTEXT_HPP
 #define RAYLIB_INPUT_CONTEXT_HPP
-#include "integration/input_context.hpp"
+#include "platform/input_context.hpp"
 
 namespace cppengine {
     class RaylibInputContext : public InputContext {

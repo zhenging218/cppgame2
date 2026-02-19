@@ -2,8 +2,10 @@
 #define RAYLIB_DRAW_CONTEXT_2D_HPP
 #include <functional>
 
-#include "../../cmake-build-debug/_deps/raylib-src/src/raylib.h"
-#include "integration/draw_context.hpp"
+#include "raylib.h"
+#include "graphics/draw_context.hpp"
+#include "maths/rectangle_2d.hpp"
+#include "maths/transform.hpp"
 
 namespace cppengine {
 

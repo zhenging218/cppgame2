@@ -1,7 +1,9 @@
 #ifndef RAYLIB_GRAPHICS_CONTEXT_HPP
 #define RAYLIB_GRAPHICS_CONTEXT_HPP
 
-#include "integration/renderer_context.hpp"
+#include "graphics/enum_camera_mode.hpp"
+#include "graphics/draw_context.hpp"
+#include "graphics/renderer_context.hpp"
 
 namespace cppengine {
     class RaylibRendererContext : public RendererContext {

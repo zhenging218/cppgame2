@@ -2,8 +2,8 @@
 #define GRAPHICS_CONTEXT_HPP
 
 #include "memory/object_handle.hpp"
-#include "graphics/camera.hpp"
-#include "graphics/texture_handle.hpp"
+#include "enum_camera_mode.hpp"
+#include "texture_handle.hpp"
 #include "maths/rectangle_2d.hpp"
 #include "maths/transform.hpp"
 

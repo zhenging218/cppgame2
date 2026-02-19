@@ -6,7 +6,10 @@
 
 namespace cppengine {
     class Material : public Component {
+        std::uint64_t shaderId;
         std::map<char const *, Uniform> uniforms;
+
+    public:
     };
 }
 

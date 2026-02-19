@@ -12,6 +12,9 @@
 #include "camera.hpp"
 #include "camera_2d.hpp"
 #include "renderable.hpp"
+#include "draw_context.hpp"
+#include "renderer_context.hpp"
+#include "draw_context.hpp"
 #include "renderer.hpp"
 #include "triangle_primitive.hpp"
 

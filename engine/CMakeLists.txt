@@ -53,19 +53,12 @@ set(ENGINE_PLATFORM_SRCS
 	${ENGINE_SRC_DIR}/platform/input.cpp
 )
 
-set(ENGINE_INTEGRATION_SRCS
-		${ENGINE_SRC_DIR}/integration/window_context.cpp
-		${ENGINE_SRC_DIR}/integration/renderer_context.cpp
-		${ENGINE_SRC_DIR}/integration/draw_context.cpp
-)
-
 add_library(engine STATIC
 	${ENGINE_MEMORY_SRCS}
 	${ENGINE_MATH_SRCS}
 	${ENGINE_ECS_SRCS}
 	${ENGINE_GRAPHICS_SRCS}
 	${ENGINE_PLATFORM_SRCS}
-	${ENGINE_INTEGRATION_SRCS}
 )
 
 target_include_directories(engine PUBLIC ${ENGINE_INC_DIR})
