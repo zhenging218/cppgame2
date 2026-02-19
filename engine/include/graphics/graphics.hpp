@@ -17,5 +17,6 @@
 #include "draw_context.hpp"
 #include "renderer.hpp"
 #include "triangle_primitive.hpp"
+#include "box2d_primitive.hpp"
 
 #endif

@@ -20,6 +20,7 @@ set(ENGINE_MATH_SRCS
 	${ENGINE_SRC_DIR}/maths/matrix2x2.cpp
 	${ENGINE_SRC_DIR}/maths/matrix3x3.cpp
 	${ENGINE_SRC_DIR}/maths/matrix4x4.cpp
+	${ENGINE_SRC_DIR}/maths/box_2d.cpp
 	${ENGINE_SRC_DIR}/maths/triangle.cpp
 	${ENGINE_SRC_DIR}/maths/rectangle_2d.cpp
 	${ENGINE_SRC_DIR}/maths/transform.cpp
@@ -43,6 +44,7 @@ set(ENGINE_GRAPHICS_SRCS
 	${ENGINE_SRC_DIR}/graphics/enum_camera_mode.cpp
 	${ENGINE_SRC_DIR}/graphics/camera.cpp
 	${ENGINE_SRC_DIR}/graphics/camera_2d.cpp
+	${ENGINE_SRC_DIR}/graphics/box_2d_primitive.cpp
 	${ENGINE_SRC_DIR}/graphics/triangle_primitive.cpp
 	${ENGINE_SRC_DIR}/graphics/renderer.cpp
 )

@@ -30,6 +30,7 @@ namespace cppengine {
     void Renderer::draw() {
         auto cameras = SceneManager::getInstance().getAllComponentSets<Transform, Camera>();
         auto triangles = SceneManager::getInstance().getAllComponentSets<Transform, TrianglePrimitive>();
+        auto box2Ds = SceneManager::getInstance().getAllComponentSets<Transform, Box2DPrimitive>();
 
         std::sort(cameras.begin(), cameras.end(),
             [](auto const &lhs, auto const &rhs) {
@@ -51,6 +52,10 @@ namespace cppengine {
 
             for (auto const &[triangle_transform, triangle] : triangles) {
                 drawContext->renderTriangle(triangle->getTriangle(), triangle_transform->getMatrix());
+            }
+
+            for (auto const &[box2d_transform, box2d] : box2Ds) {
+                drawContext->renderBox2D(box2d->getBox2D(), box2d_transform->getMatrix());
             }
 
             drawContext->flush();

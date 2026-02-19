@@ -18,6 +18,7 @@ namespace cppengine {
         RaylibDrawContext2D(Rectangle2D const &viewport_, Transform const &transform);
         void begin() override;
         void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform) override;
+        void renderBox2D(Box2D const &box2D, Matrix4x4 const &transform) override;
         void flush() override;
         ~RaylibDrawContext2D() override = default;
     };
