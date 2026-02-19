@@ -21,7 +21,7 @@ namespace cppengine {
                       0,       0,       0,       1
             };
 
-            return translationMatrix *= rotationMatrix *= scaleMatrix;
+            return translationMatrix * rotationMatrix * scaleMatrix;
         }
     }
 
@@ -55,9 +55,7 @@ namespace cppengine {
             updateMatrix();
         }
 
-        if(children.empty()) {
-            dirty = false;
-        }
+        dirty = false;
 
         return matrix;
     }

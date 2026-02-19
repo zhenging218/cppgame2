@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <variant>
 
+#include "colour.hpp"
 #include "texture_handle.hpp"
 #include "maths/matrix2x2.hpp"
 #include "maths/matrix3x3.hpp"
@@ -15,7 +16,10 @@ namespace cppengine {
     using Uniform = std::variant<
         std::int32_t,
         std::uint32_t,
+        std::int64_t,
+        std::uint64_t,
         float,
+        double,
         Colour,
         Vector2,
         Vector3,

@@ -17,8 +17,8 @@ namespace cppengine {
 
         float sinp = 2 * (rotation.w * rotation.j - rotation.k * rotation.i);
 
-        float siny_cosp = 2 * (w * z + x * y);
-        float cosy_cosp = 1 - 2 * (y * y + z * z);
+        float siny_cosp = 2 * (rotation.w * rotation.k + rotation.i * rotation.j);
+        float cosy_cosp = 1 - 2 * (rotation.j * rotation.j + rotation.k * rotation.k);
 
         // roll, pitch, yaw
         x = std::atan2(sinr_cosp, cosr_cosp);

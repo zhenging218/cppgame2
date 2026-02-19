@@ -36,6 +36,9 @@ set(ENGINE_ECS_SRCS
 
 set(ENGINE_GRAPHICS_SRCS
 	${ENGINE_SRC_DIR}/graphics/colour.cpp
+	${ENGINE_SRC_DIR}/graphics/texture_handle.cpp
+	${ENGINE_SRC_DIR}/graphics/shader_handle.cpp
+	${ENGINE_SRC_DIR}/graphics/material.cpp
 	${ENGINE_SRC_DIR}/graphics/renderable.cpp
 	${ENGINE_SRC_DIR}/graphics/enum_camera_mode.cpp
 	${ENGINE_SRC_DIR}/graphics/camera.cpp

@@ -10,7 +10,7 @@ namespace cppengine {
 
     public:
         constexpr inline TextureHandle() : id(0) {}
-        constexpr inline TextureHandle(std::uint64_t id_) : id(id_) {};
+        constexpr inline explicit TextureHandle(std::uint64_t id_) : id(id_) {};
         TextureHandle(TextureHandle const &) = default;
         TextureHandle &operator=(TextureHandle const&other) = default;
 

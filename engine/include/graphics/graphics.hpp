@@ -3,6 +3,7 @@
 
 #include "colour.hpp"
 #include "texture_handle.hpp"
+#include "shader_handle.hpp"
 #include "uniform.hpp"
 #include "material.hpp"
 #include "sprite_sheet.hpp"

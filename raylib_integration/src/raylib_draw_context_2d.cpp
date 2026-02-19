@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "engine.hpp"
 #include "raylib_integration.hpp"
 
@@ -54,6 +56,7 @@ namespace cppengine {
     }
 
     void RaylibDrawContext2D::flush() {
+        int i = 0;
         for (auto const &command : commands) {
             command();
         }

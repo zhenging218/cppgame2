@@ -20,6 +20,5 @@ namespace cppengine {
     }
 
     void RaylibRendererContext::endDraw() {
-
     }
 }

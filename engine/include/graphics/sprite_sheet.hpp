@@ -1,6 +1,7 @@
 #ifndef SPRITE_SHEET_HPP
 #define SPRITE_SHEET_HPP
 #include "ecs/component.hpp"
+#include "maths/rectangle_2d.hpp"
 #include "texture_handle.hpp"
 
 namespace cppengine {
