@@ -25,6 +25,12 @@ namespace {
         }
     }
 
+    void setShaderUniformValue(::Shader const &shader, location_type location, const std::uint32_t value) {
+        if (location != -1) {
+            glUniform1ui(location, value);
+        }
+    }
+
     void setShaderUniformValue(::Shader const &shader, location_type location, cppengine::Matrix2x2 const &value) {
         if (location != -1) {
             glUniformMatrix3fv(location, 1, GL_FALSE,
@@ -58,6 +64,10 @@ namespace cppengine {
 
     void RaylibShaderHandle::setUniform(char const *name, const std::int32_t value) {
         setShaderUniformValue(shader, getLocation(shaderLocations, name, shader), &value, ::SHADER_UNIFORM_INT);
+    }
+
+    void RaylibShaderHandle::setUniform(char const *name, const std::uint32_t value) {
+        setShaderUniformValue(shader, getLocation(shaderLocations, name, shader), value);
     }
 
     void RaylibShaderHandle::setUniform(char const *name, const float value) {

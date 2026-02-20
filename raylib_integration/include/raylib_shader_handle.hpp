@@ -26,6 +26,7 @@ namespace cppengine {
 
         void bindShader() override;
         void setUniform(char const *name, const std::int32_t value) override;
+        void setUniform(char const *name, const std::uint32_t value) override;
         void setUniform(char const *name, const float value) override;
         void setUniform(char const *name, Colour const & value) override;
         void setUniform(char const *name, Vector2 const & value) override;

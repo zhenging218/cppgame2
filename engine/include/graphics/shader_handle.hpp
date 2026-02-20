@@ -21,6 +21,7 @@ namespace cppengine {
         virtual void bindShader() = 0;
 
         virtual void setUniform(char const *name, const std::int32_t value) = 0;
+        virtual void setUniform(char const *name, const std::uint32_t value) = 0;
         virtual void setUniform(char const *name, const float value) = 0;
         virtual void setUniform(char const *name, Colour const & value) = 0;
         virtual void setUniform(char const *name, Vector2 const & value) = 0;
