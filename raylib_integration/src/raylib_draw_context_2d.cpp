@@ -76,6 +76,13 @@ namespace cppengine {
         });
     }
 
+    void RaylibDrawContext2D::render(Vector3 const *vertices, const std::size_t vertexCount, std::size_t const *indices, const std::size_t indexCount, Matrix4x4 const &transform) {
+        ::Material material = ::LoadMaterialDefault();
+        material.maps[MATERIAL_MAP_DIFFUSE].color = ::RED;
+
+
+    }
+
     void RaylibDrawContext2D::begin() {
         // get absolute viewport
         ::BeginScissorMode(

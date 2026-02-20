@@ -13,9 +13,11 @@ namespace cppengine {
         ObjectHandle<DrawContext> createDrawContext(CameraMode mode,
             Rectangle2D const &absoluteViewport, Transform const &transform) override;
 
+        ObjectHandle<ShaderContext> getShaderContext() const override;
+        ObjectHandle<TextureContext> getTextureContext() const override;
+
         void beginDraw() override;
         void endDraw() override;
-        TextureHandle loadTexture(std::string const &path) override;
 
         ~RaylibRendererContext() override = default;
     };

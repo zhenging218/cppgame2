@@ -11,6 +11,11 @@ namespace cppengine {
         TrianglePrimitive() = default;
         explicit TrianglePrimitive(Triangle const &t);
 
+        Vector3 const *getVertices() const override;
+        std::size_t getVertexCount() const override;
+        std::size_t const *getIndices() const override;
+        std::size_t getIndexCount() const override;
+
         Triangle const &getTriangle() const;
     };
 }

@@ -15,8 +15,12 @@ namespace cppengine {
         ClearBackground(::BLACK);
     }
 
-    TextureHandle RaylibRendererContext::loadTexture(std::string const &path) {
-        return TextureHandle();
+    ObjectHandle<ShaderContext> RaylibRendererContext::getShaderContext() const {
+        return nullptr;
+    }
+
+    ObjectHandle<TextureContext> RaylibRendererContext::getTextureContext() const {
+        return nullptr;
     }
 
     void RaylibRendererContext::endDraw() {
