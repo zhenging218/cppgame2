@@ -2,12 +2,12 @@
 #define SPRITE_SHEET_HPP
 #include "ecs/component.hpp"
 #include "maths/rectangle_2d.hpp"
-#include "texture_handle.hpp"
+#include "texture.hpp"
 
 namespace cppengine {
     class SpriteSheet : public Component {
     private:
-        TextureHandle texture;
+        Texture texture;
         int rows, columns;
     public:
 
@@ -15,8 +15,8 @@ namespace cppengine {
         SpriteSheet(SpriteSheet const &) = default;
         SpriteSheet &operator=(SpriteSheet const &) = default;
 
-        void setTexture(TextureHandle const &other);
-        TextureHandle getTexture() const;
+        void setTexture(Texture const &other);
+        Texture getTexture() const;
 
         void setDimensions(int rows_, int columns_);
 

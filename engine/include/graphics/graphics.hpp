@@ -5,6 +5,7 @@
 #include "enum_shader_id.hpp"
 #include "enum_model_id.hpp"
 #include "model_handle.hpp"
+#include "texture.hpp"
 #include "texture_handle.hpp"
 #include "shader_handle.hpp"
 #include "uniform.hpp"

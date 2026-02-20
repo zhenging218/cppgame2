@@ -4,7 +4,7 @@
 #include <variant>
 
 #include "colour.hpp"
-#include "texture_handle.hpp"
+#include "texture.hpp"
 #include "maths/matrix2x2.hpp"
 #include "maths/matrix3x3.hpp"
 #include "maths/matrix4x4.hpp"
@@ -27,7 +27,7 @@ namespace cppengine {
         Matrix2x2,
         Matrix3x3,
         Matrix4x4,
-        TextureHandle>;
+        Texture>;
 }
 
 #endif

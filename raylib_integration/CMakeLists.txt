@@ -23,6 +23,9 @@ add_library(raylib_integration STATIC
 	${INTEGRATION_SRC_DIR}/raylib_input.cpp
 	${INTEGRATION_SRC_DIR}/raylib_input_context.cpp
 	${INTEGRATION_SRC_DIR}/raylib_renderer.cpp
+	${INTEGRATION_SRC_DIR}/raylib_texture_context.cpp
+	${INTEGRATION_SRC_DIR}/raylib_shader_handle.cpp
+	${INTEGRATION_SRC_DIR}/raylib_shader_context.cpp
 	${INTEGRATION_SRC_DIR}/raylib_renderer_context.cpp
 	${INTEGRATION_SRC_DIR}/raylib_draw_context_2d.cpp
 )

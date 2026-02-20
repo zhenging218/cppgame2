@@ -5,7 +5,7 @@
 #include "enum_camera_mode.hpp"
 #include "shader_context.hpp"
 #include "texture_context.hpp"
-#include "texture_handle.hpp"
+#include "texture.hpp"
 #include "maths/rectangle_2d.hpp"
 #include "maths/transform.hpp"
 

@@ -24,7 +24,7 @@ namespace cppengine {
 
         static Renderer &getInstance();
 
-        static TextureHandle loadTexture(std::string const &path);
+        static Texture loadTexture(std::string const &path);
     };
 }
 
