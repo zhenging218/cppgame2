@@ -9,26 +9,26 @@
 
 namespace cppengine {
 
-    class RaylibDrawContext2D : public DrawContext {
+    class RaylibDrawContext : public DrawContext {
     private:
         std::vector<std::function<void()>> commands;
         Rectangle2D viewport;
-        ::Camera2D camera;
+        Matrix4x4 transform;
     public:
-        RaylibDrawContext2D(Rectangle2D const &viewport_, Transform const &transform);
+        RaylibDrawContext(Rectangle2D const &viewport_, Matrix4x4 const &transform_);
         void begin() override;
-        void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform) override;
-        void renderBox2D(Box2D const &box2D, Matrix4x4 const &transform) override;
+        void renderTriangle(Triangle const &triangle, Matrix4x4 const &triangleTransform) override;
+        void renderBox2D(Box2D const &box2D, Matrix4x4 const &box2DTransform) override;
 
         void render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
             std::unordered_map<char const *, Uniform> const &uniforms, std::unordered_map<char const *,
-            ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &transform) override;
+            ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &meshTransform) override;
 
         void beginBatch(ObjectHandle<ShaderHandle> shader) override;
         void endBatch(ObjectHandle<ShaderHandle> shader) override;
 
         void flush() override;
-        ~RaylibDrawContext2D() override = default;
+        ~RaylibDrawContext() override = default;
     };
 }
 

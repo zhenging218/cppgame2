@@ -2,11 +2,13 @@
 #define ENUM_MODEL_ID_HPP
 #include <cstdint>
 
+#include "hash_helper.hpp"
+
 namespace cppengine {
     enum ModelID : std::uint64_t {
         NO_MODEL = 0,
-        TRIANGLE = 1,
-        BOX2D = 2
+        TRIANGLE = HashHelper::fnv1a_64("TRIANGLE"),
+        BOX2D = HashHelper::fnv1a_64("BOX2D")
     };
 }
 

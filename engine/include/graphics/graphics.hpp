@@ -1,6 +1,7 @@
 #ifndef GRAPHICS_HPP
 #define GRAPHICS_HPP
 
+#include "hash_helper.hpp"
 #include "colour.hpp"
 #include "shader_location_name.hpp"
 #include "enum_shader_id.hpp"

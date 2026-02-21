@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "engine.hpp"
 #include "raylib_integration.hpp"
 
@@ -77,19 +79,40 @@ namespace {
         material.shader = shader;
         return material;
     }
+
+    ::Material moveMaterial(::Material &&material) {
+        ::Material result = {};
+        std::swap(result.shader, material.shader);
+        std::swap(result.maps, material.maps);
+        std::memcpy(result.params, material.params, sizeof(float) * 4);
+        std::memset(material.params, 0, sizeof(float) * 4);
+        return result;
+    }
 }
 
 namespace cppengine {
-    RaylibShaderHandle::RaylibShaderHandle(std::string const &name_, Shader shader_) : name(name_), material(createMaterial(shader_)) {
+    RaylibShaderHandle::RaylibShaderHandle(std::string const &name_, Shader shader_) : shaderName(name_), material(createMaterial(shader_)) {
 
     }
 
-    RaylibShaderHandle::RaylibShaderHandle(std::string &&name_, Shader shader_) : name(name_), material(createMaterial(shader_)) {
+    RaylibShaderHandle::RaylibShaderHandle(std::string &&name_, Shader shader_) : shaderName(name_), material(createMaterial(shader_)) {
 
+    }
+
+    RaylibShaderHandle::RaylibShaderHandle(RaylibShaderHandle &&other)
+        : shaderName(std::move(other.shaderName)), shaderLocations(std::move(other.shaderLocations)), material(moveMaterial(std::move(other.material))) {
+
+    }
+
+    RaylibShaderHandle &RaylibShaderHandle::operator=(RaylibShaderHandle &&other) noexcept {
+        std::swap(other.shaderLocations, shaderLocations);
+        std::swap(other.material, material);
+        std::swap(other.shaderName, shaderName);
+        return *this;
     }
 
     std::string const &RaylibShaderHandle::getName() const {
-        return name;
+        return shaderName;
     }
 
     void RaylibShaderHandle::bindShader() {
@@ -101,7 +124,7 @@ namespace cppengine {
         auto defaultLocation = getDefaultMaterialLocation(name);
 
         if (defaultLocation != -1) {
-            material.maps[defaultLocation].value = value;
+            material.maps[defaultLocation].value = static_cast<float>(value);
         } else {
             auto location = getLocation(shaderLocations, name, material.shader);
 
@@ -113,7 +136,7 @@ namespace cppengine {
         auto defaultLocation = getDefaultMaterialLocation(name);
 
         if (defaultLocation != -1) {
-            material.maps[defaultLocation].value = value;
+            material.maps[defaultLocation].value = static_cast<float>(value);
         } else {
             setShaderUniformValue(material.shader, getLocation(shaderLocations, name, material.shader), value);
         }
@@ -198,5 +221,6 @@ namespace cppengine {
 
     RaylibShaderHandle::~RaylibShaderHandle() {
         ::UnloadShader(material.shader);
+        ::MemFree(material.maps);
     }
 }

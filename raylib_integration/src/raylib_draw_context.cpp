@@ -38,16 +38,16 @@ namespace {
 }
 
 namespace cppengine {
-    RaylibDrawContext2D::RaylibDrawContext2D(Rectangle2D const &viewport_, Transform const &transform)
-    : viewport(viewport_), camera(createCamera(viewport_, transform)) {
+    RaylibDrawContext::RaylibDrawContext(Rectangle2D const &viewport_, Matrix4x4 const &transform_)
+    : viewport(viewport_), transform(transform_) {
 
     }
 
-    void RaylibDrawContext2D::renderTriangle(Triangle const &triangle, Matrix4x4 const &transform) {
+    void RaylibDrawContext::renderTriangle(Triangle const &triangle, Matrix4x4 const &triangleTransform) {
         Vector4 vertices[Triangle::vertex_count] = {
-            transform * Vector4(triangle.vertices[0].x, triangle.vertices[0].y, triangle.vertices[0].z, 1),
-            transform * Vector4(triangle.vertices[1].x, triangle.vertices[1].y, triangle.vertices[1].z, 1),
-            transform * Vector4(triangle.vertices[2].x, triangle.vertices[2].y, triangle.vertices[2].z, 1)
+            triangleTransform * Vector4(triangle.vertices[0].x, triangle.vertices[0].y, triangle.vertices[0].z, 1),
+            triangleTransform * Vector4(triangle.vertices[1].x, triangle.vertices[1].y, triangle.vertices[1].z, 1),
+            triangleTransform * Vector4(triangle.vertices[2].x, triangle.vertices[2].y, triangle.vertices[2].z, 1)
         };
 
         std::size_t indices[Triangle::index_count];
@@ -63,12 +63,12 @@ namespace cppengine {
         });
     }
 
-    void RaylibDrawContext2D::renderBox2D(Box2D const &box2D, Matrix4x4 const &transform) {
+    void RaylibDrawContext::renderBox2D(Box2D const &box2D, Matrix4x4 const &box2DTransform) {
         Vector4 vertices[Box2D::vertex_count] = {
-            transform * Vector4(box2D.vertices[0].x, box2D.vertices[0].y, box2D.vertices[0].z, 1),
-            transform * Vector4(box2D.vertices[1].x, box2D.vertices[1].y, box2D.vertices[1].z, 1),
-            transform * Vector4(box2D.vertices[2].x, box2D.vertices[2].y, box2D.vertices[2].z, 1),
-            transform * Vector4(box2D.vertices[3].x, box2D.vertices[3].y, box2D.vertices[3].z, 1)
+            box2DTransform * Vector4(box2D.vertices[0].x, box2D.vertices[0].y, box2D.vertices[0].z, 1),
+            box2DTransform * Vector4(box2D.vertices[1].x, box2D.vertices[1].y, box2D.vertices[1].z, 1),
+            box2DTransform * Vector4(box2D.vertices[2].x, box2D.vertices[2].y, box2D.vertices[2].z, 1),
+            box2DTransform * Vector4(box2D.vertices[3].x, box2D.vertices[3].y, box2D.vertices[3].z, 1)
         };
 
         std::size_t indices[Box2D::index_count];
@@ -90,26 +90,26 @@ namespace cppengine {
         });
     }
 
-    void RaylibDrawContext2D::render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
+    void RaylibDrawContext::render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
         std::unordered_map<char const *, Uniform> const &uniforms, std::unordered_map<char const *,
-        ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &transform) {
+        ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &meshTransform) {
 
-        commands.emplace_back([shader, model, uniforms, textures, transform] {
+        commands.emplace_back([this, shader, model, uniforms, textures, meshTransform] {
             std::ranges::for_each(uniforms, [shader](auto const &uniform) {
                     auto const &uniformName= uniform.first;
                     auto const &uniformValue = uniform.second;
 
-                    std::visit(UniformSetters{
-                        [&](std::int32_t v)     { shader->setUniform(uniformName, v); },
-                        [&](std::uint32_t v)    { shader->setUniform(uniformName, v); },
-                        [&](float v)            { shader->setUniform(uniformName, v); },
-                        [&](Colour const &v)    { shader->setUniform(uniformName, v); },
-                        [&](Vector2 const &v)   { shader->setUniform(uniformName, v); },
-                        [&](Vector3 const &v)   { shader->setUniform(uniformName, v); },
-                        [&](Vector4 const &v)   { shader->setUniform(uniformName, v); },
-                        [&](Matrix2x2 const &v) { shader->setUniform(uniformName, v); },
-                        [&](Matrix3x3 const &v) { shader->setUniform(uniformName, v); },
-                        [&](Matrix4x4 const &v) { shader->setUniform(uniformName, v); },
+                    std::visit(UniformSetters {
+                        [uniformName, shader](std::int32_t v)     { shader->setUniform(uniformName, v); },
+                        [uniformName, shader](std::uint32_t v)    { shader->setUniform(uniformName, v); },
+                        [uniformName, shader](float v)            { shader->setUniform(uniformName, v); },
+                        [uniformName, shader](Colour const &v)    { shader->setUniform(uniformName, v); },
+                        [uniformName, shader](Vector2 const &v)   { shader->setUniform(uniformName, v); },
+                        [uniformName, shader](Vector3 const &v)   { shader->setUniform(uniformName, v); },
+                        [uniformName, shader](Vector4 const &v)   { shader->setUniform(uniformName, v); },
+                        [uniformName, shader](Matrix2x2 const &v) { shader->setUniform(uniformName, v); },
+                        [uniformName, shader](Matrix3x3 const &v) { shader->setUniform(uniformName, v); },
+                        [uniformName, shader](Matrix4x4 const &v) { shader->setUniform(uniformName, v); },
                     }, uniformValue);
                 });
 
@@ -119,19 +119,19 @@ namespace cppengine {
 
             ::DrawMesh(static_handle_cast<RaylibModelHandle>(model)->getMesh(),
                 static_handle_cast<RaylibShaderHandle>(shader)->getMaterial(),
-                reinterpretMatrix(transform));
+                reinterpretMatrix(transform * meshTransform));
         });
     }
 
-    void RaylibDrawContext2D::beginBatch(ObjectHandle<ShaderHandle> shader) {
+    void RaylibDrawContext::beginBatch(ObjectHandle<ShaderHandle> shader) {
         commands.emplace_back([shader]() { shader->bindShader(); });
     }
 
-    void RaylibDrawContext2D::endBatch(ObjectHandle<ShaderHandle> shader) {
+    void RaylibDrawContext::endBatch(ObjectHandle<ShaderHandle> shader) {
         commands.emplace_back([shader]() { shader->unbindShader(); });
     }
 
-    void RaylibDrawContext2D::begin() {
+    void RaylibDrawContext::begin() {
         // get absolute viewport
         ::BeginScissorMode(
             static_cast<int>(viewport.x),
@@ -139,12 +139,14 @@ namespace cppengine {
             static_cast<int>(viewport.width),
             static_cast<int>(viewport.height)
         );
-
-        ::BeginMode2D(camera);
     }
 
-    void RaylibDrawContext2D::flush() {
-        ::EndMode2D();
+    void RaylibDrawContext::flush() {
+        for (auto &command : commands) {
+            command();
+        }
+        commands.clear();
+
         ::EndScissorMode();
     }
 }

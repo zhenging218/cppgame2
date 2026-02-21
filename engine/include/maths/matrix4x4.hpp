@@ -69,6 +69,7 @@ namespace cppengine {
 
     float determinant(Matrix4x4 const& m);
     Matrix4x4 transpose(Matrix4x4 const& m);
+    Matrix4x4 inverse(Matrix4x4 const &m);
 
     std::ostream& operator<<(std::ostream& os, Matrix4x4 const& m);
 }

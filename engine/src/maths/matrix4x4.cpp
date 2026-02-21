@@ -260,6 +260,36 @@ namespace cppengine {
         };
     }
 
+    Matrix4x4 inverse(Matrix4x4 const &m) {
+        float det = determinant(m);
+        float inv = 1.0f/ det;
+
+        // Cofactor matrix (each entry is the signed 3x3 minor)
+        Matrix4x4 cof;
+
+        cof.m00 =  determinant3D(1.f, m.m11, m.m12, m.m13, m.m21, m.m22, m.m23, m.m31, m.m32, m.m33);
+        cof.m01 = -determinant3D(1.f, m.m10, m.m12, m.m13, m.m20, m.m22, m.m23, m.m30, m.m32, m.m33);
+        cof.m02 =  determinant3D(1.f, m.m10, m.m11, m.m13, m.m20, m.m21, m.m23, m.m30, m.m31, m.m33);
+        cof.m03 = -determinant3D(1.f, m.m10, m.m11, m.m12, m.m20, m.m21, m.m22, m.m30, m.m31, m.m32);
+
+        cof.m10 = -determinant3D(1.f, m.m01, m.m02, m.m03, m.m21, m.m22, m.m23, m.m31, m.m32, m.m33);
+        cof.m11 =  determinant3D(1.f, m.m00, m.m02, m.m03, m.m20, m.m22, m.m23, m.m30, m.m32, m.m33);
+        cof.m12 = -determinant3D(1.f, m.m00, m.m01, m.m03, m.m20, m.m21, m.m23, m.m30, m.m31, m.m33);
+        cof.m13 =  determinant3D(1.f, m.m00, m.m01, m.m02, m.m20, m.m21, m.m22, m.m30, m.m31, m.m32);
+
+        cof.m20 =  determinant3D(1.f, m.m01, m.m02, m.m03, m.m11, m.m12, m.m13, m.m31, m.m32, m.m33);
+        cof.m21 = -determinant3D(1.f, m.m00, m.m02, m.m03, m.m10, m.m12, m.m13, m.m30, m.m32, m.m33);
+        cof.m22 =  determinant3D(1.f, m.m00, m.m01, m.m03, m.m10, m.m11, m.m13, m.m30, m.m31, m.m33);
+        cof.m23 = -determinant3D(1.f, m.m00, m.m01, m.m02, m.m10, m.m11, m.m12, m.m30, m.m31, m.m32);
+
+        cof.m30 = -determinant3D(1.f, m.m01, m.m02, m.m03, m.m11, m.m12, m.m13, m.m21, m.m22, m.m23);
+        cof.m31 =  determinant3D(1.f, m.m00, m.m02, m.m03, m.m10, m.m12, m.m13, m.m20, m.m22, m.m23);
+        cof.m32 = -determinant3D(1.f, m.m00, m.m01, m.m03, m.m10, m.m11, m.m13, m.m20, m.m21, m.m23);
+        cof.m33 =  determinant3D(1.f, m.m00, m.m01, m.m02, m.m10, m.m11, m.m12, m.m20, m.m21, m.m22);
+
+        return transpose(cof) * inv;
+    }
+
     std::ostream &operator<<(std::ostream &os, Matrix4x4 const &m) {
         return os << m.m00 << ", " << m.m01 << ", " << m.m02 << ", " << m.m03 << ", "
                   << m.m10 << ", " << m.m11 << ", " << m.m12 << ", " << m.m13 << ", "

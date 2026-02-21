@@ -6,6 +6,7 @@ namespace cppengine {
     private:
 
     public:
+        virtual std::string const &getName() const = 0;
         virtual ~ModelHandle() = 0;
     };
 

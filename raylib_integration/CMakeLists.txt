@@ -29,7 +29,7 @@ add_library(raylib_integration STATIC
 	${INTEGRATION_SRC_DIR}/raylib_shader_handle.cpp
 	${INTEGRATION_SRC_DIR}/raylib_shader_context.cpp
 	${INTEGRATION_SRC_DIR}/raylib_renderer_context.cpp
-	${INTEGRATION_SRC_DIR}/raylib_draw_context_2d.cpp
+	${INTEGRATION_SRC_DIR}/raylib_draw_context.cpp
 )
 
 target_include_directories(raylib_integration PUBLIC ${ENGINE_INC_DIR} ${INTEGRATION_INC_DIR})

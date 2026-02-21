@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 
 #include "engine.hpp"
@@ -11,6 +12,62 @@ namespace {
             screenWidth * relativeViewport.width,
             screenHeight * relativeViewport.height
         };
+    }
+
+    cppengine::Matrix4x4 buildOrthographicProjection(float left, float right, float bottom, float top, float near, float far) {
+        return cppengine::Matrix4x4{
+            2.0f/(right-left),  0,                  0,                  -(right+left)/(right-left),
+            0,                  2.0f/(top-bottom),  0,                  -(top+bottom)/(top-bottom),
+            0,                  0,                  -2.0f/(far-near),   -(far+near)/(far-near),
+            0,                  0,                  0,                  1
+        };
+    }
+
+    cppengine::Matrix4x4 buildPerspectiveProjection(float fovY, float aspect, float near, float far) {
+        float tanHalfFov = std::tan(fovY / 2.0f);
+        return cppengine::Matrix4x4{
+            1.0f/(aspect*tanHalfFov),  0,                  0,                              0,
+            0,                          1.0f/tanHalfFov,    0,                              0,
+            0,                          0,                  -(far+near)/(far-near),         -2.0f*far*near/(far-near),
+            0,                          0,                  -1,                             0
+        };
+    }
+
+    cppengine::Matrix4x4 getCameraVPMatrixMode2D(cppengine::Rectangle2D const &viewport,
+        cppengine::Transform &transform) {
+        auto scale = transform.getScale();
+
+        auto zoom = (scale.x + scale.y) / 2;
+
+        float halfWidth  = (viewport.width  / 2.0f) / zoom;
+        float halfHeight = (viewport.height / 2.0f) / zoom;
+
+        auto view = cppengine::inverse(transform.getMatrix());
+
+        cppengine::Matrix4x4 projection = buildOrthographicProjection(
+                -halfWidth,   // left
+                 halfWidth,   // right
+                -halfHeight,  // bottom
+                 halfHeight,  // top
+                -1.0f,
+                 1.0f
+        );
+
+        return projection * view;
+    }
+
+    cppengine::Matrix4x4 getCameraVPMatrix(cppengine::CameraMode mode, cppengine::Rectangle2D const &viewport, cppengine::Transform &transform) {
+        switch (mode) {
+            case cppengine::CameraMode::MODE_2D:
+                return getCameraVPMatrixMode2D(viewport, transform);
+            case cppengine::CameraMode::MODE_3D_PERSPECTIVE:
+                break;
+            case cppengine::CameraMode::MODE_3D_ORTHOGRAPHIC:
+                break;
+            case cppengine::CameraMode::MODE_UI:
+                break;
+        }
+        return {};
     }
 }
 
@@ -53,7 +110,8 @@ namespace cppengine {
                 Window::getInstance().getWidth(), Window::getInstance().getHeight());
 
             auto drawContext =
-                context->createDrawContext(camera->getMode(), absoluteViewport, *transform);
+                context->createDrawContext(absoluteViewport,
+                    getCameraVPMatrix(camera->getMode(), absoluteViewport, *transform));
 
             drawContext->begin();
 

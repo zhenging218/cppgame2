@@ -14,7 +14,7 @@ namespace cppengine {
         using location_type = std::remove_reference_t<decltype(std::declval<::Shader>().locs[0])>;
 
     private:
-        std::string name;
+        std::string shaderName;
         ::Material material;
         std::unordered_map<char const *, location_type> shaderLocations;
 
@@ -23,6 +23,9 @@ namespace cppengine {
         RaylibShaderHandle(std::string &&name_, ::Shader shader_);
         RaylibShaderHandle(RaylibShaderHandle const &) = delete;
         RaylibShaderHandle &operator=(RaylibShaderHandle const &) = delete;
+
+        RaylibShaderHandle(RaylibShaderHandle &&other) noexcept;
+        RaylibShaderHandle &operator=(RaylibShaderHandle &&other) noexcept;
 
         std::string const &getName() const override;
 

@@ -1,5 +1,5 @@
 #include "engine.hpp"
-#include "raylib_draw_context_2d.hpp"
+#include "raylib_draw_context.hpp"
 #include "raylib_integration.hpp"
 
 #include <cmath>
@@ -9,10 +9,9 @@ namespace cppengine {
 
     }
 
-    ObjectHandle<DrawContext> RaylibRendererContext::createDrawContext(
-        CameraMode mode, Rectangle2D const &absoluteViewport, Transform const &transform) {
+    ObjectHandle<DrawContext> RaylibRendererContext::createDrawContext(Rectangle2D const &absoluteViewport, Matrix4x4 const &transform) {
         // for now always assume camera is 2D
-        return ObjectHandle(new RaylibDrawContext2D(absoluteViewport, transform));
+        return ObjectHandle(new RaylibDrawContext(absoluteViewport, transform));
     }
 
     void RaylibRendererContext::beginDraw() {

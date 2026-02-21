@@ -7,15 +7,6 @@
 
 namespace {
     constexpr char default_shader_name[] = "defaultShader";
-
-    constexpr cppengine::ShaderID fnv1a_64(std::string_view str) {
-        uint64_t hash = 14695981039346656037ULL;
-        for (char c : str) {
-            hash ^= static_cast<uint64_t>(c);
-            hash *= 1099511628211ULL;
-        }
-        return static_cast<cppengine::ShaderID>(hash);
-    }
 }
 
 namespace cppengine {
@@ -42,10 +33,18 @@ namespace cppengine {
             return result->first;
         }
 
-        auto shader = LoadShader(vertexShaderPath, fragmentShaderPath);
+        auto handle = createHandle<RaylibShaderHandle>(shaderName,
+            LoadShader(vertexShaderPath, fragmentShaderPath));
+
+        if (handle->getMaterial().shader.id == 0) {
+            return NO_SHADER;
+        }
+
         auto [it, inserted] = shaders.insert(
-            {fnv1a_64(std::string_view{shaderName}), static_handle_cast<ShaderHandle>(
-                createHandle<RaylibShaderHandle>(shaderName, shader))});
+            {
+                static_cast<ShaderID>(HashHelper::fnv1a_64(std::string_view{shaderName})),
+                static_handle_cast<ShaderHandle>(handle)
+                });
 
         if (inserted) {
             return it->first;

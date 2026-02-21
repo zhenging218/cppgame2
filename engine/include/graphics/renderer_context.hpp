@@ -16,8 +16,7 @@ namespace cppengine {
     public:
         virtual void beginDraw() = 0;
 
-        virtual ObjectHandle<DrawContext> createDrawContext(
-            CameraMode mode,Rectangle2D const &absoluteViewport, Transform const &transform) = 0;
+        virtual ObjectHandle<DrawContext> createDrawContext(Rectangle2D const &absoluteViewport, Matrix4x4 const &transform) = 0;
 
         virtual ObjectHandle<TextureContext> getTextureContext() const = 0;
         virtual ObjectHandle<ShaderContext> getShaderContext() const = 0;
