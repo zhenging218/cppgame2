@@ -30,6 +30,17 @@ namespace cppengine {
         entity_component_map_type ecs;
         component_map_type components;
 
+        template <typename T, typename U> requires ComponentType<T>
+        static ObjectHandle<T> castComponentHandle(ObjectHandle<U> handle) {
+            return static_handle_cast<T>(handle);
+        }
+
+        template <typename T, typename U> requires TransformType<T>
+        static ObjectHandle<T> castComponentHandle(ObjectHandle<U> handle) {
+            static_assert(!TransformType<T>, "function should not be instanced");
+            return nullptr;
+        }
+
     public:
         Scene();
         Scene(const Scene &other) = delete;
@@ -54,23 +65,23 @@ namespace cppengine {
         ObjectHandle<T> getComponent(const std::uint64_t ownerId) const {
             if constexpr (TransformType<T>) {
                 return getTransformOfEntity(ownerId);
-            }
+            } else {
+                TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
+                if (ecs.contains(ownerId)) {
+                    auto const &entityComponents = ecs.at(ownerId);
+                    if (entityComponents.contains(descriptor)) {
+                        return castComponentHandle<T>(components.at(descriptor).at(ownerId));
+                    }
 
-            TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
-            if (ecs.contains(ownerId)) {
-                auto const &entityComponents = ecs.at(ownerId);
-                if (entityComponents.contains(descriptor)) {
-                    return dynamic_handle_cast<T>(components.at(descriptor).at(ownerId));
-                }
+                    auto result = std::find_if(
+                        entityComponents.begin(), entityComponents.end(),
+                        [&descriptor](auto componentType) {
+                        return TypeDescriptor::isSuperType<T>(componentType);
+                    });
 
-                auto result = std::find_if(
-                    entityComponents.begin(), entityComponents.end(),
-                    [&descriptor](auto componentType) {
-                    return TypeDescriptor::isSuperType<T>(componentType);
-                });
-
-                if (result != entityComponents.end()) {
-                    return dynamic_handle_cast<T>(components.at(*result).at(ownerId));
+                    if (result != entityComponents.end()) {
+                        return castComponentHandle<T>(components.at(*result).at(ownerId));
+                    }
                 }
             }
 
@@ -90,7 +101,7 @@ namespace cppengine {
                 handle->descriptor = descriptor;
                 components[descriptor][ownerId] = handle;
                 ecs[ownerId].insert(descriptor);
-                return dynamic_handle_cast<T>(handle);
+                return static_handle_cast<T>(handle);
             }
 
             return nullptr;
@@ -141,7 +152,7 @@ namespace cppengine {
                 std::for_each(componentsOfEntity.begin(), componentsOfEntity.end(),
                     [this, &results, &descriptor, &ownerId](TypeDescriptor const *componentType) {
                     if (TypeDescriptor::isSuperType(descriptor, componentType)) {
-                        results.push_back(dynamic_handle_cast<T>(components.at(componentType).at(ownerId)));
+                        results.push_back(static_handle_cast<T>(components.at(componentType).at(ownerId)));
                     }
                 });
             }
@@ -159,7 +170,7 @@ namespace cppengine {
             results.reserve(entityMap.size());
             std::ranges::transform(entityMap, std::back_inserter(results),
                     [](auto const &component) {
-                    return dynamic_handle_cast<T>(component.second);
+                    return static_handle_cast<T>(component.second);
                 });
             }
 

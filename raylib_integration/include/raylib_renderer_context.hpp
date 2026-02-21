@@ -9,7 +9,11 @@ namespace cppengine {
     class RaylibRendererContext : public RendererContext {
     private:
 
+        ObjectHandle<RaylibShaderContext> shaderContext;
+
     public:
+        RaylibRendererContext();
+
         ObjectHandle<DrawContext> createDrawContext(CameraMode mode,
             Rectangle2D const &absoluteViewport, Transform const &transform) override;
 

@@ -5,6 +5,10 @@
 #include <cmath>
 
 namespace cppengine {
+    RaylibRendererContext::RaylibRendererContext() : shaderContext(new RaylibShaderContext()) {
+
+    }
+
     ObjectHandle<DrawContext> RaylibRendererContext::createDrawContext(
         CameraMode mode, Rectangle2D const &absoluteViewport, Transform const &transform) {
         // for now always assume camera is 2D
@@ -16,7 +20,7 @@ namespace cppengine {
     }
 
     ObjectHandle<ShaderContext> RaylibRendererContext::getShaderContext() const {
-        return nullptr;
+        return shaderContext;
     }
 
     ObjectHandle<TextureContext> RaylibRendererContext::getTextureContext() const {

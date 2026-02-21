@@ -32,6 +32,9 @@ namespace cppengine {
         auto triangles = SceneManager::getInstance().getAllComponentSets<Transform, TrianglePrimitive>();
         auto box2Ds = SceneManager::getInstance().getAllComponentSets<Transform, Box2DPrimitive>();
 
+        // todo: switch to get all renderables after support is implemented
+        // auto renderables = SceneManager::getInstance().getAllComponentSets<Transform, Renderable>();
+
         std::sort(cameras.begin(), cameras.end(),
             [](auto const &lhs, auto const &rhs) {
                 return std::get<ObjectHandle<Camera>>(lhs)->getMode() < std::get<ObjectHandle<Camera>>(rhs)->getMode();
@@ -62,6 +65,11 @@ namespace cppengine {
         }
 
         context->endDraw();
+    }
+
+    ShaderID Renderer::loadShader(char const *name, char const *vertexShaderPath, char const *fragmentShaderPath) {
+        auto &instance = getInstance();
+        return instance.context->getShaderContext()->loadShader(name, vertexShaderPath, fragmentShaderPath);
     }
 
     Renderer &Renderer::getInstance() {

@@ -54,8 +54,12 @@ namespace {
 }
 
 namespace cppengine {
-    RaylibShaderHandle::RaylibShaderHandle(Shader shader_) : shader(shader_) {
+    RaylibShaderHandle::RaylibShaderHandle(char const *name_, Shader shader_) : name(name_), shader(shader_) {
 
+    }
+
+    char const *RaylibShaderHandle::getName() const {
+        return name;
     }
 
     void RaylibShaderHandle::bindShader() {

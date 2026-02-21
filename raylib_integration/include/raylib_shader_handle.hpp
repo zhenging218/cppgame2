@@ -9,20 +9,21 @@
 #include "memory/object_handle.hpp"
 
 namespace cppengine {
-    class RaylibShaderHandle : ShaderHandle {
+    class RaylibShaderHandle : public ShaderHandle {
     public:
         using location_type = std::remove_reference_t<decltype(std::declval<::Shader>().locs[0])>;
 
     private:
-
-
+        char const *name;
         ::Shader shader;
         std::unordered_map<char const *, location_type> shaderLocations;
 
     public:
-        RaylibShaderHandle(::Shader shader_);
+        RaylibShaderHandle(char const *name_, ::Shader shader_);
         RaylibShaderHandle(RaylibShaderHandle const &) = delete;
         RaylibShaderHandle &operator=(RaylibShaderHandle const &) = delete;
+
+        char const *getName() const override;
 
         void bindShader() override;
         void setUniform(char const *name, const std::int32_t value) override;

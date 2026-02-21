@@ -18,6 +18,8 @@ namespace cppengine {
     private:
 
     public:
+        virtual char const *getName() const = 0;
+
         virtual void bindShader() = 0;
 
         virtual void setUniform(char const *name, const std::int32_t value) = 0;
