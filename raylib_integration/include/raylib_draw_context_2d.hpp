@@ -20,7 +20,12 @@ namespace cppengine {
         void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform) override;
         void renderBox2D(Box2D const &box2D, Matrix4x4 const &transform) override;
 
-        void render(Vector3 const *vertices, const std::size_t vertexCount, std::size_t const *indices, const std::size_t indexCount, Matrix4x4 const &transform) override;
+        void render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
+            std::unordered_map<char const *, Uniform> const &uniforms, std::unordered_map<char const *,
+            ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &transform) override;
+
+        void beginBatch(ObjectHandle<ShaderHandle> shader) override;
+        void endBatch(ObjectHandle<ShaderHandle> shader) override;
 
         void flush() override;
         ~RaylibDrawContext2D() override = default;

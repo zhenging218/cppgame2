@@ -40,6 +40,10 @@ namespace cppengine {
                 return std::get<ObjectHandle<Camera>>(lhs)->getMode() < std::get<ObjectHandle<Camera>>(rhs)->getMode();
             });
 
+        // todo: group renderables by material shader id
+        //       mutate items into another structure that keeps
+        //       (model_handle, uniforms_map, texture_handle_map, transform_mat4x4);
+
         context->beginDraw();
 
         for (auto const &[transform, camera] : cameras) {
@@ -52,6 +56,12 @@ namespace cppengine {
                 context->createDrawContext(camera->getMode(), absoluteViewport, *transform);
 
             drawContext->begin();
+
+            // todo: switch to shader batch rendering:
+            //       for each grouped render structure:
+            //          call drawContext->beginBatch(current_shader);
+            //          for every renderable in the batch, call drawContext->render(...);
+            //          call drawContext->endBatch(current_shader);
 
             for (auto const &[triangle_transform, triangle] : triangles) {
                 drawContext->renderTriangle(triangle->getTriangle(), triangle_transform->getMatrix());

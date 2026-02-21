@@ -14,16 +14,17 @@ namespace cppengine {
         using location_type = std::remove_reference_t<decltype(std::declval<::Shader>().locs[0])>;
 
     private:
-        char const *name;
-        ::Shader shader;
+        std::string name;
+        ::Material material;
         std::unordered_map<char const *, location_type> shaderLocations;
 
     public:
-        RaylibShaderHandle(char const *name_, ::Shader shader_);
+        RaylibShaderHandle(std::string const &name_, ::Shader shader_);
+        RaylibShaderHandle(std::string &&name_, ::Shader shader_);
         RaylibShaderHandle(RaylibShaderHandle const &) = delete;
         RaylibShaderHandle &operator=(RaylibShaderHandle const &) = delete;
 
-        char const *getName() const override;
+        std::string const &getName() const override;
 
         void bindShader() override;
         void setUniform(char const *name, const std::int32_t value) override;
@@ -38,6 +39,8 @@ namespace cppengine {
         void setUniform(char const *name, Matrix4x4 const & value) override;
         void setUniform(char const *name, ObjectHandle<TextureHandle> value) override;
         void unbindShader() override;
+
+        ::Material const &getMaterial() const;
 
         ~RaylibShaderHandle() override;
     };

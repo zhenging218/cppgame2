@@ -21,6 +21,20 @@ namespace {
 
         return camera;
     }
+
+    template<typename... Setter>
+    struct UniformSetters : Setter... {
+        using Setter::operator()...;
+    };
+
+    ::Matrix reinterpretMatrix(cppengine::Matrix4x4 const &m) {
+        return ::Matrix{
+            m.m00, m.m10, m.m20, m.m30,
+            m.m01, m.m11, m.m21, m.m31,
+            m.m02, m.m12, m.m22, m.m32,
+            m.m03, m.m13, m.m23, m.m33
+        };
+    }
 }
 
 namespace cppengine {
@@ -76,11 +90,45 @@ namespace cppengine {
         });
     }
 
-    void RaylibDrawContext2D::render(Vector3 const *vertices, const std::size_t vertexCount, std::size_t const *indices, const std::size_t indexCount, Matrix4x4 const &transform) {
-        ::Material material = ::LoadMaterialDefault();
-        material.maps[MATERIAL_MAP_DIFFUSE].color = ::RED;
+    void RaylibDrawContext2D::render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
+        std::unordered_map<char const *, Uniform> const &uniforms, std::unordered_map<char const *,
+        ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &transform) {
 
+        commands.emplace_back([shader, model, uniforms, textures, transform] {
+            std::ranges::for_each(uniforms, [shader](auto const &uniform) {
+                    auto const &uniformName= uniform.first;
+                    auto const &uniformValue = uniform.second;
 
+                    std::visit(UniformSetters{
+                        [&](std::int32_t v)     { shader->setUniform(uniformName, v); },
+                        [&](std::uint32_t v)    { shader->setUniform(uniformName, v); },
+                        [&](float v)            { shader->setUniform(uniformName, v); },
+                        [&](Colour const &v)    { shader->setUniform(uniformName, v); },
+                        [&](Vector2 const &v)   { shader->setUniform(uniformName, v); },
+                        [&](Vector3 const &v)   { shader->setUniform(uniformName, v); },
+                        [&](Vector4 const &v)   { shader->setUniform(uniformName, v); },
+                        [&](Matrix2x2 const &v) { shader->setUniform(uniformName, v); },
+                        [&](Matrix3x3 const &v) { shader->setUniform(uniformName, v); },
+                        [&](Matrix4x4 const &v) { shader->setUniform(uniformName, v); },
+                    }, uniformValue);
+                });
+
+            std::ranges::for_each(textures, [shader](auto const &texture) {
+                shader->setUniform(texture.first, texture.second);
+            });
+
+            ::DrawMesh(static_handle_cast<RaylibModelHandle>(model)->getMesh(),
+                static_handle_cast<RaylibShaderHandle>(shader)->getMaterial(),
+                reinterpretMatrix(transform));
+        });
+    }
+
+    void RaylibDrawContext2D::beginBatch(ObjectHandle<ShaderHandle> shader) {
+        commands.emplace_back([shader]() { shader->bindShader(); });
+    }
+
+    void RaylibDrawContext2D::endBatch(ObjectHandle<ShaderHandle> shader) {
+        commands.emplace_back([shader]() { shader->unbindShader(); });
     }
 
     void RaylibDrawContext2D::begin() {
@@ -96,12 +144,6 @@ namespace cppengine {
     }
 
     void RaylibDrawContext2D::flush() {
-        int i = 0;
-        for (auto const &command : commands) {
-            command();
-        }
-        commands.clear();
-
         ::EndMode2D();
         ::EndScissorMode();
     }

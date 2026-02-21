@@ -18,7 +18,7 @@ namespace cppengine {
     private:
 
     public:
-        virtual char const *getName() const = 0;
+        virtual std::string const &getName() const = 0;
 
         virtual void bindShader() = 0;
 

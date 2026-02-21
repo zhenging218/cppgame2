@@ -16,18 +16,14 @@ namespace cppengine {
     using Uniform = std::variant<
         std::int32_t,
         std::uint32_t,
-        std::int64_t,
-        std::uint64_t,
         float,
-        double,
         Colour,
         Vector2,
         Vector3,
         Vector4,
         Matrix2x2,
         Matrix3x3,
-        Matrix4x4,
-        Texture>;
+        Matrix4x4>;
 }
 
 #endif

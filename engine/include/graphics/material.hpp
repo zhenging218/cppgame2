@@ -7,7 +7,8 @@
 namespace cppengine {
     class Material : public Component {
         std::uint64_t shaderId;
-        std::map<char const *, Uniform> uniforms;
+        std::unordered_map<char const *, Uniform> uniforms;
+        std::unordered_map<char const *, Texture> textures;
 
     public:
     };
