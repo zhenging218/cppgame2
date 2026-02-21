@@ -9,6 +9,7 @@ namespace cppengine {
     class RaylibRendererContext : public RendererContext {
     private:
 
+        ObjectHandle<RaylibModelContext> modelContext;
         ObjectHandle<RaylibShaderContext> shaderContext;
 
     public:

@@ -4,24 +4,8 @@
 
 namespace cppengine {
     namespace {
-        Matrix4x4 combineComponents(Vector3 const &position, Quaternion const &rotation, Vector3 const &scale) {
-            Matrix4x4 rotationMatrix = Matrix4x4{ rotation };
-
-            Matrix4x4 translationMatrix = Matrix4x4{
-                1,      0,       0, position.x,
-                0,      1,       0, position.y,
-                0,      0,       1, position.z,
-                0,      0,       0,          1
-            };
-
-            Matrix4x4 scaleMatrix = Matrix4x4 {
-                scale.x,       0,       0,       0,
-                      0, scale.y,       0,       0,
-                      0,       0, scale.z,       0,
-                      0,       0,       0,       1
-            };
-
-            return translationMatrix * rotationMatrix * scaleMatrix;
+        Matrix4x4 combineComponents(Vector3 const &position, Quaternion const &rotation, Vector3 const &scale_) {
+            return translate(position) * rotate(rotation) * scale(scale_);
         }
     }
 

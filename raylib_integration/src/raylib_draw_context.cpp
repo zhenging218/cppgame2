@@ -7,21 +7,6 @@
 #include "raylib.h"
 
 namespace {
-    ::Camera2D createCamera(cppengine::Rectangle2D const &viewport, cppengine::Transform const &transform) {
-        auto position = transform.getPosition();
-        auto scale = transform.getScale();
-        auto rotation = cppengine::Vector3(transform.getRotation());
-
-        ::Camera2D camera;
-
-        camera.target = {position.x, position.y};
-        camera.offset = { viewport.width / 2.0f, viewport.height / 2.0f };
-        camera.zoom = (scale.x + scale.y) / 2;
-        camera.rotation = rotation.z * (180.0f / PI);
-
-        return camera;
-    }
-
     template<typename... Setter>
     struct UniformSetters : Setter... {
         using Setter::operator()...;
@@ -44,48 +29,70 @@ namespace cppengine {
     }
 
     void RaylibDrawContext::renderTriangle(Triangle const &triangle, Matrix4x4 const &triangleTransform) {
+        Matrix4x4 mvpMatrix = transform * triangleTransform;
+
         Vector4 vertices[Triangle::vertex_count] = {
-            triangleTransform * Vector4(triangle.vertices[0].x, triangle.vertices[0].y, triangle.vertices[0].z, 1),
-            triangleTransform * Vector4(triangle.vertices[1].x, triangle.vertices[1].y, triangle.vertices[1].z, 1),
-            triangleTransform * Vector4(triangle.vertices[2].x, triangle.vertices[2].y, triangle.vertices[2].z, 1)
+            mvpMatrix * Vector4(triangle.vertices[0].x, triangle.vertices[0].y, triangle.vertices[0].z, 1),
+            mvpMatrix * Vector4(triangle.vertices[1].x, triangle.vertices[1].y, triangle.vertices[1].z, 1),
+            mvpMatrix * Vector4(triangle.vertices[2].x, triangle.vertices[2].y, triangle.vertices[2].z, 1)
         };
 
         std::size_t indices[Triangle::index_count];
         std::memcpy(indices, Triangle::indices, Triangle::index_count * sizeof(std::size_t));
 
-        commands.emplace_back([vertices, indices]() {
+        commands.emplace_back([this, vertices, indices]() {
+            auto ndcToScreen = [this](Vector4 const &v) -> ::Vector2 {
+                float x = v.x / v.w;
+                float y = v.y / v.w;
+                return ::Vector2{
+                    (x + 1.0f) * 0.5f * viewport.width,
+                    (y + 1.0f) * 0.5f * viewport.height
+                };
+            };
+
             DrawTriangle(
-                ::Vector2{vertices[indices[0]].x / vertices[indices[0]].w, vertices[indices[0]].y / vertices[indices[0]].w},
-                ::Vector2{vertices[indices[1]].x / vertices[indices[1]].w, vertices[indices[1]].y / vertices[indices[1]].w},
-                ::Vector2{vertices[indices[2]].x / vertices[indices[2]].w, vertices[indices[2]].y / vertices[indices[2]].w},
-                ::RED // hardcode first, support colours later
+                ndcToScreen(vertices[indices[0]]),
+                ndcToScreen(vertices[indices[1]]),
+                ndcToScreen(vertices[indices[2]]),
+                ::RED
             );
         });
     }
 
     void RaylibDrawContext::renderBox2D(Box2D const &box2D, Matrix4x4 const &box2DTransform) {
+        Matrix4x4 mvpMatrix = transform * box2DTransform;
+
         Vector4 vertices[Box2D::vertex_count] = {
-            box2DTransform * Vector4(box2D.vertices[0].x, box2D.vertices[0].y, box2D.vertices[0].z, 1),
-            box2DTransform * Vector4(box2D.vertices[1].x, box2D.vertices[1].y, box2D.vertices[1].z, 1),
-            box2DTransform * Vector4(box2D.vertices[2].x, box2D.vertices[2].y, box2D.vertices[2].z, 1),
-            box2DTransform * Vector4(box2D.vertices[3].x, box2D.vertices[3].y, box2D.vertices[3].z, 1)
+            mvpMatrix * Vector4(box2D.vertices[0].x, box2D.vertices[0].y, box2D.vertices[0].z, 1),
+            mvpMatrix * Vector4(box2D.vertices[1].x, box2D.vertices[1].y, box2D.vertices[1].z, 1),
+            mvpMatrix * Vector4(box2D.vertices[2].x, box2D.vertices[2].y, box2D.vertices[2].z, 1),
+            mvpMatrix * Vector4(box2D.vertices[3].x, box2D.vertices[3].y, box2D.vertices[3].z, 1)
         };
 
         std::size_t indices[Box2D::index_count];
         std::memcpy(indices, Box2D::indices, Box2D::index_count * sizeof(std::size_t));
 
-        commands.emplace_back([vertices, indices]() {
+        commands.emplace_back([this, vertices, indices]() {
+            auto ndcToScreen = [this](Vector4 const &v) -> ::Vector2 {
+                float x = v.x / v.w;
+                float y = v.y / v.w;
+                return ::Vector2{
+                    (x + 1.0f) * 0.5f * viewport.width,
+                    (y + 1.0f) * 0.5f * viewport.height
+                };
+            };
+
             DrawTriangle(
-                ::Vector2{vertices[indices[0]].x / vertices[indices[0]].w, vertices[indices[0]].y / vertices[indices[0]].w},
-                ::Vector2{vertices[indices[1]].x / vertices[indices[1]].w, vertices[indices[1]].y / vertices[indices[1]].w},
-                ::Vector2{vertices[indices[2]].x / vertices[indices[2]].w, vertices[indices[2]].y / vertices[indices[2]].w},
-                ::BLUE // hardcode first, support colours later
+                ndcToScreen(vertices[indices[0]]),
+                ndcToScreen(vertices[indices[1]]),
+                ndcToScreen(vertices[indices[2]]),
+                ::BLUE
             );
             DrawTriangle(
-            ::Vector2{vertices[indices[3]].x / vertices[indices[3]].w, vertices[indices[3]].y / vertices[indices[3]].w},
-            ::Vector2{vertices[indices[4]].x / vertices[indices[4]].w, vertices[indices[4]].y / vertices[indices[4]].w},
-            ::Vector2{vertices[indices[5]].x / vertices[indices[5]].w, vertices[indices[5]].y / vertices[indices[5]].w},
-                ::BLUE // hardcode first, support colours later
+                ndcToScreen(vertices[indices[3]]),
+                ndcToScreen(vertices[indices[4]]),
+                ndcToScreen(vertices[indices[5]]),
+                ::BLUE
             );
         });
     }

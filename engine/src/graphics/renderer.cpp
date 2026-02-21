@@ -35,14 +35,16 @@ namespace {
 
     cppengine::Matrix4x4 getCameraVPMatrixMode2D(cppengine::Rectangle2D const &viewport,
         cppengine::Transform &transform) {
-        auto scale = transform.getScale();
+        auto position = transform.getPosition();
+        auto rotation = transform.getRotation();
+        auto scale_ = transform.getScale();
 
-        auto zoom = (scale.x + scale.y) / 2;
+        auto zoom = (scale_.x + scale_.y) / 2;
 
         float halfWidth  = (viewport.width  / 2.0f) / zoom;
         float halfHeight = (viewport.height / 2.0f) / zoom;
 
-        auto view = cppengine::inverse(transform.getMatrix());
+        auto view = cppengine::inverse(translate(position) * rotate(rotation));
 
         cppengine::Matrix4x4 projection = buildOrthographicProjection(
                 -halfWidth,   // left

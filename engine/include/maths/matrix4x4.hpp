@@ -71,5 +71,9 @@ namespace cppengine {
     Matrix4x4 transpose(Matrix4x4 const& m);
     Matrix4x4 inverse(Matrix4x4 const &m);
 
+    Matrix4x4 translate(Vector3 const &t);
+    Matrix4x4 rotate(Quaternion const &q);
+    Matrix4x4 scale(Vector3 const &s);
+
     std::ostream& operator<<(std::ostream& os, Matrix4x4 const& m);
 }

@@ -5,7 +5,7 @@
 #include <cmath>
 
 namespace cppengine {
-    RaylibRendererContext::RaylibRendererContext() : shaderContext(new RaylibShaderContext()) {
+    RaylibRendererContext::RaylibRendererContext() : modelContext(new RaylibModelContext()), shaderContext(new RaylibShaderContext()) {
 
     }
 

@@ -296,4 +296,26 @@ namespace cppengine {
                   << m.m20 << ", " << m.m21 << ", " << m.m22 << ", " << m.m23 << ", "
                   << m.m30 << ", " << m.m31 << ", " << m.m32 << ", " << m.m33;
     }
+
+    Matrix4x4 translate(Vector3 const &t) {
+        return Matrix4x4{
+            1.f, 0.f, 0.f, t.x,
+            0.f, 1.f, 0.f, t.y,
+            0.f, 0.f, 1.f, t.z,
+            0.f, 0.f, 0.f, 1.f
+        };
+    }
+
+    Matrix4x4 rotate(Quaternion const &q) {
+        return Matrix4x4(q);
+    }
+
+    Matrix4x4 scale(Vector3 const &s) {
+        return Matrix4x4{
+            s.x, 0.f, 0.f, 0.f,
+            0.f, s.y, 0.f, 0.f,
+            0.f, 0.f, s.z, 0.f,
+            0.f, 0.f, 0.f, 1.f
+        };
+    }
 }
