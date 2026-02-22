@@ -34,6 +34,13 @@ namespace {
         mesh.texcoords = static_cast<float *>(MemAlloc(mesh.vertexCount * 2 * sizeof(float)));
         memset(mesh.texcoords, 0, mesh.vertexCount * 2 * sizeof(float));
 
+        mesh.texcoords[0] = 0;
+        mesh.texcoords[1] = 0;
+        mesh.texcoords[2] = 0.5f;
+        mesh.texcoords[3] = 1.0f;
+        mesh.texcoords[4] = 1;
+        mesh.texcoords[5] =0;
+
         for (std::size_t i = 0; i < Triangle::index_count; ++i) {
             mesh.indices[i] = Triangle::indices[i];
         }

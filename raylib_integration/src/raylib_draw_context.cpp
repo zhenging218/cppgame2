@@ -137,13 +137,6 @@ namespace cppengine {
 
             material.maps[MATERIAL_MAP_DIFFUSE].color = RED;
             // ::DrawMesh(mesh, material, reinterpretMatrix(mvp));
-
-            glUseProgram(material.shader.id);
-
-            GLint program;
-            glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-            printf("program after manual glUseProgram: %d\n", program);
-
             ::DrawMesh(mesh, material, reinterpretMatrix(mvp));
         });
     }
