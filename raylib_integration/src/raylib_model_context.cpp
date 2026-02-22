@@ -66,6 +66,14 @@ namespace {
             mesh.indices[i] = Box2D::indices[i];
         }
 
+        mesh.normals = static_cast<float *>(MemAlloc(mesh.vertexCount * 3 * sizeof(float)));
+        // flat normal pointing toward camera, i.e. +Z in view space
+        for (int i = 0; i < mesh.vertexCount; ++i) {
+            mesh.normals[i * 3 + 0] = 0.0f;
+            mesh.normals[i * 3 + 1] = 0.0f;
+            mesh.normals[i * 3 + 2] = 1.0f;
+        }
+
         return createModelHandle("BOX2D", mesh);
     }
 }

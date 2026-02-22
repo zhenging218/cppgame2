@@ -16,12 +16,21 @@ namespace {
     };
 
     ::Matrix reinterpretMatrix(cppengine::Matrix4x4 const &m) {
+        /*
         return ::Matrix{
             m.m00, m.m10, m.m20, m.m30,
             m.m01, m.m11, m.m21, m.m31,
             m.m02, m.m12, m.m22, m.m32,
             m.m03, m.m13, m.m23, m.m33
         };
+        */
+        ::Matrix matrix = {};
+
+        std::memcpy(cppengine::MathHelper::StructToArrayConverter<::Matrix, float>::convert(matrix),
+            cppengine::MathHelper::StructToArrayConverter<cppengine::Matrix4x4, float>::convert(m),
+            cppengine::Matrix4x4::value_count * sizeof(float));
+
+        return matrix;
     }
 }
 
@@ -53,10 +62,16 @@ namespace cppengine {
                 };
             };
 
-            DrawTriangle(
+            ::Vector2 screenVertices[] = {
                 ndcToScreen(vertices[indices[0]]),
                 ndcToScreen(vertices[indices[1]]),
-                ndcToScreen(vertices[indices[2]]),
+                ndcToScreen(vertices[indices[2]])
+            };
+
+            DrawTriangle(
+                screenVertices[0],
+                screenVertices[1],
+                screenVertices[2],
                 ::RED
             );
         });
@@ -107,14 +122,16 @@ namespace cppengine {
         /*
         if (model->getName() == "TRIANGLE") {
             renderTriangle(Triangle{}, meshTransform);
+            return;
         } else if (model->getName() == "BOX2D") {
             renderBox2D(Box2D{}, meshTransform);
+            return;
         }
         */
 
         commands.emplace_back([this, shader, model, uniforms, textures, meshTransform] {
             std::ranges::for_each(uniforms, [shader](auto const &uniform) {
-                    auto const &uniformName= uniform.first;
+                    auto const &uniformName = uniform.first;
                     auto const &uniformValue = uniform.second;
 
                     std::visit(UniformSetters {
@@ -136,7 +153,6 @@ namespace cppengine {
             auto material = static_handle_cast<RaylibShaderHandle>(shader)->getMaterial();
 
             material.maps[MATERIAL_MAP_DIFFUSE].color = RED;
-            // ::DrawMesh(mesh, material, reinterpretMatrix(mvp));
             ::DrawMesh(mesh, material, reinterpretMatrix(mvp));
         });
     }
