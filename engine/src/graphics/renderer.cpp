@@ -137,9 +137,9 @@ namespace cppengine {
         context->endDraw();
     }
 
-    ShaderID Renderer::loadShader(std::string const &name, char const *vertexShaderPath, char const *fragmentShaderPath) {
+    ShaderID Renderer::loadShader(std::string const &name) {
         auto &instance = getInstance();
-        return instance.context->getShaderContext()->loadShader(name, vertexShaderPath, fragmentShaderPath);
+        return instance.context->getShaderContext()->loadShader(name);
     }
 
     Texture Renderer::loadTexture(std::string const &path) {

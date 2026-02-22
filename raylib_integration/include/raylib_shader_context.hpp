@@ -11,7 +11,7 @@ namespace cppengine {
     public:
 
         RaylibShaderContext();
-        ShaderID loadShader(std::string const & shaderName, char const *vertexShaderPath, char const *fragmentShaderPath) override;
+        ShaderID loadShader(std::string const & shaderName) override;
         ObjectHandle<ShaderHandle> getShader(ShaderID shaderId) override;
 
     };

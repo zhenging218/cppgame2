@@ -27,10 +27,9 @@ namespace cppengine {
         Material();
 
         ShaderID getShaderId() const;
-        void setShaderId(ShaderID id);
 
         // todo: shader asset system, so setShader can set by name only
-        // void setShader(std::string const &name, char const *vertexShaderPath, char const *fragmentShaderPath);
+        void setShader(std::string const &name);
 
         template<typename T> requires UniformType<T>
         void setUniform(std::string const &name, T &&uniform) {

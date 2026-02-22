@@ -38,6 +38,7 @@ set(ENGINE_ECS_SRCS
 set(ENGINE_GRAPHICS_SRCS
 	${ENGINE_SRC_DIR}/graphics/colour.cpp
 	${ENGINE_SRC_DIR}/graphics/texture.cpp
+	${ENGINE_SRC_DIR}/graphics/shader_context.cpp
 	${ENGINE_SRC_DIR}/graphics/material.cpp
 	${ENGINE_SRC_DIR}/graphics/renderable.cpp
 	${ENGINE_SRC_DIR}/graphics/enum_camera_mode.cpp
@@ -49,6 +50,7 @@ set(ENGINE_GRAPHICS_SRCS
 )
 
 set(ENGINE_PLATFORM_SRCS
+	${ENGINE_SRC_DIR}/platform/assets.cpp
 	${ENGINE_SRC_DIR}/platform/time.cpp
 	${ENGINE_SRC_DIR}/platform/window.cpp
 	${ENGINE_SRC_DIR}/platform/input.cpp

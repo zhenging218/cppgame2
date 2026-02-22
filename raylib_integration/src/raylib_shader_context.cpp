@@ -24,7 +24,7 @@ namespace cppengine {
         return nullptr;
     }
 
-    ShaderID RaylibShaderContext::loadShader(std::string const &shaderName, char const *vertexShaderPath, char const *fragmentShaderPath) {
+    ShaderID RaylibShaderContext::loadShader(std::string const &shaderName) {
         auto result = std::ranges::find_if(shaders, [&](auto const &shader) {
             return shader.second->getName() == shaderName;
         });
@@ -33,8 +33,10 @@ namespace cppengine {
             return result->first;
         }
 
+        auto [vertexShaderPath, fragmentShaderPath] = getShaderSourcePaths(shaderName);
+
         auto handle = createHandle<RaylibShaderHandle>(shaderName,
-            LoadShader(vertexShaderPath, fragmentShaderPath));
+            LoadShader(vertexShaderPath.c_str(), fragmentShaderPath.c_str()));
 
         if (handle->getMaterial().shader.id == 0) {
             return NO_SHADER;

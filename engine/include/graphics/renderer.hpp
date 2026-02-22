@@ -24,7 +24,7 @@ namespace cppengine {
 
         static Renderer &getInstance();
 
-        static ShaderID loadShader(std::string const &name, char const *vertexShaderPath, char const *fragmentShaderPath);
+        static ShaderID loadShader(std::string const &name);
         static Texture loadTexture(std::string const &path);
     };
 }
