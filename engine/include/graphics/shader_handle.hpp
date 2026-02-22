@@ -22,17 +22,17 @@ namespace cppengine {
 
         virtual void bindShader() = 0;
 
-        virtual void setUniform(char const *name, const std::int32_t value) = 0;
-        virtual void setUniform(char const *name, const std::uint32_t value) = 0;
-        virtual void setUniform(char const *name, const float value) = 0;
-        virtual void setUniform(char const *name, Colour const & value) = 0;
-        virtual void setUniform(char const *name, Vector2 const & value) = 0;
-        virtual void setUniform(char const *name, Vector3 const & value) = 0;
-        virtual void setUniform(char const *name, Vector4 const & value) = 0;
-        virtual void setUniform(char const *name, Matrix2x2 const & value) = 0;
-        virtual void setUniform(char const *name, Matrix3x3 const & value) = 0;
-        virtual void setUniform(char const *name, Matrix4x4 const & value) = 0;
-        virtual void setUniform(char const *name, ObjectHandle<TextureHandle> value) = 0;
+        virtual void setUniform(std::string const &name, const std::int32_t value) = 0;
+        virtual void setUniform(std::string const &name, const std::uint32_t value) = 0;
+        virtual void setUniform(std::string const &name, const float value) = 0;
+        virtual void setUniform(std::string const &name, Colour const & value) = 0;
+        virtual void setUniform(std::string const &name, Vector2 const & value) = 0;
+        virtual void setUniform(std::string const &name, Vector3 const & value) = 0;
+        virtual void setUniform(std::string const &name, Vector4 const & value) = 0;
+        virtual void setUniform(std::string const &name, Matrix2x2 const & value) = 0;
+        virtual void setUniform(std::string const &name, Matrix3x3 const & value) = 0;
+        virtual void setUniform(std::string const &name, Matrix4x4 const & value) = 0;
+        virtual void setUniform(std::string const &name, ObjectHandle<TextureHandle> value) = 0;
 
         virtual void unbindShader() = 0;
 

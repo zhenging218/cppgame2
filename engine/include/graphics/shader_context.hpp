@@ -10,7 +10,7 @@ namespace cppengine {
 
     public:
 
-        virtual ShaderID loadShader(char const *shaderName, char const *vertexShaderPath, char const *fragmentShaderPath) = 0;
+        virtual ShaderID loadShader(std::string const &shaderName, char const *vertexShaderPath, char const *fragmentShaderPath) = 0;
         virtual ObjectHandle<ShaderHandle> getShader(ShaderID shaderId) = 0;
 
         virtual ~ShaderContext() = 0;

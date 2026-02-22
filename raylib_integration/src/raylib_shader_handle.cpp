@@ -10,8 +10,8 @@ namespace {
     using location_type = cppengine::RaylibShaderHandle::location_type;
     using material_attribute_index_type = int;
 
-    material_attribute_index_type getDefaultMaterialLocation(char const *name) {
-        static const std::unordered_map<char const *, material_attribute_index_type> defaultLocations = {
+    material_attribute_index_type getDefaultMaterialLocation(std::string const &name) {
+        static const std::unordered_map<std::string, material_attribute_index_type> defaultLocations = {
             {cppengine::SHADER_DIFFUSE_COLOUR_UNIFORM, MATERIAL_MAP_DIFFUSE},
             {cppengine::SHADER_DIFFUSE_TEXTURE_UNIFORM, MATERIAL_MAP_DIFFUSE}
         };
@@ -24,12 +24,12 @@ namespace {
         return -1;
     }
 
-    location_type getLocation(std::unordered_map<char const *, location_type> &shaderLocations, char const *name, ::Shader const &shader) {
+    location_type getLocation(std::unordered_map<std::string, location_type> &shaderLocations, std::string const &name, ::Shader const &shader) {
 
         auto [it, inserted] = shaderLocations.try_emplace(name, -1);
 
         if (inserted) {
-            it->second = GetShaderLocation(shader, name);
+            it->second = GetShaderLocation(shader, name.c_str());
         }
 
         return it->second;
@@ -99,7 +99,7 @@ namespace cppengine {
 
     }
 
-    RaylibShaderHandle::RaylibShaderHandle(RaylibShaderHandle &&other)
+    RaylibShaderHandle::RaylibShaderHandle(RaylibShaderHandle &&other) noexcept
         : shaderName(std::move(other.shaderName)), shaderLocations(std::move(other.shaderLocations)), material(moveMaterial(std::move(other.material))) {
 
     }
@@ -119,7 +119,7 @@ namespace cppengine {
         ::BeginShaderMode(material.shader);
     }
 
-    void RaylibShaderHandle::setUniform(char const *name, const std::int32_t value) {
+    void RaylibShaderHandle::setUniform(std::string const &name, const std::int32_t value) {
 
         auto defaultLocation = getDefaultMaterialLocation(name);
 
@@ -132,7 +132,7 @@ namespace cppengine {
         }
     }
 
-    void RaylibShaderHandle::setUniform(char const *name, const std::uint32_t value) {
+    void RaylibShaderHandle::setUniform(std::string const &name, const std::uint32_t value) {
         auto defaultLocation = getDefaultMaterialLocation(name);
 
         if (defaultLocation != -1) {
@@ -142,7 +142,7 @@ namespace cppengine {
         }
     }
 
-    void RaylibShaderHandle::setUniform(char const *name, const float value) {
+    void RaylibShaderHandle::setUniform(std::string const &name, const float value) {
         auto defaultLocation = getDefaultMaterialLocation(name);
 
         if (defaultLocation != -1) {
@@ -152,7 +152,7 @@ namespace cppengine {
         }
     }
 
-    void RaylibShaderHandle::setUniform(char const *name, Colour const & value) {
+    void RaylibShaderHandle::setUniform(std::string const &name, Colour const & value) {
 
         auto defaultLocation = getDefaultMaterialLocation(name);
 
@@ -171,33 +171,33 @@ namespace cppengine {
         }
     }
 
-    void RaylibShaderHandle::setUniform(char const *name, Vector2 const & value) {
+    void RaylibShaderHandle::setUniform(std::string const &name, Vector2 const & value) {
         setShaderUniformValue(material.shader, getLocation(shaderLocations, name, material.shader),
             MathHelper::StructToArrayConverter<Vector2, float>::convert(value), ::SHADER_UNIFORM_VEC2);
     }
 
-    void RaylibShaderHandle::setUniform(char const *name, Vector3 const & value) {
+    void RaylibShaderHandle::setUniform(std::string const &name, Vector3 const & value) {
         setShaderUniformValue(material.shader, getLocation(shaderLocations, name, material.shader),
             MathHelper::StructToArrayConverter<Vector3, float>::convert(value), ::SHADER_UNIFORM_VEC3);
     }
-    void RaylibShaderHandle::setUniform(char const *name, Vector4 const & value) {
+    void RaylibShaderHandle::setUniform(std::string const &name, Vector4 const & value) {
         setShaderUniformValue(material.shader, getLocation(shaderLocations, name, material.shader),
             MathHelper::StructToArrayConverter<Vector4, float>::convert(value), ::SHADER_UNIFORM_VEC4);
     }
 
-    void RaylibShaderHandle::setUniform(char const *name, Matrix2x2 const & value) {
+    void RaylibShaderHandle::setUniform(std::string const &name, Matrix2x2 const & value) {
         setShaderUniformValue(material.shader, getLocation(shaderLocations, name, material.shader), value);
     }
 
-    void RaylibShaderHandle::setUniform(char const *name, Matrix3x3 const & value) {
+    void RaylibShaderHandle::setUniform(std::string const &name, Matrix3x3 const & value) {
         setShaderUniformValue(material.shader, getLocation(shaderLocations, name, material.shader), value);
     }
 
-    void RaylibShaderHandle::setUniform(char const *name, Matrix4x4 const & value) {
+    void RaylibShaderHandle::setUniform(std::string const &name, Matrix4x4 const & value) {
         setShaderUniformValue(material.shader, getLocation(shaderLocations, name, material.shader), value);
     }
 
-    void RaylibShaderHandle::setUniform(char const *name, ObjectHandle<TextureHandle> value) {
+    void RaylibShaderHandle::setUniform(std::string const &name, ObjectHandle<TextureHandle> value) {
         auto defaultLocation = getDefaultMaterialLocation(name);
 
         // get the actual texture

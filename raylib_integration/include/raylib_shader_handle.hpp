@@ -16,7 +16,7 @@ namespace cppengine {
     private:
         std::string shaderName;
         ::Material material;
-        std::unordered_map<char const *, location_type> shaderLocations;
+        std::unordered_map<std::string, location_type> shaderLocations;
 
     public:
         RaylibShaderHandle(std::string const &name_, ::Shader shader_);
@@ -30,17 +30,17 @@ namespace cppengine {
         std::string const &getName() const override;
 
         void bindShader() override;
-        void setUniform(char const *name, const std::int32_t value) override;
-        void setUniform(char const *name, const std::uint32_t value) override;
-        void setUniform(char const *name, const float value) override;
-        void setUniform(char const *name, Colour const & value) override;
-        void setUniform(char const *name, Vector2 const & value) override;
-        void setUniform(char const *name, Vector3 const & value) override;
-        void setUniform(char const *name, Vector4 const & value) override;
-        void setUniform(char const *name, Matrix2x2 const & value) override;
-        void setUniform(char const *name, Matrix3x3 const & value) override;
-        void setUniform(char const *name, Matrix4x4 const & value) override;
-        void setUniform(char const *name, ObjectHandle<TextureHandle> value) override;
+        void setUniform(std::string const &name, const std::int32_t value) override;
+        void setUniform(std::string const &name, const std::uint32_t value) override;
+        void setUniform(std::string const &name, const float value) override;
+        void setUniform(std::string const &name, Colour const & value) override;
+        void setUniform(std::string const &name, Vector2 const & value) override;
+        void setUniform(std::string const &name, Vector3 const & value) override;
+        void setUniform(std::string const &name, Vector4 const & value) override;
+        void setUniform(std::string const &name, Matrix2x2 const & value) override;
+        void setUniform(std::string const &name, Matrix3x3 const & value) override;
+        void setUniform(std::string const &name, Matrix4x4 const & value) override;
+        void setUniform(std::string const &name, ObjectHandle<TextureHandle> value) override;
         void unbindShader() override;
 
         ::Material const &getMaterial() const;

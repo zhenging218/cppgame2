@@ -24,7 +24,7 @@ namespace cppengine {
         return nullptr;
     }
 
-    ShaderID RaylibShaderContext::loadShader(char const *shaderName, char const *vertexShaderPath, char const *fragmentShaderPath) {
+    ShaderID RaylibShaderContext::loadShader(std::string const &shaderName, char const *vertexShaderPath, char const *fragmentShaderPath) {
         auto result = std::ranges::find_if(shaders, [&](auto const &shader) {
             return shader.second->getName() == shaderName;
         });
