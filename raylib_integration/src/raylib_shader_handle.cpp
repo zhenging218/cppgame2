@@ -4,6 +4,7 @@
 #include "raylib_integration.hpp"
 
 #include "raylib.h"
+#include "rlgl.h"
 #include "external/glad.h"
 
 namespace {

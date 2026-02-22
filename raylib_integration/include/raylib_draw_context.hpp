@@ -21,7 +21,7 @@ namespace cppengine {
         void renderBox2D(Box2D const &box2D, Matrix4x4 const &box2DTransform) override;
 
         void render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
-            std::unordered_map<char const *, Uniform> const &uniforms, std::unordered_map<char const *,
+            std::unordered_map<std::string, Uniform> const &uniforms, std::unordered_map<std::string,
             ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &meshTransform) override;
 
         void beginBatch(ObjectHandle<ShaderHandle> shader) override;

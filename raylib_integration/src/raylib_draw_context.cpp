@@ -5,6 +5,9 @@
 #include "raylib_integration.hpp"
 
 #include "raylib.h"
+#include "raymath.h"
+#include "rlgl.h"
+#include "external/glad.h"
 
 namespace {
     template<typename... Setter>
@@ -98,8 +101,16 @@ namespace cppengine {
     }
 
     void RaylibDrawContext::render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
-        std::unordered_map<char const *, Uniform> const &uniforms, std::unordered_map<char const *,
+        std::unordered_map<std::string, Uniform> const &uniforms, std::unordered_map<std::string,
         ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &meshTransform) {
+
+        /*
+        if (model->getName() == "TRIANGLE") {
+            renderTriangle(Triangle{}, meshTransform);
+        } else if (model->getName() == "BOX2D") {
+            renderBox2D(Box2D{}, meshTransform);
+        }
+        */
 
         commands.emplace_back([this, shader, model, uniforms, textures, meshTransform] {
             std::ranges::for_each(uniforms, [shader](auto const &uniform) {
@@ -120,13 +131,20 @@ namespace cppengine {
                     }, uniformValue);
                 });
 
-            std::ranges::for_each(textures, [shader](auto const &texture) {
-                shader->setUniform(texture.first, texture.second);
-            });
+            auto mvp = transform * meshTransform;
+            auto mesh = static_handle_cast<RaylibModelHandle>(model)->getMesh();
+            auto material = static_handle_cast<RaylibShaderHandle>(shader)->getMaterial();
 
-            ::DrawMesh(static_handle_cast<RaylibModelHandle>(model)->getMesh(),
-                static_handle_cast<RaylibShaderHandle>(shader)->getMaterial(),
-                reinterpretMatrix(transform * meshTransform));
+            material.maps[MATERIAL_MAP_DIFFUSE].color = RED;
+            // ::DrawMesh(mesh, material, reinterpretMatrix(mvp));
+
+            glUseProgram(material.shader.id);
+
+            GLint program;
+            glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+            printf("program after manual glUseProgram: %d\n", program);
+
+            ::DrawMesh(mesh, material, reinterpretMatrix(mvp));
         });
     }
 

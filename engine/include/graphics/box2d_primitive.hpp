@@ -11,6 +11,7 @@ namespace cppengine {
         Box2DPrimitive() = default;
         explicit Box2DPrimitive(Box2D const &t);
 
+        ModelID getModelId() const override;
         Vector3 const *getVertices() const override;
         std::size_t getVertexCount() const override;
         std::size_t const *getIndices() const override;

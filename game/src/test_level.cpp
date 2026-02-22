@@ -9,11 +9,18 @@ namespace cppgame {
         auto triangle = scene->createEntity();
         auto triangle_primitive = scene->addComponent<cppengine::TrianglePrimitive>(triangle);
         scene->addComponent<TestComponent>(triangle);
+        auto triangle_material = scene->addComponent<cppengine::Material>(triangle);
+        triangle_material->setShader(cppengine::default_shader_name);
+        triangle_material->setUniform(cppengine::SHADER_DIFFUSE_COLOUR_UNIFORM, cppengine::Colour{1.f, 0.f, 0.f, 1.f});
+
         auto triangle_go = triangle_primitive->getGameObject();
         triangle_go.getTransform()->setScale({100, 100, 1});
 
         auto box2d = scene->createEntity();
         auto box2d_primitive = scene->addComponent<cppengine::Box2DPrimitive>(box2d);
+        auto box2d_material = scene->addComponent<cppengine::Material>(box2d);
+        box2d_material->setShader(cppengine::default_shader_name);
+        box2d_material->setUniform(cppengine::SHADER_DIFFUSE_COLOUR_UNIFORM, cppengine::Colour{0.f, 0.f, 1.f, 1.f});
         auto box2d_go = box2d_primitive->getGameObject();
         auto box2d_transform = box2d_go.getTransform();
         box2d_transform->setPosition({200, 200, 1});

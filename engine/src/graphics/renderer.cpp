@@ -2,8 +2,21 @@
 #include <iostream>
 
 #include "engine.hpp"
+#include "../../../cmake-build-debug/_deps/raylib-src/src/raylib.h"
 
 namespace {
+    using renderable_entity_type = std::tuple<
+        cppengine::ObjectHandle<cppengine::Transform>,
+    cppengine::ObjectHandle<cppengine::Renderable>,
+    cppengine::ObjectHandle<cppengine::Material>>;
+
+    using renderable_item_type = std::tuple<
+        cppengine::ObjectHandle<cppengine::Transform>,
+    cppengine::ObjectHandle<cppengine::ModelHandle>,
+    std::unordered_map<std::string, cppengine::Uniform>,
+    std::unordered_map<std::string,
+    cppengine::ObjectHandle<cppengine::TextureHandle>>>;
+
     cppengine::Rectangle2D getAbsoluteViewport(
         cppengine::Rectangle2D const &relativeViewport, int screenWidth, int screenHeight) {
         return {
@@ -71,6 +84,32 @@ namespace {
         }
         return {};
     }
+
+    std::map<cppengine::ShaderID, std::vector<renderable_item_type>> preprocessAndGroupByShaders(
+        cppengine::ObjectHandle<cppengine::ModelContext> modelContext,
+        cppengine::ObjectHandle<cppengine::TextureContext> texture_context,
+        std::vector<renderable_entity_type> const &renderables
+        ) {
+
+        std::map<cppengine::ShaderID, std::vector<renderable_entity_type>> grouped;
+        std::map<cppengine::ShaderID, std::vector<renderable_item_type>> result;
+
+        for (auto const &renderable : renderables) {
+            auto const & [t, r, m] = renderable;
+
+            grouped[m->getShaderId()].push_back({t,r,m});
+        }
+
+        for (auto const &[id, group] : grouped) {
+            for (auto const &[t, r, m] : group) {
+                auto model = modelContext->getModel(r->getModelId());
+
+                result[id].push_back({t, model, m->getUniforms(), {}});
+            }
+        }
+
+        return result;
+    }
 }
 
 namespace cppengine {
@@ -87,48 +126,45 @@ namespace cppengine {
     }
 
     void Renderer::draw() {
-        auto cameras = SceneManager::getInstance().getAllComponentSets<Transform, Camera>();
-        auto triangles = SceneManager::getInstance().getAllComponentSets<Transform, TrianglePrimitive>();
-        auto box2Ds = SceneManager::getInstance().getAllComponentSets<Transform, Box2DPrimitive>();
 
-        // todo: switch to get all renderables after support is implemented
-        // auto renderables = SceneManager::getInstance().getAllComponentSets<Transform, Renderable>();
+        auto cameras = SceneManager::getInstance().getAllComponentSets<Transform, Camera>();
 
         std::sort(cameras.begin(), cameras.end(),
             [](auto const &lhs, auto const &rhs) {
                 return std::get<ObjectHandle<Camera>>(lhs)->getMode() < std::get<ObjectHandle<Camera>>(rhs)->getMode();
             });
 
-        // todo: group renderables by material shader id
-        //       mutate items into another structure that keeps
-        //       (model_handle, uniforms_map, texture_handle_map, transform_mat4x4);
+        auto renderables = preprocessAndGroupByShaders(
+            context->getModelContext(),
+            context->getTextureContext(),
+            SceneManager::getInstance().getAllComponentSets<Transform, Renderable, Material>()
+            );
+
+        auto shaderContext= context->getShaderContext();
 
         context->beginDraw();
 
-        for (auto const &[transform, camera] : cameras) {
-
+        for (auto const &[cameraTransform, camera] : cameras) {
             auto const &relativeViewport = camera->getViewport();
             auto absoluteViewport = getAbsoluteViewport(relativeViewport,
                 Window::getInstance().getWidth(), Window::getInstance().getHeight());
 
+            auto vp = getCameraVPMatrix(camera->getMode(), absoluteViewport, *cameraTransform);
             auto drawContext =
-                context->createDrawContext(absoluteViewport,
-                    getCameraVPMatrix(camera->getMode(), absoluteViewport, *transform));
+                context->createDrawContext(absoluteViewport, vp);
 
             drawContext->begin();
 
-            // todo: switch to shader batch rendering:
-            //       for each grouped render structure:
-            //          call drawContext->beginBatch(current_shader);
-            //          for every renderable in the batch, call drawContext->render(...);
-            //          call drawContext->endBatch(current_shader);
+            for (auto const &batch : renderables) {
+                auto shader = shaderContext->getShader(batch.first);
+                drawContext->beginBatch(shader);
 
-            for (auto const &[triangle_transform, triangle] : triangles) {
-                drawContext->renderTriangle(triangle->getTriangle(), triangle_transform->getMatrix());
-            }
+                for (auto const &[transform, model, uniforms, textures] : batch.second) {
+                    // render
+                    drawContext->render(shader, model, uniforms, textures, transform->getMatrix());
+                }
 
-            for (auto const &[box2d_transform, box2d] : box2Ds) {
-                drawContext->renderBox2D(box2d->getBox2D(), box2d_transform->getMatrix());
+                drawContext->endBatch(shader);
             }
 
             drawContext->flush();

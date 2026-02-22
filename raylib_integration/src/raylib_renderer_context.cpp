@@ -22,10 +22,15 @@ namespace cppengine {
         return shaderContext;
     }
 
+    ObjectHandle<ModelContext> RaylibRendererContext::getModelContext() const {
+        return modelContext;
+    }
+
     ObjectHandle<TextureContext> RaylibRendererContext::getTextureContext() const {
         return nullptr;
     }
 
     void RaylibRendererContext::endDraw() {
+
     }
 }

@@ -23,6 +23,16 @@ namespace {
         mesh.vertices = static_cast<float *>(MemAlloc(vertexSize));
         std::memcpy(mesh.vertices, MathHelper::StructToArrayConverter<Triangle::vertex_type, Triangle::value_type>::convert(triangle.vertices), vertexSize);
         mesh.indices = static_cast<unsigned short *>(MemAlloc(indexSize));
+        mesh.normals = static_cast<float *>(MemAlloc(mesh.vertexCount * 3 * sizeof(float)));
+        // flat normal pointing toward camera, i.e. +Z in view space
+        for (int i = 0; i < mesh.vertexCount; ++i) {
+            mesh.normals[i * 3 + 0] = 0.0f;
+            mesh.normals[i * 3 + 1] = 0.0f;
+            mesh.normals[i * 3 + 2] = 1.0f;
+        }
+
+        mesh.texcoords = static_cast<float *>(MemAlloc(mesh.vertexCount * 2 * sizeof(float)));
+        memset(mesh.texcoords, 0, mesh.vertexCount * 2 * sizeof(float));
 
         for (std::size_t i = 0; i < Triangle::index_count; ++i) {
             mesh.indices[i] = Triangle::indices[i];

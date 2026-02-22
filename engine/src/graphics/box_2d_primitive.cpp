@@ -5,6 +5,10 @@ namespace cppengine {
 
     }
 
+    ModelID Box2DPrimitive::getModelId() const {
+        return ModelID::BOX2D;
+    }
+
     Box2D const &Box2DPrimitive::getBox2D() const {
         return box2D;
     }

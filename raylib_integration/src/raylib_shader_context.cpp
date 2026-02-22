@@ -5,9 +5,6 @@
 #include "engine.hpp"
 #include "raylib_integration.hpp"
 
-namespace {
-    constexpr char default_shader_name[] = "defaultShader";
-}
 
 namespace cppengine {
     RaylibShaderContext::RaylibShaderContext() {

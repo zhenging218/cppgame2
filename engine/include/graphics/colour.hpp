@@ -9,7 +9,7 @@ namespace cppengine {
             };
         };
 
-        constexpr inline Colour(const char r_, const char g_, const char b_, const char a_)
+        constexpr inline Colour(const float r_, const float g_, const float b_, const float a_)
             : r(r_), g(g_), b(b_), a(a_) {}
 
         constexpr inline Colour() : Colour(0.f, 0.f, 0.f, 0.f) {}

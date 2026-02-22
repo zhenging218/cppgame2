@@ -5,6 +5,10 @@ namespace cppengine {
 
     }
 
+    ModelID TrianglePrimitive::getModelId() const {
+        return ModelID::TRIANGLE;
+    }
+
     Triangle const &TrianglePrimitive::getTriangle() const {
         return triangle;
     }
