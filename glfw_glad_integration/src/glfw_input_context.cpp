@@ -183,6 +183,13 @@ namespace {
         return false;
     }
 
+    void clearKeyPressedReleaseStates() {
+        std::memset(keyIsPressed, 0, GLFW_KEY_LAST * sizeof(decltype(keyIsPressed[0])));
+        std::memset(keyIsReleased, 0, GLFW_KEY_LAST * sizeof(decltype(keyIsReleased[0])));
+        std::memset(mouseIsPressed, 0, GLFW_MOUSE_BUTTON_LAST * sizeof(decltype(mouseIsPressed[0])));
+        std::memset(mouseIsReleased, 0, GLFW_MOUSE_BUTTON_LAST * sizeof(decltype(mouseIsReleased[0])));
+    }
+
 }
 
 namespace cppengine {
@@ -193,10 +200,7 @@ namespace cppengine {
     }
 
     void GLFWInputContext::clearInputs() {
-        std::memset(keyIsPressed, 0, GLFW_KEY_LAST * sizeof(decltype(keyIsPressed[0])));
-        std::memset(keyIsReleased, 0, GLFW_KEY_LAST * sizeof(decltype(keyIsReleased[0])));
-        std::memset(mouseIsPressed, 0, GLFW_MOUSE_BUTTON_LAST * sizeof(decltype(mouseIsPressed[0])));
-        std::memset(mouseIsReleased, 0, GLFW_MOUSE_BUTTON_LAST * sizeof(decltype(mouseIsReleased[0])));
+        clearKeyPressedReleaseStates();
     }
 
     bool GLFWInputContext::isKeyDown(KeyCode keyCode) const {
@@ -213,5 +217,9 @@ namespace cppengine {
 
     bool GLFWInputContext::isKeyReleased(KeyCode keyCode) const {
         return testKey(keyCode, mouseIsReleased, keyIsReleased);
+    }
+
+    GLFWInputContext::~GLFWInputContext() {
+
     }
 }
