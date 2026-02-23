@@ -96,7 +96,7 @@ namespace {
         for (auto const &renderable : renderables) {
             auto const & [t, r, m] = renderable;
 
-            grouped[m->getShaderId()].push_back({t,r,m});
+            grouped[m->getShaderId()].emplace_back(t,r,m);
         }
 
         for (auto const &[id, group] : grouped) {
@@ -112,9 +112,7 @@ namespace {
 }
 
 namespace cppengine {
-    Renderer::Renderer() {
-
-    }
+    Renderer::Renderer() = default;
 
     void Renderer::initialise() {
         context = createContext();

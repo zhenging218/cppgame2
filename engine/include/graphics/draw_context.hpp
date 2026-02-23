@@ -16,8 +16,8 @@ namespace cppengine {
         virtual void begin() = 0;
         virtual void beginBatch(ObjectHandle<ShaderHandle> shader) = 0;
         virtual void endBatch(ObjectHandle<ShaderHandle> shader) = 0;
-        virtual void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform) = 0;
-        virtual void renderBox2D(Box2D const &box2D, Matrix4x4 const &transform) = 0;
+        virtual void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform);
+        virtual void renderBox2D(Box2D const &box2D, Matrix4x4 const &transform);
 
         virtual void render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
             std::unordered_map<std::string, Uniform> const &uniforms, std::unordered_map<std::string,

@@ -24,6 +24,15 @@ set(INTEGRATION_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INTEGRATION_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_library(gg_integration STATIC
+	${INTEGRATION_SRC_DIR}/glad_texture_handle.cpp
+	${INTEGRATION_SRC_DIR}/glad_texture_context.cpp
+	${INTEGRATION_SRC_DIR}/glad_model_handle.cpp
+	${INTEGRATION_SRC_DIR}/glad_model_context.cpp
+	${INTEGRATION_SRC_DIR}/glad_shader_handle.cpp
+	${INTEGRATION_SRC_DIR}/glad_shader_context.cpp
+	${INTEGRATION_SRC_DIR}/glad_draw_context.cpp
+	${INTEGRATION_SRC_DIR}/glad_renderer_context.cpp
+	${INTEGRATION_SRC_DIR}/glad_renderer.cpp
 	${INTEGRATION_SRC_DIR}/glfw_window_context.cpp
 	${INTEGRATION_SRC_DIR}/glfw_input_context.cpp
 	${INTEGRATION_SRC_DIR}/gg_context_manager.cpp
