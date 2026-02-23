@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 namespace cppgame {
     void TestComponent::init() {
         transform = getGameObject().getTransform();
@@ -11,7 +14,7 @@ namespace cppgame {
         auto dt = cppengine::Time::deltaTime();
 
         if (cppengine::Input::isKeyDown(cppengine::KeyCode::SPACE)) {
-            auto delta = cppengine::Quaternion(cppengine::Vector3{0.f, 0.f, PI * dt});
+            auto delta = cppengine::Quaternion(cppengine::Vector3{0.f, 0.f, static_cast<float>(M_PI * dt)});
             auto rotation = transform->getRotation() * delta;
             transform->setRotation(rotation);
         }

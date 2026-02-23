@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include "engine.hpp"
-#include "../../../cmake-build-debug/_deps/raylib-src/src/raylib.h"
 
 namespace {
     using renderable_entity_type = std::tuple<

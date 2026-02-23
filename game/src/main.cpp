@@ -4,8 +4,6 @@
 
 #include <iostream>
 
-#include "raymath.h"
-
 namespace {
 	int run() {
 		cppengine::Window::getInstance().initialise();

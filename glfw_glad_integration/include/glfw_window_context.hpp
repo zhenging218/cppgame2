@@ -7,6 +7,21 @@ namespace cppengine {
     private:
 
     public:
+        void createWindow(int width, int height, const std::string &title) override;
+
+        bool windowShouldClose() const override;
+
+        void beginFrame() override;
+
+        void endFrame() override;
+
+        void closeWindow() override;
+
+        int getWidth() const override;
+
+        int getHeight() const override;
+
+        ~GLFWWindowContext() override;
     };
 }
 
