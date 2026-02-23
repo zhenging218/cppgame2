@@ -5,8 +5,13 @@
 namespace cppengine {
     class GLFWWindowContext : public WindowContext {
     private:
-
+        GLFWwindow *window;
     public:
+        GLFWWindowContext();
+
+        GLFWWindowContext(GLFWWindowContext const &) = delete;
+        GLFWWindowContext &operator=(GLFWWindowContext const &) = delete;
+
         void createWindow(int width, int height, const std::string &title) override;
 
         bool windowShouldClose() const override;
@@ -22,6 +27,8 @@ namespace cppengine {
         int getHeight() const override;
 
         ~GLFWWindowContext() override;
+
+        GLFWwindow *getWindow() const;
     };
 }
 

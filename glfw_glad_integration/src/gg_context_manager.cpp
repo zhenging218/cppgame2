@@ -2,9 +2,6 @@
 #include "gg_integration.hpp"
 
 namespace cppengine {
-    GGContextManager::GGContextManager() : windowContext(new GLFWWindowContext()) {
-
-    }
 
     GGContextManager &GGContextManager::getInstance() {
         static GGContextManager instance;
@@ -13,5 +10,18 @@ namespace cppengine {
 
     ObjectHandle<GLFWWindowContext> GGContextManager::getWindowContext() {
         auto &instance = getInstance();
+        if (instance.windowContext == nullptr) {
+            instance.windowContext = ObjectHandle(new GLFWWindowContext());
+        }
+        return instance.windowContext;
+    }
+
+
+    ObjectHandle<GLFWInputContext> GGContextManager::getInputContext() {
+        auto &instance = getInstance();
+        if (instance.inputContext == nullptr) {
+            instance.inputContext = ObjectHandle(new GLFWInputContext());
+        }
+        return instance.inputContext;
     }
 }

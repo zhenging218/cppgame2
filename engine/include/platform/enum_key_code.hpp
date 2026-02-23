@@ -127,9 +127,13 @@ namespace cppengine {
         PAUSE = 284,
         MENU = 348,
 
+        MOUSE_BUTTON_BEGIN = -1,
         MOUSE_LEFT  = 0,
         MOUSE_RIGHT = 1,
-        MOUSE_MIDDLE = 2
+        MOUSE_MIDDLE = 2,
+        MOUSE_BUTTON_END,
+
+        INVALID = -2
     };
 }
 

@@ -5,6 +5,7 @@
 #include "GLFW/glfw3.h"
 
 #include "glfw_window_context.hpp"
+#include "glfw_input_context.hpp"
 #include "gg_context_manager.hpp"
 
 #endif
