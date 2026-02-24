@@ -2,7 +2,9 @@
 #define GRAPHICS_HPP
 
 #include "hash_helper.hpp"
+#include "shader_helper.hpp"
 #include "colour.hpp"
+#include "enum_attribute_location.hpp"
 #include "shader_location_name.hpp"
 #include "enum_shader_id.hpp"
 #include "enum_model_id.hpp"

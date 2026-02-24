@@ -2,6 +2,7 @@
 #define ASSETS_HPP
 #include <string>
 #include <utility>
+#include <fstream>
 
 namespace cppengine {
     class Assets {
@@ -15,6 +16,7 @@ namespace cppengine {
         static Assets &getinstance();
 
         static std::string getDirectory(std::string_view root, std::string_view name);
+        static std::ifstream openFile(std::string_view filename);
 
     };
 }

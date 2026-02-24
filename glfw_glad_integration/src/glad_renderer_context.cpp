@@ -15,11 +15,13 @@ namespace cppengine {
     textureContext(new GladTextureContext()),
     modelContext(new GladModelContext()),
     shaderContext(new GladShaderContext()) {
+        gladLoadGL(glfwGetProcAddress);
         GLFWwindow *window = GGContextManager::getWindowContext()->getWindow();
         glfwGetFramebufferSize(window, &width, &height);
         glfwSetFramebufferSizeCallback(window, &onFramebufferSizeEvent);
 
         glClearColor(0,0,0,1);
+
     }
 
     ObjectHandle<TextureContext> GladRendererContext::getTextureContext() const {

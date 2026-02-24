@@ -7,6 +7,8 @@ namespace cppengine {
 
     public:
         virtual std::string const &getName() const = 0;
+        virtual void bindModel() = 0;
+        virtual void unbindModel() = 0;
         virtual ~ModelHandle() = 0;
     };
 

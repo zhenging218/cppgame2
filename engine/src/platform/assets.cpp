@@ -15,4 +15,8 @@ namespace cppengine {
         std::filesystem::path path = "./assets";
         return (path / root / name).string();
     }
+
+    std::ifstream Assets::openFile(std::string_view filename) {
+        return {std::filesystem::path(filename)};
+    }
 }

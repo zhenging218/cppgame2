@@ -3,7 +3,10 @@
 
 namespace cppengine {
     struct Colour {
+        static constexpr std::size_t value_count = 4;
+
         union {
+            float values[value_count];
             struct {
                 float r,g,b,a;
             };

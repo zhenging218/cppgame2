@@ -9,8 +9,8 @@ namespace cppengine {
     class GladShaderHandle : public ShaderHandle {
     private:
 
+        GLuint id;
         std::string name;
-        int id;
         std::unordered_map<std::string, int> locations;
 
     public:

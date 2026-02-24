@@ -65,6 +65,7 @@ namespace cppengine {
             }
 
             glfwMakeContextCurrent(window);
+            glfwSwapInterval(1);
             glfwSetWindowSizeCallback(window, &onGLFWWindowSizeEvent);
         }
     }
