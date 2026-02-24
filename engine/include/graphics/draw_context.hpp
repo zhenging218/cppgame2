@@ -14,12 +14,16 @@ namespace cppengine {
 
     public:
         virtual void begin() = 0;
-        virtual void beginBatch(ObjectHandle<ShaderHandle> shader) = 0;
-        virtual void endBatch(ObjectHandle<ShaderHandle> shader) = 0;
+        virtual void bindShader(ObjectHandle<ShaderHandle> shader) = 0;
+        virtual void unbindShader(ObjectHandle<ShaderHandle> shader) = 0;
+
+        virtual void bindModel(ObjectHandle<ModelHandle> model) = 0;
+        virtual void unbindModel(ObjectHandle<ModelHandle> model) = 0;
+
         virtual void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform);
         virtual void renderBox2D(Box2D const &box2D, Matrix4x4 const &transform);
 
-        virtual void render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
+        virtual void render(ObjectHandle<ShaderHandle> shader,
             std::unordered_map<std::string, Uniform> const &uniforms, std::unordered_map<std::string,
             ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &transform) = 0;
 

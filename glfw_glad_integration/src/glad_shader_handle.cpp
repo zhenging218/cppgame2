@@ -177,7 +177,7 @@ namespace cppengine {
 
     void GladShaderHandle::setUniform(const std::string &name, ObjectHandle<TextureHandle> value) {}
 
-    void GladShaderHandle::unbindShader() {
+    void GladShaderHandle::bindShader() {
         glUseProgram(0);
     }
 }

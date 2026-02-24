@@ -24,8 +24,8 @@ namespace cppengine {
             std::unordered_map<std::string, Uniform> const &uniforms, std::unordered_map<std::string,
             ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &meshTransform) override;
 
-        void beginBatch(ObjectHandle<ShaderHandle> shader) override;
-        void endBatch(ObjectHandle<ShaderHandle> shader) override;
+        void bindShader(ObjectHandle<ShaderHandle> shader) override;
+        void unbindShader(ObjectHandle<ShaderHandle> shader) override;
 
         void flush() override;
         ~RaylibDrawContext() override = default;

@@ -41,7 +41,7 @@ namespace cppengine {
         void setUniform(std::string const &name, Matrix3x3 const & value) override;
         void setUniform(std::string const &name, Matrix4x4 const & value) override;
         void setUniform(std::string const &name, ObjectHandle<TextureHandle> value) override;
-        void unbindShader() override;
+        void bindShader() override;
 
         ::Material const &getMaterial() const;
 

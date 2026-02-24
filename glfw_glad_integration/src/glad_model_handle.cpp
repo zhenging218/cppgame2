@@ -13,6 +13,22 @@ namespace {
 
     constexpr std::size_t stride = sizeof(VertexAttribute);
 
+    std::vector<VertexAttribute> createAttributeArray(Vector3 const *vertices, std::size_t vertexCount) {
+        std::vector<VertexAttribute> attributes;
+        attributes.reserve(vertexCount);
+        std::ranges::transform(vertices, vertices + vertexCount, std::back_insert_iterator(attributes), [](auto const &vertex) {
+            return VertexAttribute{
+                .position = vertex,
+                .normal = {0,1,0},
+                .tangent =  {1, 0, 0},
+                .colour = {1, 1, 1, 1},
+                .uv = { 0, 0 }
+            };
+        });
+
+        return attributes;
+    }
+
     void initialiseModel(
         GLuint &vao, GLuint &vbo, GLuint &ebo,
         Vector3 const *vertices,
@@ -26,18 +42,18 @@ namespace {
         glBindVertexArray(vao);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+        auto attributes = createAttributeArray(vertices, vertexCount);
+
         glBufferData(GL_ARRAY_BUFFER,
-            vertexCount * Vector3::value_count * sizeof(float),
-            MathHelper::StructToArrayConverter<Vector3, float>::convert(vertices),
-            GL_STATIC_DRAW);
+            vertexCount * sizeof(VertexAttribute),
+            attributes.data(), GL_STATIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,
             indexCount * sizeof(decltype(indices[0])),
             indices,
             GL_STATIC_DRAW);
-
-
 
         glVertexAttribPointer(
             AttributeLocation::ATTRIBUTE_POSITION,

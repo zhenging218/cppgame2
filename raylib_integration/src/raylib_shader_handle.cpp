@@ -13,8 +13,8 @@ namespace {
 
     material_attribute_index_type getDefaultMaterialLocation(std::string const &name) {
         static const std::unordered_map<std::string, material_attribute_index_type> defaultLocations = {
-            {cppengine::SHADER_DIFFUSE_COLOUR_UNIFORM, MATERIAL_MAP_DIFFUSE},
-            {cppengine::SHADER_DIFFUSE_TEXTURE_UNIFORM, MATERIAL_MAP_DIFFUSE}
+            {cppengine::SHADER_MVP_MATRIX_UNIFORM, SHADER_LOC_MATRIX_MVP},
+            {cppengine::SHADER_DIFFUSE_COLOUR_UNIFORM, SHADER_LOC_VERTEX_COLOR},
         };
 
         auto result = defaultLocations.find(name);
@@ -216,7 +216,7 @@ namespace cppengine {
         return material;
     }
 
-    void RaylibShaderHandle::unbindShader() {
+    void RaylibShaderHandle::bindShader() {
         ::EndShaderMode();
     }
 

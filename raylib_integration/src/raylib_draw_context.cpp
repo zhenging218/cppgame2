@@ -135,20 +135,23 @@ namespace cppengine {
                     auto const &uniformValue = uniform.second;
 
                     std::visit(UniformSetters {
-                        [uniformName, shader](std::int32_t v)     { shader->setUniform(uniformName, v); },
-                        [uniformName, shader](std::uint32_t v)    { shader->setUniform(uniformName, v); },
-                        [uniformName, shader](float v)            { shader->setUniform(uniformName, v); },
-                        [uniformName, shader](Colour const &v)    { shader->setUniform(uniformName, v); },
-                        [uniformName, shader](Vector2 const &v)   { shader->setUniform(uniformName, v); },
-                        [uniformName, shader](Vector3 const &v)   { shader->setUniform(uniformName, v); },
-                        [uniformName, shader](Vector4 const &v)   { shader->setUniform(uniformName, v); },
-                        [uniformName, shader](Matrix2x2 const &v) { shader->setUniform(uniformName, v); },
-                        [uniformName, shader](Matrix3x3 const &v) { shader->setUniform(uniformName, v); },
-                        [uniformName, shader](Matrix4x4 const &v) { shader->setUniform(uniformName, v); },
+                        [&uniformName, &shader](std::int32_t v)     { shader->setUniform(uniformName, v); },
+                        [&uniformName, &shader](std::uint32_t v)    { shader->setUniform(uniformName, v); },
+                        [&uniformName, &shader](float v)            { shader->setUniform(uniformName, v); },
+                        [&uniformName, &shader](Colour const &v)    { shader->setUniform(uniformName, v); },
+                        [&uniformName, &shader](Vector2 const &v)   { shader->setUniform(uniformName, v); },
+                        [&uniformName, &shader](Vector3 const &v)   { shader->setUniform(uniformName, v); },
+                        [&uniformName, &shader](Vector4 const &v)   { shader->setUniform(uniformName, v); },
+                        [&uniformName, &shader](Matrix2x2 const &v) { shader->setUniform(uniformName, v); },
+                        [&uniformName, &shader](Matrix3x3 const &v) { shader->setUniform(uniformName, v); },
+                        [&uniformName, &shader](Matrix4x4 const &v) { shader->setUniform(uniformName, v); },
                     }, uniformValue);
                 });
 
             auto mvp = transform * meshTransform;
+
+            shader->setUniform(SHADER_MVP_MATRIX_UNIFORM, mvp);
+
             auto mesh = static_handle_cast<RaylibModelHandle>(model)->getMesh();
             auto material = static_handle_cast<RaylibShaderHandle>(shader)->getMaterial();
 
@@ -157,12 +160,12 @@ namespace cppengine {
         });
     }
 
-    void RaylibDrawContext::beginBatch(ObjectHandle<ShaderHandle> shader) {
+    void RaylibDrawContext::bindShader(ObjectHandle<ShaderHandle> shader) {
         commands.emplace_back([shader]() { shader->bindShader(); });
     }
 
-    void RaylibDrawContext::endBatch(ObjectHandle<ShaderHandle> shader) {
-        commands.emplace_back([shader]() { shader->unbindShader(); });
+    void RaylibDrawContext::unbindShader(ObjectHandle<ShaderHandle> shader) {
+        commands.emplace_back([shader]() { shader->bindShader(); });
     }
 
     void RaylibDrawContext::begin() {

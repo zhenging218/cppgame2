@@ -156,14 +156,16 @@ namespace cppengine {
 
             for (auto const &batch : renderables) {
                 auto shader = shaderContext->getShader(batch.first);
-                drawContext->beginBatch(shader);
+                drawContext->bindShader(shader);
 
                 for (auto const &[transform, model, uniforms, textures] : batch.second) {
                     // render
-                    drawContext->render(shader, model, uniforms, textures, transform->getMatrix());
+                    drawContext->bindModel(model);
+                    drawContext->render(shader, uniforms, textures, transform->getMatrix());
+                    drawContext->unbindModel(model);
                 }
 
-                drawContext->endBatch(shader);
+                drawContext->unbindShader(shader);
             }
 
             drawContext->flush();

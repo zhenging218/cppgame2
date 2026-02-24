@@ -20,8 +20,11 @@ namespace cppengine {
 
         void begin() override;
 
-        void beginBatch(ObjectHandle<ShaderHandle> shader) override;
-        void endBatch(ObjectHandle<ShaderHandle> shader) override;
+        void bindShader(ObjectHandle<ShaderHandle> shader) override;
+        void unbindShader(ObjectHandle<ShaderHandle> shader) override;
+
+        void bindModel(ObjectHandle<ModelHandle> model) override;
+        void unbindModel(ObjectHandle<ModelHandle> model) override;
 
 
         void render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
