@@ -9,7 +9,7 @@ namespace cppengine {
     private:
 
     protected:
-        std::pair<std::string, std::string> getShaderSourcePaths(std::string const &name) const;
+        static std::pair<std::string, std::string> getShaderSourcePaths(std::string const &name);
 
     public:
 

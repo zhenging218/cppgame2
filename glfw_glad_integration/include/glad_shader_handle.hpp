@@ -2,6 +2,7 @@
 #define GLAD_SHADER_HANDLE_HPP
 #include <unordered_map>
 
+#include <string>
 #include "graphics/shader_handle.hpp"
 
 namespace cppengine {
@@ -10,9 +11,15 @@ namespace cppengine {
 
         std::string name;
         int id;
-        std::unordered_map<std::string, int> uniformLocations;
+        std::unordered_map<std::string, int> locations;
 
     public:
+        explicit GladShaderHandle(std::string const &name_);
+        explicit GladShaderHandle(std::string &&name_);
+
+        GladShaderHandle(GladShaderHandle const &) = delete;
+        GladShaderHandle &operator=(GladShaderHandle const &) = delete;
+
         void bindShader() override;
 
         const std::string & getName() const override;

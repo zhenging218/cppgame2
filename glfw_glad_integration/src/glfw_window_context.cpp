@@ -35,7 +35,7 @@ namespace cppengine {
     }
 
     void GLFWWindowContext::endFrame() {
-        glfwSwapBuffers(window);
+
     }
 
     int GLFWWindowContext::getHeight() const {
@@ -55,15 +55,18 @@ namespace cppengine {
     }
 
     void GLFWWindowContext::createWindow(int width, int height, const std::string &title) {
-        window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
-        if (!window) {
-            throw std::runtime_error(std::format(
-                "Could not create window ({} x {}) with title {}",
-                width, height, title));
+        if (window != nullptr) {
+            window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+            if (!window) {
+                throw std::runtime_error(std::format(
+                    "Could not create window ({} x {}) with title {}",
+                    width, height, title));
 
+            }
+
+            glfwMakeContextCurrent(window);
+            glfwSetWindowSizeCallback(window, &onGLFWWindowSizeEvent);
         }
-
-        glfwSetWindowSizeCallback(window, &onGLFWWindowSizeEvent);
     }
 
     GLFWwindow *GLFWWindowContext::getWindow() const {

@@ -6,8 +6,15 @@
 namespace cppengine {
     class GladRendererContext : public RendererContext {
     private:
-
+        ObjectHandle<GladTextureContext> textureContext;
+        ObjectHandle<GladModelContext> modelContext;
+        ObjectHandle<GladShaderContext> shaderContext;
     public:
+        GladRendererContext();
+
+        GladRendererContext(GladRendererContext const &) = delete;
+        GladRendererContext &operator=(GladRendererContext const &) = delete;
+
         void beginDraw() override;
 
         ObjectHandle<DrawContext>
@@ -18,6 +25,8 @@ namespace cppengine {
         ObjectHandle<ModelContext> getModelContext() const override;
 
         ObjectHandle<ShaderContext> getShaderContext() const override;
+
+        std::pair<int, int> getFrameBufferSize() const override;
 
         void endDraw() override;
 

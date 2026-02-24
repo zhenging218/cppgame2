@@ -17,12 +17,12 @@ namespace {
     cppengine::ObjectHandle<cppengine::TextureHandle>>>;
 
     cppengine::Rectangle2D getAbsoluteViewport(
-        cppengine::Rectangle2D const &relativeViewport, int screenWidth, int screenHeight) {
+        cppengine::Rectangle2D const &relativeViewport, const int frameBufferWidth, const int frameBufferHeight) {
         return {
-            screenWidth * relativeViewport.x,
-            screenHeight * relativeViewport.y,
-            screenWidth * relativeViewport.width,
-            screenHeight * relativeViewport.height
+            frameBufferWidth * relativeViewport.x,
+            frameBufferHeight * relativeViewport.y,
+            frameBufferWidth * relativeViewport.width,
+            frameBufferHeight * relativeViewport.height
         };
     }
 
@@ -126,7 +126,7 @@ namespace cppengine {
 
         auto cameras = SceneManager::getInstance().getAllComponentSets<Transform, Camera>();
 
-        std::sort(cameras.begin(), cameras.end(),
+        std::ranges::sort(cameras,
             [](auto const &lhs, auto const &rhs) {
                 return std::get<ObjectHandle<Camera>>(lhs)->getMode() < std::get<ObjectHandle<Camera>>(rhs)->getMode();
             });
@@ -141,10 +141,12 @@ namespace cppengine {
 
         context->beginDraw();
 
+        auto [width, height] = context->getFrameBufferSize();
+
         for (auto const &[cameraTransform, camera] : cameras) {
             auto const &relativeViewport = camera->getViewport();
             auto absoluteViewport = getAbsoluteViewport(relativeViewport,
-                Window::getInstance().getWidth(), Window::getInstance().getHeight());
+               width, height);
 
             auto vp = getCameraVPMatrix(camera->getMode(), absoluteViewport, *cameraTransform);
             auto drawContext =

@@ -21,6 +21,8 @@ namespace cppengine {
         ObjectHandle<ModelContext> getModelContext() const override;
         ObjectHandle<TextureContext> getTextureContext() const override;
 
+        std::pair<int, int> getFrameBufferSize() const override;
+
         void beginDraw() override;
         void endDraw() override;
 

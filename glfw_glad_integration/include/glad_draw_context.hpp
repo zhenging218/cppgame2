@@ -8,10 +8,16 @@
 #include "memory/object_handle.hpp"
 
 namespace cppengine {
+    struct Rectangle2D;
+
     class GladDrawContext : public DrawContext {
     private:
 
     public:
+        GladDrawContext(Rectangle2D const &viewport, Matrix4x4 const &vpMatrix);
+        GladDrawContext(GladDrawContext const &) = delete;
+        GladDrawContext &operator=(GladDrawContext const &) = delete;
+
         void begin() override;
 
         void beginBatch(ObjectHandle<ShaderHandle> shader) override;

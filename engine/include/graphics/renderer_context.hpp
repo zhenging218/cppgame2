@@ -24,6 +24,8 @@ namespace cppengine {
 
         virtual void endDraw() = 0;
 
+        virtual std::pair<int, int> getFrameBufferSize() const = 0;
+
         virtual ~RendererContext() = 0;
     };
 

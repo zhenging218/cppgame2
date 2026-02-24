@@ -1,3 +1,5 @@
+#include "../include/raylib_renderer_context.hpp"
+
 #include "engine.hpp"
 #include "raylib_draw_context.hpp"
 #include "raylib_integration.hpp"
@@ -28,6 +30,10 @@ namespace cppengine {
 
     ObjectHandle<TextureContext> RaylibRendererContext::getTextureContext() const {
         return nullptr;
+    }
+
+    std::pair<int, int> RaylibRendererContext::getFrameBufferSize() const {
+        return {0,0};
     }
 
     void RaylibRendererContext::endDraw() {
