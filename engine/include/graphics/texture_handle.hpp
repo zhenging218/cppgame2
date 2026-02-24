@@ -1,5 +1,6 @@
 #ifndef TEXTURE_HANDLE_HPP
 #define TEXTURE_HANDLE_HPP
+#include <cstddef>
 
 namespace cppengine {
     class TextureHandle {

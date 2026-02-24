@@ -5,8 +5,9 @@
 namespace cppengine {
     class GladTextureHandle : public TextureHandle {
     private:
-
+        std::size_t textureId;
     public:
+        std::size_t getId() const;
         inline ~GladTextureHandle() override = default;
     };
 }

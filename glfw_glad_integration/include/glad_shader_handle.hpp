@@ -10,7 +10,7 @@ namespace cppengine {
     private:
 
         GLuint id;
-        std::string name;
+        std::string shaderName;
         std::unordered_map<std::string, int> locations;
 
     public:

@@ -68,11 +68,11 @@ namespace {
 }
 
 namespace cppengine {
-    GladShaderHandle::GladShaderHandle(std::string const &name_) : id(createShaderProgram(name_)), name(name_) {
+    GladShaderHandle::GladShaderHandle(std::string const &name_) : id(createShaderProgram(name_)), shaderName(name_) {
 
     }
 
-    GladShaderHandle::GladShaderHandle(std::string &&name_) : id(createShaderProgram(name_)), name(std::move(name_)) {
+    GladShaderHandle::GladShaderHandle(std::string &&name_) : id(createShaderProgram(name_)), shaderName(std::move(name_)) {
         
     }
 
@@ -85,7 +85,7 @@ namespace cppengine {
     }
 
     const std::string &GladShaderHandle::getName() const {
-        return name;
+        return shaderName;
     }
     
     void GladShaderHandle::setUniform(const std::string &name, const std::int32_t value) {
@@ -175,9 +175,15 @@ namespace cppengine {
         }
     }
 
-    void GladShaderHandle::setUniform(const std::string &name, ObjectHandle<TextureHandle> value) {}
+    void GladShaderHandle::setUniform(const std::string &name, ObjectHandle<TextureHandle> value) {
+        int location = getLocation(locations, name, id);
 
-    void GladShaderHandle::bindShader() {
+        if (location != -1) {
+            glProgramUniform1i(id, location, static_handle_cast<GladTextureHandle>(value)->getId());
+        }
+    }
+
+    void GladShaderHandle::unbindShader() {
         glUseProgram(0);
     }
 }
