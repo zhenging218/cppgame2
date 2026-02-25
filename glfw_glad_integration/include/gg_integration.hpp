@@ -4,6 +4,7 @@
 #include "glad/gl.h"
 #include "GLFW/glfw3.h"
 
+#include "glad_shader_helper.hpp"
 #include "glad_texture_handle.hpp"
 #include "glad_texture_context.hpp"
 #include "glad_model_handle.hpp"

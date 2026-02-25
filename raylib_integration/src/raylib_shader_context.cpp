@@ -11,7 +11,7 @@ namespace cppengine {
         auto defaultShader = LoadShader(0, 0);
         shaders.insert({ShaderID::DEFAULT_DIFFUSE_SHADER,
             static_handle_cast<ShaderHandle>(
-                createHandle<RaylibShaderHandle>(default_shader_name, defaultShader))});
+                createHandle<RaylibShaderHandle>(DEFAULT_SHADER_NAME, defaultShader))});
     }
 
     ObjectHandle<ShaderHandle> RaylibShaderContext::getShader(ShaderID shaderId) {

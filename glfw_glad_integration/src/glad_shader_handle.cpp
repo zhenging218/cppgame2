@@ -6,7 +6,7 @@
 namespace {
     using namespace cppengine;
 
-    int getLocation(std::unordered_map<std::string, int> &locations, std::string const &name, int program) {
+    int getLocation(std::unordered_map<std::string, int> &locations, std::string const &name, GLuint program) {
         auto [it, inserted] = locations.try_emplace(name, -1);
 
         if (inserted) {
@@ -29,36 +29,8 @@ namespace {
             fragSource = {std::istreambuf_iterator<char>(fragFile), std::istreambuf_iterator<char>()};
         }
 
-        auto vertSourceBuffer = vertSource.c_str();
-        auto fragSourceBuffer = fragSource.c_str();
-
-        auto vert = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vert, 1, &vertSourceBuffer, nullptr);
-        glCompileShader(vert);
-
-        auto frag = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(frag, 1, &fragSourceBuffer, nullptr);
-        glCompileShader(frag);
-
-        auto program = glCreateProgram();
-        glAttachShader(program, vert);
-        glAttachShader(program, frag);
-        glLinkProgram(program);
-
-        glDeleteShader(vert);
-        glDeleteShader(frag);
-
-        GLint success;
-        glGetProgramiv(program, GL_LINK_STATUS, &success);
-
-        if (!success) {
-            glDeleteProgram(program);
-            throw std::runtime_error(std::format(
-                "Could not link shader programs {} and {}",
-                vertPath, fragPath));
-        }
-
-        return program;
+        return GladShaderHelper::compileShader(vertPath, fragPath,
+            vertSource.c_str(), fragSource.c_str());
     }
 
     GLuint createShaderProgram(std::string const & name) {
@@ -68,6 +40,14 @@ namespace {
 }
 
 namespace cppengine {
+    GladShaderHandle::GladShaderHandle(std::string const &name_, GLuint id_) : shaderName(name_), id(id_) {
+
+    }
+
+    GladShaderHandle::GladShaderHandle(std::string &&name_, GLuint id_) : shaderName(std::move(name_)), id(id_) {
+
+    }
+
     GladShaderHandle::GladShaderHandle(std::string const &name_) : id(createShaderProgram(name_)), shaderName(name_) {
 
     }
@@ -185,5 +165,9 @@ namespace cppengine {
 
     void GladShaderHandle::unbindShader() {
         glUseProgram(0);
+    }
+
+    GLuint GladShaderHandle::getId() const {
+        return id;
     }
 }

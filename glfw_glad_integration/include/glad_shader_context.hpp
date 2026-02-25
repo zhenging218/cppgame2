@@ -10,6 +10,10 @@ namespace cppengine {
         std::unordered_map<ShaderID, ObjectHandle<ShaderHandle>> shaders;
 
     public:
+        GladShaderContext();
+        GladShaderContext(GladShaderContext const &) = delete;
+        GladShaderContext &operator=(GladShaderContext const &) = delete;
+
         ShaderID loadShader(const std::string &shaderName) override;
 
         ObjectHandle<ShaderHandle> getShader(ShaderID shaderId) override;

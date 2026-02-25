@@ -13,7 +13,10 @@ namespace cppengine {
         std::string shaderName;
         std::unordered_map<std::string, int> locations;
 
+        friend class GladShaderContext;
     public:
+        GladShaderHandle(std::string const &name_, GLuint id_);
+        GladShaderHandle(std::string  &&name_, GLuint id_);
         explicit GladShaderHandle(std::string const &name_);
         explicit GladShaderHandle(std::string &&name_);
 
@@ -49,6 +52,8 @@ namespace cppengine {
         void unbindShader() override;
 
         ~GladShaderHandle() override;
+
+        GLuint getId() const;
     };
 }
 

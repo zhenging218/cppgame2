@@ -28,6 +28,7 @@ add_library(gg_integration STATIC
 	${INTEGRATION_SRC_DIR}/glad_texture_context.cpp
 	${INTEGRATION_SRC_DIR}/glad_model_handle.cpp
 	${INTEGRATION_SRC_DIR}/glad_model_context.cpp
+	${INTEGRATION_SRC_DIR}/glad_shader_helper.cpp
 	${INTEGRATION_SRC_DIR}/glad_shader_handle.cpp
 	${INTEGRATION_SRC_DIR}/glad_shader_context.cpp
 	${INTEGRATION_SRC_DIR}/glad_draw_context.cpp
