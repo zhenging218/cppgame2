@@ -96,7 +96,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniform3fv(id, location, 1,
+            glProgramUniform4fv(id, location, 1,
                 MathHelper::StructToArrayConverter<Colour, float>::convert(value));
         }
     }

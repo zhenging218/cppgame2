@@ -23,7 +23,7 @@ namespace cppengine {
         virtual void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform);
         virtual void renderBox2D(Box2D const &box2D, Matrix4x4 const &transform);
 
-        virtual void render(ObjectHandle<ShaderHandle> shader,
+        virtual void render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
             std::unordered_map<std::string, Uniform> const &uniforms, std::unordered_map<std::string,
             ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &transform) = 0;
 

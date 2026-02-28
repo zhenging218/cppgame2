@@ -4,20 +4,22 @@
 #include "engine.hpp"
 
 namespace {
+    using namespace cppengine;
+    
     using renderable_entity_type = std::tuple<
-        cppengine::ObjectHandle<cppengine::Transform>,
-    cppengine::ObjectHandle<cppengine::Renderable>,
-    cppengine::ObjectHandle<cppengine::Material>>;
+        ObjectHandle<Transform>,
+    ObjectHandle<Renderable>,
+    ObjectHandle<Material>>;
 
     using renderable_item_type = std::tuple<
-        cppengine::ObjectHandle<cppengine::Transform>,
-    cppengine::ObjectHandle<cppengine::ModelHandle>,
-    std::unordered_map<std::string, cppengine::Uniform>,
+        ObjectHandle<Transform>,
+    ObjectHandle<ModelHandle>,
+    std::unordered_map<std::string, Uniform>,
     std::unordered_map<std::string,
-    cppengine::ObjectHandle<cppengine::TextureHandle>>>;
+    ObjectHandle<TextureHandle>>>;
 
-    cppengine::Rectangle2D getAbsoluteViewport(
-        cppengine::Rectangle2D const &relativeViewport, const int frameBufferWidth, const int frameBufferHeight) {
+    Rectangle2D getAbsoluteViewport(
+        Rectangle2D const &relativeViewport, const int frameBufferWidth, const int frameBufferHeight) {
         return {
             frameBufferWidth * relativeViewport.x,
             frameBufferHeight * relativeViewport.y,
@@ -26,8 +28,8 @@ namespace {
         };
     }
 
-    cppengine::Matrix4x4 buildOrthographicProjection(float left, float right, float bottom, float top, float near, float far) {
-        return cppengine::Matrix4x4{
+    Matrix4x4 buildOrthographicProjection(float left, float right, float bottom, float top, float near, float far) {
+        return Matrix4x4{
             2.0f/(right-left),  0,                  0,                  -(right+left)/(right-left),
             0,                  2.0f/(top-bottom),  0,                  -(top+bottom)/(top-bottom),
             0,                  0,                  -2.0f/(far-near),   -(far+near)/(far-near),
@@ -35,9 +37,9 @@ namespace {
         };
     }
 
-    cppengine::Matrix4x4 buildPerspectiveProjection(float fovY, float aspect, float near, float far) {
+    Matrix4x4 buildPerspectiveProjection(float fovY, float aspect, float near, float far) {
         float tanHalfFov = std::tan(fovY / 2.0f);
-        return cppengine::Matrix4x4{
+        return Matrix4x4{
             1.0f/(aspect*tanHalfFov),  0,                  0,                              0,
             0,                          1.0f/tanHalfFov,    0,                              0,
             0,                          0,                  -(far+near)/(far-near),         -2.0f*far*near/(far-near),
@@ -45,8 +47,8 @@ namespace {
         };
     }
 
-    cppengine::Matrix4x4 getCameraVPMatrixMode2D(cppengine::Rectangle2D const &viewport,
-        cppengine::Transform &transform) {
+    Matrix4x4 getCameraVPMatrixMode2D(Rectangle2D const &viewport,
+        Transform &transform) {
         auto position = transform.getPosition();
         auto rotation = transform.getRotation();
         auto scale_ = transform.getScale();
@@ -56,9 +58,9 @@ namespace {
         float halfWidth  = (viewport.width  / 2.0f) / zoom;
         float halfHeight = (viewport.height / 2.0f) / zoom;
 
-        auto view = cppengine::inverse(translate(position) * rotate(rotation));
+        auto view = inverse(translate(position) * rotate(rotation));
 
-        cppengine::Matrix4x4 projection = buildOrthographicProjection(
+        Matrix4x4 projection = buildOrthographicProjection(
                 -halfWidth,   // left
                  halfWidth,   // right
                 -halfHeight,  // bottom
@@ -70,28 +72,28 @@ namespace {
         return projection * view;
     }
 
-    cppengine::Matrix4x4 getCameraVPMatrix(cppengine::CameraMode mode, cppengine::Rectangle2D const &viewport, cppengine::Transform &transform) {
+    Matrix4x4 getCameraVPMatrix(CameraMode mode, Rectangle2D const &viewport, Transform &transform) {
         switch (mode) {
-            case cppengine::CameraMode::MODE_2D:
+            case CameraMode::MODE_2D:
                 return getCameraVPMatrixMode2D(viewport, transform);
-            case cppengine::CameraMode::MODE_3D_PERSPECTIVE:
+            case CameraMode::MODE_3D_PERSPECTIVE:
                 break;
-            case cppengine::CameraMode::MODE_3D_ORTHOGRAPHIC:
+            case CameraMode::MODE_3D_ORTHOGRAPHIC:
                 break;
-            case cppengine::CameraMode::MODE_UI:
+            case CameraMode::MODE_UI:
                 break;
         }
         return {};
     }
 
-    std::map<cppengine::ShaderID, std::vector<renderable_item_type>> preprocessAndGroupByShaders(
-        cppengine::ObjectHandle<cppengine::ModelContext> modelContext,
-        cppengine::ObjectHandle<cppengine::TextureContext> texture_context,
+    std::map<ShaderID, std::vector<renderable_item_type>> preprocessAndGroupByShaders(
+        ObjectHandle<ModelContext> modelContext,
+        ObjectHandle<TextureContext> texture_context,
         std::vector<renderable_entity_type> const &renderables
         ) {
 
-        std::map<cppengine::ShaderID, std::vector<renderable_entity_type>> grouped;
-        std::map<cppengine::ShaderID, std::vector<renderable_item_type>> result;
+        std::map<ShaderID, std::vector<renderable_entity_type>> grouped;
+        std::map<ShaderID, std::vector<renderable_item_type>> result;
 
         for (auto const &renderable : renderables) {
             auto const & [t, r, m] = renderable;
@@ -161,7 +163,7 @@ namespace cppengine {
                 for (auto const &[transform, model, uniforms, textures] : batch.second) {
                     // render
                     drawContext->bindModel(model);
-                    drawContext->render(shader, uniforms, textures, transform->getMatrix());
+                    drawContext->render(shader, model, uniforms, textures, transform->getMatrix());
                     drawContext->unbindModel(model);
                 }
 

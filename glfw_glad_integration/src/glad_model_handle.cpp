@@ -115,7 +115,7 @@ namespace cppengine {
         Vector3 const *vertices,
         std::size_t vertexCount,
         std::size_t const *indices,
-        std::size_t indexCount) : name(std::move(name)), vao(0), vbo(0), ebo(0) {
+        std::size_t indexCount) : name(std::move(name)), vao(0), vbo(0), ebo(0), elementCount(indexCount) {
         initialiseModel(vao, vbo, ebo, vertices, vertexCount, indices, indexCount);
     }
 
@@ -124,7 +124,7 @@ namespace cppengine {
         Vector3 const *vertices,
         std::size_t vertexCount,
         std::size_t const *indices,
-        std::size_t indexCount) : name(name), vao(0), vbo(0), ebo(0) {
+        std::size_t indexCount) : name(name), vao(0), vbo(0), ebo(0), elementCount(indexCount) {
         initialiseModel(vao, vbo, ebo, vertices, vertexCount, indices, indexCount);
     }
 
@@ -134,6 +134,18 @@ namespace cppengine {
 
     void GladModelHandle::unbindModel() {
         glBindVertexArray(0);
+    }
+
+    std::string const &GladModelHandle::getName() const {
+        return name;
+    }
+
+    GLuint GladModelHandle::getId() const {
+        return vao;
+    }
+
+    std::size_t GladModelHandle::getElementCount() const {
+        return elementCount;
     }
 
     GladModelHandle::~GladModelHandle() {

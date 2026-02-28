@@ -1,10 +1,13 @@
 #ifndef GLAD_MODEL_CONTEXT_HPP
 #define GLAD_MODEL_CONTEXT_HPP
+#include <unordered_map>
+
 #include "graphics/model_context.hpp"
 
 namespace cppengine {
     class GladModelContext : public ModelContext {
     private:
+        std::unordered_map<ModelID, ObjectHandle<GladModelHandle>> models;
 
     public:
         GladModelContext();

@@ -11,6 +11,7 @@ namespace cppengine {
     private:
         std::string name;
         GLuint vao, vbo, ebo;
+        std::size_t elementCount;
 
     public:
         GladModelHandle(
@@ -32,6 +33,10 @@ namespace cppengine {
 
         void bindModel() override;
         void unbindModel() override;
+
+        GLuint getId() const;
+        std::size_t getElementCount() const;
+        std::string const &getName() const override;
 
         ~GladModelHandle() override;
     };

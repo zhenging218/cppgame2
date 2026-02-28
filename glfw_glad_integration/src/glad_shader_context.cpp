@@ -16,12 +16,12 @@ namespace {
         uniform mat4 mvp;
 
         out vec4 vertColour;
-        out vec2 vertUV;
+        // out vec2 vertUV;
 
         void main() {
             gl_Position = mvp * vec4(position, 1.0);
             vertColour = colour;
-            vertUV = uv;
+            // vertUV = uv;
         }
     )";
 
@@ -29,7 +29,7 @@ namespace {
         #version 330 core
 
         in vec4 vertColour;
-        in vec2 vertUV;
+        // in vec2 vertUV;
 
         uniform sampler2D albedo;
         uniform vec4 tint;
@@ -37,12 +37,13 @@ namespace {
         out vec4 fragment;
 
         void main() {
-            fragment = texture(albedo, vertUV) * vertColour * tint;
+            // fragment = texture(albedo, vertUV) * vertColour * tint;
+            fragment = vertColour * tint;
         }
     )";
 
     GLuint loadDefaultShader() {
-        return cppengine::GladShaderHelper::compileShader(
+        return GladShaderHelper::compileShader(
             DEFAULT_SHADER_NAME,
             DEFAULT_SHADER_NAME,
             DEFAULT_VERTEX_SHADER_SOURCE,
