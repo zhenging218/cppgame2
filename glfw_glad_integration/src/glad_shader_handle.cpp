@@ -6,8 +6,22 @@
 namespace {
     using namespace cppengine;
 
+    const std::unordered_map<std::string, std::string> defaultLocationNames = {
+        { ShaderLocation::SHADER_MVP_MATRIX_UNIFORM, "mvp" },
+        { ShaderLocation::SHADER_DIFFUSE_COLOUR_UNIFORM, "tint" },
+        { ShaderLocation::SHADER_DIFFUSE_TEXTURE_UNIFORM, "albedo" },
+    };
+
+    std::string const &getDefaultUniformLocationName(std::string const &name) {
+        auto result = std::ranges::find_if(defaultLocationNames, [&name](auto const &location) {
+           return name == location.first;
+        });
+
+        return result != defaultLocationNames.end() ? result->second : name;
+    }
+
     int getLocation(std::unordered_map<std::string, int> &locations, std::string const &name, GLuint program) {
-        auto [it, inserted] = locations.try_emplace(name, -1);
+        auto [it, inserted] = locations.try_emplace(getDefaultUniformLocationName(name), -1);
 
         if (inserted) {
             it->second = glGetUniformLocation(program, name.c_str());
