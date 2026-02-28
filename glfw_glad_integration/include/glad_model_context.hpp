@@ -7,6 +7,10 @@ namespace cppengine {
     private:
 
     public:
+        GladModelContext();
+        GladModelContext(GladModelContext const &) = delete;
+        GladModelContext &operator=(GladModelContext const &) = delete;
+
         ModelID loadModel(const std::string &name, const Vector3 *vertices, const std::size_t *indices,
             std::size_t vertexCount, std::size_t indexCount) override;
 
