@@ -21,10 +21,10 @@ namespace cppengine {
             glDeleteShader(vert);
             glDeleteShader(frag);
 
-            GLint success;
-            glGetProgramiv(program, GL_LINK_STATUS, &success);
+            GLint success3;
+            glGetProgramiv(program, GL_LINK_STATUS, &success3);
 
-            if (!success) {
+            if (!success3) {
                 glDeleteProgram(program);
                 throw std::runtime_error(std::format(
                     "Could not link shader programs {} and {}",

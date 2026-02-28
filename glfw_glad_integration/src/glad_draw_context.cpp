@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "engine.hpp"
 #include "gg_integration.hpp"
 
@@ -81,5 +83,10 @@ namespace cppengine {
     void GladDrawContext::flush() {
         std::ranges::for_each(commands, [](auto const &command) { command(); });
         commands.clear();
+        auto error = glGetError();
+
+        if (error != GL_NO_ERROR) {
+            throw std::runtime_error("encountered error while drawing");
+        }
     }
 }

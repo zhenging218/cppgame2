@@ -88,7 +88,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniform1i(id, location, value);
+            glUniform1i(location, value);
         }
     }
 
@@ -96,7 +96,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniform1ui(id, location, value);
+            glUniform1ui(location, value);
         }
     }
 
@@ -104,7 +104,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniform1f(id, location, value);
+            glUniform1f(location, value);
         }
     }
 
@@ -112,7 +112,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniform4fv(id, location, 1,
+            glUniform4fv(location, 1,
                 MathHelper::StructToArrayConverter<Colour, float>::convert(value));
         }
     }
@@ -121,7 +121,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniform2fv(id, location, 1,
+            glUniform2fv(location, 1,
                 MathHelper::StructToArrayConverter<Vector2, float>::convert(value));
         }
     }
@@ -130,7 +130,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniform3fv(id, location, 1,
+            glUniform3fv(location, 1,
                 MathHelper::StructToArrayConverter<Vector3, float>::convert(value));
         }
     }
@@ -139,7 +139,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniform4fv(id, location, 1,
+            glUniform4fv(location, 1,
                 MathHelper::StructToArrayConverter<Vector4, float>::convert(value));
         }
     }
@@ -148,7 +148,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniformMatrix2fv(id, location, 1, GL_TRUE,
+            glUniformMatrix2fv(location, 1, GL_TRUE,
                 MathHelper::StructToArrayConverter<Matrix2x2, float>::convert(value));
         }
     }
@@ -157,7 +157,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniformMatrix3fv(id, location, 1, GL_TRUE,
+            glUniformMatrix3fv(location, 1, GL_TRUE,
                 MathHelper::StructToArrayConverter<Matrix3x3, float>::convert(value));
         }
     }
@@ -166,7 +166,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniformMatrix4fv(id, location, 1, GL_TRUE,
+            glUniformMatrix4fv(location, 1, GL_TRUE,
                 MathHelper::StructToArrayConverter<Matrix4x4, float>::convert(value));
         }
     }
@@ -175,7 +175,7 @@ namespace cppengine {
         int location = getLocation(locations, name, id);
 
         if (location != -1) {
-            glProgramUniform1i(id, location, static_handle_cast<GladTextureHandle>(value)->getId());
+            glUniform1i(location, static_handle_cast<GladTextureHandle>(value)->getId());
         }
     }
 

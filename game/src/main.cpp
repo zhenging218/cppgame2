@@ -5,52 +5,53 @@
 #include <iostream>
 
 namespace {
+	using namespace cppengine;
 	int run() {
-		cppengine::Window::getInstance().initialise();
-		cppengine::Window::getInstance().createWindow(800, 600, "test window");
-		cppengine::Input::getInstance().initialise();
-		cppengine::Renderer::getInstance().initialise();
+		Window::getInstance().initialise();
+		Window::getInstance().createWindow(800, 600, "test window");
+		Input::getInstance().initialise();
+		Renderer::getInstance().initialise();
 
-		cppengine::SceneManager::getInstance().initialise();
+		SceneManager::getInstance().initialise();
 
-		cppengine::SceneManager::getInstance().loadLevel<cppgame::TestLevel>();
+		SceneManager::getInstance().loadLevel<cppgame::TestLevel>();
 
-		while (!cppengine::Window::getInstance().windowShouldClose()) {
+		while (!Window::getInstance().windowShouldClose()) {
 
-			switch (cppengine::SceneManager::getInstance().getState()) {
-				case cppengine::SceneState::LOAD:
-					cppengine::SceneManager::getInstance().load();
-					cppengine::Time::getInstance().reset();
+			switch (SceneManager::getInstance().getState()) {
+				case SceneState::LOAD:
+					SceneManager::getInstance().load();
+					Time::getInstance().reset();
 					break;
-				case cppengine::SceneState::INIT:
-					cppengine::SceneManager::getInstance().init();
+				case SceneState::INIT:
+					SceneManager::getInstance().init();
 					break;
-				case cppengine::SceneState::UPDATE:
-					cppengine::Window::getInstance().beginFrame();
-					cppengine::Input::getInstance().getInputs();
-					cppengine::SceneManager::getInstance().update();
-					cppengine::Renderer::getInstance().draw();
-					cppengine::Window::getInstance().endFrame();
-					cppengine::Time::getInstance().advance();
+				case SceneState::UPDATE:
+					Window::getInstance().beginFrame();
+					Input::getInstance().getInputs();
+					SceneManager::getInstance().update();
+					Renderer::getInstance().draw();
+					Window::getInstance().endFrame();
+					Time::getInstance().advance();
 					break;
-				case cppengine::SceneState::TEARDOWN:
-					cppengine::SceneManager::getInstance().teardown();
+				case SceneState::TEARDOWN:
+					SceneManager::getInstance().teardown();
 					break;
-				case cppengine::SceneState::UNLOAD:
-					cppengine::SceneManager::getInstance().unload();
+				case SceneState::UNLOAD:
+					SceneManager::getInstance().unload();
 					break;
 
-				case cppengine::SceneState::STARTUP:
+				case SceneState::STARTUP:
 					break;
 			}
 
 		}
 
-		cppengine::SceneManager::getInstance().shutdown();
-		cppengine::Renderer::getInstance().shutdown();
-		cppengine::Input::getInstance().shutdown();
-		cppengine::Window::getInstance().closeWindow();
-		cppengine::Window::getInstance().shutdown();
+		SceneManager::getInstance().shutdown();
+		Renderer::getInstance().shutdown();
+		Input::getInstance().shutdown();
+		Window::getInstance().closeWindow();
+		Window::getInstance().shutdown();
 
 		return 0;
 	}
