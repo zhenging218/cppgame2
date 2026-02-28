@@ -11,11 +11,11 @@ namespace {
 }
 
 namespace cppengine {
-    GladRendererContext::GladRendererContext() :
-    textureContext(new GladTextureContext()),
-    modelContext(new GladModelContext()),
-    shaderContext(new GladShaderContext()) {
+    GladRendererContext::GladRendererContext() {
         gladLoadGL(glfwGetProcAddress);
+        modelContext = new GladModelContext();
+        shaderContext = new GladShaderContext();
+        textureContext = new GladTextureContext();
         GLFWwindow *window = GGContextManager::getWindowContext()->getWindow();
         glfwGetFramebufferSize(window, &width, &height);
         glfwSetFramebufferSizeCallback(window, &onFramebufferSizeEvent);

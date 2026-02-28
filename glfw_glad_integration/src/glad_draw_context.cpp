@@ -32,8 +32,6 @@ namespace cppengine {
         : viewport(viewport_), vpMatrix(vpMatrix_) {
     }
 
-    GladDrawContext::~GladDrawContext() = default;
-
     void GladDrawContext::begin() {
         glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
     }
@@ -46,9 +44,17 @@ namespace cppengine {
         commands.emplace_back([model] { model->bindModel(); });
     }
 
+    void GladDrawContext::renderTriangle(Triangle const &triangle, Matrix4x4 const &transform) {
+
+    }
+
+    void GladDrawContext::renderBox2D(Box2D const &box2D, Matrix4x4 const &transform) {
+
+    }
+
     void GladDrawContext::render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
-            std::unordered_map<std::string, Uniform> const &uniforms, std::unordered_map<std::string,
-            ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &transform) {
+                                 std::unordered_map<std::string, Uniform> const &uniforms, std::unordered_map<std::string,
+                                     ObjectHandle<TextureHandle>> const &textures, Matrix4x4 const &transform) {
         commands.emplace_back([this, shader, model, uniforms, textures, transform] {
             std::ranges::for_each(uniforms, [shader](auto const &uniform) {
                 auto const &uniformName = uniform.first;
@@ -58,7 +64,7 @@ namespace cppengine {
             });
 
             auto mvp = vpMatrix * transform;
-            shader->setUniform(SHADER_MVP_MATRIX_UNIFORM, mvp);
+            shader->setUniform(ShaderLocation::SHADER_MVP_MATRIX_UNIFORM, mvp);
 
             glDrawElements(GL_TRIANGLES, static_handle_cast<GladModelHandle>(model)->getElementCount(), GL_UNSIGNED_INT, 0);
         });

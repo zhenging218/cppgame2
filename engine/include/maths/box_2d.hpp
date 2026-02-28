@@ -33,6 +33,7 @@ namespace cppengine {
 
         std::size_t constexpr inline getVertexCount() const noexcept { return vertex_count; }
         constexpr inline std::size_t const * getIndices() const noexcept { return indices; }
+        constexpr inline std::size_t getIndexCount() const noexcept { return index_count; }
 
     };
 

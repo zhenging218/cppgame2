@@ -55,7 +55,7 @@ namespace cppengine {
     }
 
     void GLFWWindowContext::createWindow(int width, int height, const std::string &title) {
-        if (window != nullptr) {
+        if (window == nullptr) {
             window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
             if (!window) {
                 throw std::runtime_error(std::format(

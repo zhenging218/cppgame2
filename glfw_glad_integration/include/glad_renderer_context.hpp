@@ -17,8 +17,7 @@ namespace cppengine {
 
         void beginDraw() override;
 
-        ObjectHandle<DrawContext>
-        createDrawContext(const Rectangle2D &absoluteViewport, const Matrix4x4 &transform) override;
+        ObjectHandle<DrawContext> createDrawContext(const Rectangle2D &absoluteViewport, const Matrix4x4 &transform) override;
 
         ObjectHandle<TextureContext> getTextureContext() const override;
 

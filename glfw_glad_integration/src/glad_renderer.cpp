@@ -3,6 +3,6 @@
 
 namespace cppengine {
     ObjectHandle<RendererContext> Renderer::createContext() {
-        return nullptr;
+        return new GladRendererContext();
     }
 }

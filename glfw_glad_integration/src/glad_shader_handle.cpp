@@ -21,10 +21,12 @@ namespace {
     }
 
     int getLocation(std::unordered_map<std::string, int> &locations, std::string const &name, GLuint program) {
+        auto const &uniformName = getDefaultUniformLocationName(name);
         auto [it, inserted] = locations.try_emplace(getDefaultUniformLocationName(name), -1);
 
         if (inserted) {
-            it->second = glGetUniformLocation(program, name.c_str());
+            auto location = glGetUniformLocation(program, uniformName.c_str());
+            it->second = location;
         }
 
         return it->second;

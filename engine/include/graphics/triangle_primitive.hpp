@@ -6,17 +6,11 @@
 namespace cppengine {
     class TrianglePrimitive : public Renderable {
     private:
-        Triangle triangle;
+        ModelID id;
     public:
-        TrianglePrimitive() = default;
-        explicit TrianglePrimitive(Triangle const &t);
+        TrianglePrimitive();
 
         ModelID getModelId() const override;
-
-        Vector3 const *getVertices() const override;
-        std::size_t getVertexCount() const override;
-        std::size_t const *getIndices() const override;
-        std::size_t getIndexCount() const override;
 
         Triangle const &getTriangle() const;
     };

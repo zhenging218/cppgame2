@@ -20,8 +20,8 @@ namespace cppengine {
         virtual void bindModel(ObjectHandle<ModelHandle> model) = 0;
         virtual void unbindModel(ObjectHandle<ModelHandle> model) = 0;
 
-        virtual void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform);
-        virtual void renderBox2D(Box2D const &box2D, Matrix4x4 const &transform);
+        virtual void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform) = 0;
+        virtual void renderBox2D(Box2D const &box2D, Matrix4x4 const &transform) = 0;
 
         virtual void render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
             std::unordered_map<std::string, Uniform> const &uniforms, std::unordered_map<std::string,

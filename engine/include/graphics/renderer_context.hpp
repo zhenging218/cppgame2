@@ -11,6 +11,8 @@
 
 namespace cppengine {
     class DrawContext;
+    class ModelContext;
+    class ShaderContext;
 
     class RendererContext {
     public:

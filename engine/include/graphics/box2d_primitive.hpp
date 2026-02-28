@@ -6,18 +6,11 @@
 namespace cppengine {
     class Box2DPrimitive : public Renderable {
     private:
-        Box2D box2D;
+        ModelID id;
     public:
-        Box2DPrimitive() = default;
-        explicit Box2DPrimitive(Box2D const &t);
+        Box2DPrimitive();
 
         ModelID getModelId() const override;
-        Vector3 const *getVertices() const override;
-        std::size_t getVertexCount() const override;
-        std::size_t const *getIndices() const override;
-        std::size_t getIndexCount() const override;
-
-        Box2D const &getBox2D() const;
     };
 }
 

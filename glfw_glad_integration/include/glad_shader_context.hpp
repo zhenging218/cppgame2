@@ -16,10 +16,13 @@ namespace cppengine {
 
         ShaderID loadShader(const std::string &shaderName) override;
 
+        ShaderID getShader(std::string const &shaderName) const override;
         ObjectHandle<ShaderHandle> getShader(ShaderID shaderId) override;
 
         ~GladShaderContext() override;
     };
+
+    inline GladShaderContext::~GladShaderContext() = default;
 }
 
 #endif

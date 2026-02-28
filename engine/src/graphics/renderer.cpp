@@ -176,6 +176,21 @@ namespace cppengine {
         context->endDraw();
     }
 
+    ModelID Renderer::getModel(std::string const &name) {
+        auto &instance = getInstance();
+        return instance.context->getModelContext()->getModel(name);
+    }
+
+    ShaderID Renderer::getShader(std::string const &name) {
+        auto &instance = getInstance();
+        return instance.context->getShaderContext()->getShader(name);
+    }
+
+    ModelID Renderer::loadModel(std::string const &name, Vector3 const *vertices, std::size_t vertex_count, std::size_t const *indices, std::size_t index_count) {
+        auto &instance = getInstance();
+        return instance.context->getModelContext()->loadModel(name, vertices, indices, vertex_count, index_count);
+    }
+
     ShaderID Renderer::loadShader(std::string const &name) {
         auto &instance = getInstance();
         return instance.context->getShaderContext()->loadShader(name);

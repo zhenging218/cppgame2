@@ -1,6 +1,6 @@
 #ifndef SHADER_HANDLE_HPP
 #define SHADER_HANDLE_HPP
-#include <cstdint>
+#include <string>
 
 #include "memory/object_handle.hpp"
 #include "texture_handle.hpp"

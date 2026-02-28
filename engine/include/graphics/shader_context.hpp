@@ -14,6 +14,7 @@ namespace cppengine {
     public:
 
         virtual ShaderID loadShader(std::string const &shaderName) = 0;
+        virtual ShaderID getShader(std::string const &shaderName) const = 0;
         virtual ObjectHandle<ShaderHandle> getShader(ShaderID shaderId) = 0;
 
         virtual ~ShaderContext() = 0;

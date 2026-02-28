@@ -32,6 +32,8 @@ namespace cppengine {
         void bindModel(ObjectHandle<ModelHandle> model) override;
         void unbindModel(ObjectHandle<ModelHandle> model) override;
 
+        void renderTriangle(Triangle const &triangle, Matrix4x4 const &transform) override;
+        void renderBox2D(Box2D const &box2D, Matrix4x4 const &transform) override;
 
         void render(ObjectHandle<ShaderHandle> shader, ObjectHandle<ModelHandle> model,
             std::unordered_map<std::string, Uniform> const &uniforms, std::unordered_map<std::string,
@@ -41,6 +43,8 @@ namespace cppengine {
 
         ~GladDrawContext() override;
     };
+
+    inline GladDrawContext::~GladDrawContext() = default;
 }
 
 #endif
