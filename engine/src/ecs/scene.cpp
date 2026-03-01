@@ -40,12 +40,16 @@ namespace cppengine {
 
     std::uint64_t Scene::getEntityOfComponent(Component const *component) const {
         if (component != nullptr) {
-            auto result = std::ranges::find_if(ecs, [&component](auto const &value) {
-                return value.second.contains(component->descriptor);
-            });
+            auto entityMap = components.find(component->descriptor);
 
-            if (result != ecs.end()) {
-                return result->first;
+            if (entityMap != components.end()) {
+                auto result = std::ranges::find_if(entityMap->second, [component](auto const &value) {
+                    return reinterpret_cast<void const *>(&*value.second) == reinterpret_cast<void const *>(component);
+                });
+
+                if (result != entityMap->second.end()) {
+                    return result->first;
+                }
             }
         }
 
