@@ -13,7 +13,7 @@ namespace cppengine {
         Assets(Assets const &) = delete;
         Assets &operator=(Assets const &) = delete;
 
-        static Assets &getinstance();
+        static Assets &getInstance();
 
         static std::string getDirectory(std::string_view root, std::string_view name);
         static std::ifstream openFile(std::string_view filename);

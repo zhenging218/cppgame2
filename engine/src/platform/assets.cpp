@@ -6,7 +6,7 @@ namespace cppengine {
 
     }
 
-    Assets &Assets::getinstance() {
+    Assets &Assets::getInstance() {
         static Assets instance;
         return instance;
     }
