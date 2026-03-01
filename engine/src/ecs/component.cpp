@@ -7,6 +7,10 @@ namespace cppengine {
         return result;
     }
 
+    void Component::destroyGameObject(GameObject const &gameObject) const {
+        SceneManager::getInstance().destroyEntity(gameObject.id);
+    }
+
     GameObject Component::createGameObject() const {
         auto id = SceneManager::getInstance().createEntity();
         auto result = GameObject(id);
