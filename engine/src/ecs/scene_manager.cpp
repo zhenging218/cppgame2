@@ -57,8 +57,8 @@ namespace cppengine {
         scene->update();
     }
 
-    void SceneManager::teardown() {
-        scene->teardown();
+    void SceneManager::dispose() {
+        scene->dispose();
         ++state;
     }
 

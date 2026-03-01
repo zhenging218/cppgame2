@@ -14,7 +14,7 @@ namespace cppengine {
     concept SceneInitialisableType = requires { std::declval<T&>().init(); };
 
     template <typename T>
-    concept SceneDisposableType = requires { std::declval<T&>().teardown(); };
+    concept SceneDisposableType = requires { std::declval<T&>().dispose(); };
 
     struct ComponentDescriptor {
             virtual bool isSuperType(ComponentDescriptor const *subType) const = 0;
@@ -24,13 +24,13 @@ namespace cppengine {
 
             virtual void update(ObjectHandle<Component> const &component) const = 0;
 
-            virtual void teardown(ObjectHandle<Component> const &component) const = 0;
+            virtual void dispose(ObjectHandle<Component> const &component) const = 0;
 
             virtual void init(std::unordered_map<std::uint64_t, ObjectHandle<Component>> const &components) const = 0;
 
             virtual void update(std::unordered_map<std::uint64_t, ObjectHandle<Component>> const &components) const = 0;
 
-            virtual void teardown(std::unordered_map<std::uint64_t, ObjectHandle<Component>> const &components) const = 0;
+            virtual void dispose(std::unordered_map<std::uint64_t, ObjectHandle<Component>> const &components) const = 0;
 
             virtual ~ComponentDescriptor() = default;
         };
@@ -63,9 +63,9 @@ namespace cppengine {
                 }
             }
 
-            void teardown(ObjectHandle<Component> const &component) const override {
+            void dispose(ObjectHandle<Component> const &component) const override {
                 if constexpr (SceneDisposableType<T>) {
-                    static_handle_cast<T>(component)->teardown();
+                    static_handle_cast<T>(component)->dispose();
                 }
             }
 
@@ -87,11 +87,11 @@ namespace cppengine {
                 }
             }
 
-            void teardown(std::unordered_map<std::uint64_t, ObjectHandle<Component>> const &components) const override {
+            void dispose(std::unordered_map<std::uint64_t, ObjectHandle<Component>> const &components) const override {
                 if constexpr (SceneDisposableType<T>) {
                     auto copy = components;
                     std::ranges::for_each(copy, [this](auto const &component) {
-                       teardown(component.second);
+                       dispose(component.second);
                     });
                 }
             }

@@ -34,7 +34,7 @@ namespace cppengine {
         void load();
         void init();
         void update();
-        void teardown();
+        void dispose();
         void unload();
 
         SceneState getState() const;
@@ -52,7 +52,7 @@ namespace cppengine {
         void removeComponent(const std::uint64_t id) {
             auto component = scene->getComponent<T>(id);
             auto const *descriptor = static_handle_cast<Component>(component)->descriptor;
-            descriptor->teardown(component);
+            descriptor->dispose(component);
             scene->removeComponent<T>(id);
         }
 

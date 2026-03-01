@@ -222,7 +222,7 @@ namespace cppengine {
 
         void init();
         void update();
-        void teardown();
+        void dispose();
     };
 
 }

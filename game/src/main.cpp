@@ -35,7 +35,7 @@ namespace {
 					Time::getInstance().advance();
 					break;
 				case SceneState::TEARDOWN:
-					SceneManager::getInstance().teardown();
+					SceneManager::getInstance().dispose();
 					break;
 				case SceneState::UNLOAD:
 					SceneManager::getInstance().unload();

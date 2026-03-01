@@ -129,9 +129,9 @@ namespace cppengine {
         });
     }
 
-    void Scene::teardown() {
+    void Scene::dispose() {
         std::ranges::for_each(components, [](auto const &list) {
-            list.first->teardown(list.second);
+            list.first->dispose(list.second);
         });
     }
 }
