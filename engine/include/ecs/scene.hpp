@@ -119,7 +119,6 @@ namespace cppengine {
 
             if (ecs.contains(ownerId) && ecs.at(ownerId).contains(descriptor)) {
                 auto &entityMap = components.at(descriptor);
-                descriptor->dispose(entityMap.at(ownerId));
                 entityMap.erase(ownerId);
                 ecs.at(ownerId).erase(descriptor);
             }
