@@ -43,14 +43,16 @@ namespace cppengine {
         template <typename T, typename ... Args>
         ObjectHandle<T> addComponent(const std::uint64_t id, Args &&... args) {
             auto component = scene->addComponent<T>(id, std::forward<Args>(args)...);
-            component->init();
+            auto const *descriptor = static_handle_cast<Component>(component)->descriptor;
+            descriptor->init(component);
             return component;
         }
 
         template <typename T>
         void removeComponent(const std::uint64_t id) {
             auto component = scene->getComponent<T>(id);
-            component->teardown();
+            auto const *descriptor = static_handle_cast<Component>(component)->descriptor;
+            descriptor->teardown(component);
             scene->removeComponent<T>(id);
         }
 

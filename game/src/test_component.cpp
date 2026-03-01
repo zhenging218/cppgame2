@@ -48,8 +48,4 @@ namespace cppgame {
         }
 
     }
-
-    void TestComponent::teardown() {
-        std::cout << "teardown called\n";
-    }
 }

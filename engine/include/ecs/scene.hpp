@@ -18,11 +18,17 @@ namespace cppengine {
 
     class Scene {
     private:
+        template <typename T>
+        static ComponentDescriptor const *getComponentDescriptor() {
+            static const ComponentDescriptorImpl<T> descriptor = TypeDescriptor::getTypeDescriptor<T>();
+            return &descriptor;
+        }
+
         using entity_map_type = std::unordered_map<std::uint64_t, std::string>;
         using transform_graph_type = std::unordered_map<std::uint64_t, ObjectHandle<Transform>>;
-        using entity_component_map_type = std::unordered_map<uint64_t, std::unordered_set<TypeDescriptor const *>>;
+        using entity_component_map_type = std::unordered_map<uint64_t, std::unordered_set<ComponentDescriptor const *>>;
         using component_entity_map_type = std::unordered_map<std::uint64_t, ObjectHandle<Component>>;
-        using component_map_type = std::unordered_map<TypeDescriptor const *, component_entity_map_type>;
+        using component_map_type = std::unordered_map<ComponentDescriptor const *, component_entity_map_type>;
 
         std::uint64_t nextId;
         entity_map_type entities;
@@ -66,7 +72,7 @@ namespace cppengine {
             if constexpr (TransformType<T>) {
                 return getTransformOfEntity(ownerId);
             } else {
-                TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
+                ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
                 if (ecs.contains(ownerId)) {
                     auto const &entityComponents = ecs.at(ownerId);
                     if (entityComponents.contains(descriptor)) {
@@ -76,7 +82,7 @@ namespace cppengine {
                     auto result = std::find_if(
                         entityComponents.begin(), entityComponents.end(),
                         [&descriptor](auto componentType) {
-                        return TypeDescriptor::isSuperType<T>(componentType);
+                        return descriptor->isSuperType(componentType);
                     });
 
                     if (result != entityComponents.end()) {
@@ -90,7 +96,7 @@ namespace cppengine {
 
         template <typename T, typename ... Args> requires ComponentType<T>
         ObjectHandle<T> addComponent(const std::uint64_t ownerId, Args &&... args) {
-            TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
+            ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
 
             if (ecs.contains(ownerId)) {
                 if (ecs.at(ownerId).contains(descriptor)) {
@@ -109,7 +115,7 @@ namespace cppengine {
 
         template <typename T> requires ComponentType<T>
         void removeComponent(const std::uint64_t ownerId) {
-            TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
+            ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
 
             if (ecs.contains(ownerId) && ecs.at(ownerId).contains(descriptor)) {
                 components.at(descriptor).erase(ownerId);
@@ -121,7 +127,7 @@ namespace cppengine {
         std::uint64_t getEntityOfComponent(ObjectHandle<T> component) const {
             if (component != nullptr) {
                 // no need poly check, descriptor should always tally
-                TypeDescriptor const *descriptor = dynamic_handle_cast<Component>(component)->descriptor;
+                ComponentDescriptor const *descriptor = dynamic_handle_cast<Component>(component)->descriptor;
                 auto component_list = std::find_if(
                     components.begin(), components.end(),
                     [&descriptor](const component_map_type::value_type &value) {
@@ -145,13 +151,13 @@ namespace cppengine {
 
         template<typename T> requires ComponentType<T>
         std::vector<ObjectHandle<T>> getAllComponentsOfType(const std::uint64_t ownerId) const {
-            TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
+            ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
             std::vector<ObjectHandle<T>> results;
             if (ecs.contains(ownerId)) {
                 auto const &componentsOfEntity = ecs.at(ownerId);
                 std::for_each(componentsOfEntity.begin(), componentsOfEntity.end(),
-                    [this, &results, &descriptor, &ownerId](TypeDescriptor const *componentType) {
-                    if (TypeDescriptor::isSuperType(descriptor, componentType)) {
+                    [this, &results, &descriptor, &ownerId](ComponentDescriptor const *componentType) {
+                    if (descriptor->isSuperType(componentType)) {
                         results.push_back(static_handle_cast<T>(components.at(componentType).at(ownerId)));
                     }
                 });
@@ -161,7 +167,7 @@ namespace cppengine {
 
         template <typename T> requires ComponentType<T>
         std::vector<ObjectHandle<T>> getAllComponentsOfType() const {
-            TypeDescriptor const *descriptor = TypeDescriptor::getTypeDescriptor<T>();
+            ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
 
             std::vector<ObjectHandle<T>> results;
 
@@ -195,6 +201,10 @@ namespace cppengine {
 
             return results;
         }
+
+        void init();
+        void update();
+        void teardown();
     };
 
 }

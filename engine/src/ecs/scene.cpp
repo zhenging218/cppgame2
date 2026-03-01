@@ -116,4 +116,22 @@ namespace cppengine {
 
         return results;
     }
+
+    void Scene::init() {
+        std::ranges::for_each(components, [](auto const &list) {
+            list.first->init(list.second);
+        });
+    }
+
+    void Scene::update() {
+        std::ranges::for_each(components, [](auto const &list) {
+            list.first->update(list.second);
+        });
+    }
+
+    void Scene::teardown() {
+        std::ranges::for_each(components, [](auto const &list) {
+            list.first->teardown(list.second);
+        });
+    }
 }

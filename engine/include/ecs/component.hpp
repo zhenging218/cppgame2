@@ -3,6 +3,7 @@
 #include "memory/object_handle.hpp"
 
 namespace cppengine {
+    struct ComponentDescriptor;
     class Scene;
     class GameObject;
     class TypeDescriptor;
@@ -10,7 +11,8 @@ namespace cppengine {
     class Component {
     private:
         friend class Scene;
-        TypeDescriptor const *descriptor;
+        friend class SceneManager;
+        ComponentDescriptor const *descriptor;
     protected:
         Component() = default;
 
@@ -19,9 +21,6 @@ namespace cppengine {
     public:
 
         GameObject getGameObject() const;
-        virtual void init();
-        virtual void update();
-        virtual void teardown();
 
 
         virtual ~Component() = 0;

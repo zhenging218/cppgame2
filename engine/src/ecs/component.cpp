@@ -12,16 +12,4 @@ namespace cppengine {
         auto result = GameObject(id);
         return result;
     }
-
-    void Component::init() {
-
-    }
-
-    void Component::update() {
-
-    }
-
-    void Component::teardown() {
-
-    }
 }

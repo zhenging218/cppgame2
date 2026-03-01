@@ -7,10 +7,8 @@ namespace cppgame {
     private:
         cppengine::ObjectHandle<cppengine::Transform> transform;
     public:
-
-        void init() override;
-        void update() override;
-        void teardown() override;
+        void init();
+        void update();
     };
 }
 

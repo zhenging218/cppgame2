@@ -49,25 +49,16 @@ namespace cppengine {
     }
 
     void SceneManager::init() {
-        auto components = scene->getAllComponents();
-        std::ranges::for_each(components, [](auto const &component) {
-           component->init();
-        });
+        scene->init();
         ++state;
     }
 
     void SceneManager::update() {
-        auto components = scene->getAllComponents();
-        std::ranges::for_each(components, [](auto const &component) {
-           component->update();
-        });
+        scene->update();
     }
 
     void SceneManager::teardown() {
-        auto components = scene->getAllComponents();
-        std::ranges::for_each(components, [](auto const &component) {
-           component->teardown();
-        });
+        scene->teardown();
         ++state;
     }
 
