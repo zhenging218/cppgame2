@@ -118,7 +118,9 @@ namespace cppengine {
             ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
 
             if (ecs.contains(ownerId) && ecs.at(ownerId).contains(descriptor)) {
-                components.at(descriptor).erase(ownerId);
+                auto &entityMap = components.at(descriptor);
+                descriptor->dispose(entityMap.at(ownerId));
+                entityMap.erase(ownerId);
                 ecs.at(ownerId).erase(descriptor);
             }
         }

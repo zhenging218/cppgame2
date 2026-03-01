@@ -89,8 +89,10 @@ namespace cppengine {
         transforms.erase(id);
 
         auto const &componentsToDelete = ecs.at(id);
-        std::ranges::for_each(componentsToDelete, [this, &id](auto const &type) {
-            components.at(type).erase(id);
+        std::ranges::for_each(componentsToDelete, [this, &id](auto const &descriptor) {
+            auto &entityMap = components.at(descriptor);
+            descriptor->dispose(entityMap.at(id));
+            entityMap.erase(id);
         });
 
         ecs.erase(id);
