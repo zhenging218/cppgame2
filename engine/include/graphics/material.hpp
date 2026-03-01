@@ -55,4 +55,6 @@ namespace cppengine {
     };
 }
 
+DECL_POLY_TYPE(cppengine::Material, cppengine::Component)
+
 #endif

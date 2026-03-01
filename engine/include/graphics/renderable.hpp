@@ -20,4 +20,6 @@ namespace cppengine {
     inline Renderable::~Renderable() = default;
 }
 
+DECL_POLY_TYPE(cppengine::Renderable, cppengine::Component)
+
 #endif

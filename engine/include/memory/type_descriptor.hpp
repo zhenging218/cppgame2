@@ -10,6 +10,7 @@ namespace cppengine {
         static TypeDescriptor const *getTypeDescriptor();
 
         virtual TypeDescriptor const *getSuperType() const = 0;
+        virtual std::string_view getName() const = 0;
         virtual ~TypeDescriptor() = default;
 
         template <typename T>
@@ -21,6 +22,7 @@ namespace cppengine {
     template <typename T>
         struct TypeHierarchy {
         using super_type = T;
+        static char const *getName() { return typeid(T).name(); }
     };
 
     template <typename T>
@@ -38,6 +40,10 @@ namespace cppengine {
 
         TypeDescriptor const * getSuperType() const override {
             return TypeDescriptor::getTypeDescriptor<typename TypeHierarchy<T>::super_type>();
+        }
+
+        std::string_view getName() const override {
+            return TypeHierarchy<T>::getName();
         }
     };
 
@@ -57,7 +63,7 @@ namespace cppengine {
 
 #define DECL_POLY_TYPE(NS_QUALIFIED_TYPE_NAME, NS_QUALIFIED_SUPER_TYPE_NAME) \
     namespace cppengine {\
-        template<> struct TypeHierarchy<NS_QUALIFIED_TYPE_NAME> { using super_type = NS_QUALIFIED_SUPER_TYPE_NAME; };\
+        template<> struct TypeHierarchy<NS_QUALIFIED_TYPE_NAME> { using super_type = NS_QUALIFIED_SUPER_TYPE_NAME; static constexpr char const * getName() { return #NS_QUALIFIED_TYPE_NAME; }  };\
     }
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef COMPONENT_DESCRIPTOR_HPP
 #define COMPONENT_DESCRIPTOR_HPP
 #include <algorithm>
+#include <iostream>
 #include <unordered_map>
 
 namespace cppengine {

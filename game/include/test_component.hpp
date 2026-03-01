@@ -12,4 +12,6 @@ namespace cppgame {
     };
 }
 
+DECL_POLY_TYPE(cppgame::TestComponent, cppengine::Component)
+
 #endif
