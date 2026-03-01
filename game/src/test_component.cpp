@@ -22,7 +22,9 @@ namespace cppgame {
         }
 
         Vector3 translation;
+        Vector3 scale;
         bool moved = false;
+        bool scaled = false;
 
         if (Input::isKeyDown(KeyCode::W)) {
             translation += Vector3{0.f, -50.f * dt, 0.f};
@@ -45,8 +47,22 @@ namespace cppgame {
             moved = true;
         }
 
+        if (Input::isKeyDown(KeyCode::UP_ARROW)) {
+            scale += Vector3(50.f * dt, 50.f * dt, 0);
+            scaled = true;
+        }
+
+        if (Input::isKeyDown(KeyCode::DOWN_ARROW)) {
+            scale += Vector3(-50.f * dt, -50.f * dt, 0);
+            scaled = true;
+        }
+
         if (moved) {
             transform->setPosition(transform->getPosition() + translation);
+        }
+
+        if (scaled) {
+            transform->setScale(transform->getScale() + Vector3{scale.x, scale.y, 1.f});
         }
 
     }
