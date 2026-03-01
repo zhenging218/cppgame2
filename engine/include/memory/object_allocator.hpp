@@ -9,6 +9,9 @@
 #include "memory/object_handle.hpp"
 
 namespace cppengine {
+    template <typename T>
+    class ObjectHandle;
+
     struct PageInfo {
         PageInfo * next;
     };
@@ -204,4 +207,5 @@ namespace cppengine {
         static ObjectAllocator instance;
         return instance;
     }
+
 }

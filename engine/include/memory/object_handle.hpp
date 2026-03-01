@@ -2,8 +2,8 @@
 
 #include <type_traits>
 
-#include "memory/reference_counter.hpp"
-
+#include "object_allocator.hpp"
+#include "reference_counter.hpp"
 
 namespace cppengine {
     template <typename T>
@@ -232,7 +232,7 @@ namespace cppengine {
 
     template <typename T, typename ... Args>
     ObjectHandle<T> createHandle(Args &&... args) {
-        return ObjectHandle<T>(new T{std::forward<Args>(args)...});
+        return ObjectAllocator<T>::getInstance().createHandle(std::forward<Args>(args)...);
     }
 
     template <typename T>
