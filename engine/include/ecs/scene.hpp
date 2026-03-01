@@ -188,17 +188,35 @@ namespace cppengine {
 
             std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> results;
 
-            for (auto const &[id, name] : entities) {
-                auto list = std::make_tuple(
-                    getComponent<T>(id),
-                    getComponent<Rest>(id)...
-                );
-                if (std::get<ObjectHandle<T>>(list) != nullptr
-                    && ((std::get<ObjectHandle<Rest>>(list) != nullptr) && ...)) {
-                    results.emplace_back(std::move(list));
+            if constexpr (TransformType<T>) {
+
+                for (auto const &[id, transform] : transforms) {
+                    auto list = std::make_tuple(
+                        transform,
+                        getComponent<Rest>(id)...
+                    );
+
+                    if (((std::get<ObjectHandle<Rest>>(list) != nullptr) && ...)) {
+                        results.emplace_back(std::move(list));
+                    }
+                }
+            } else {
+                ComponentDescriptor const *anchoringType = getComponentDescriptor<T>();
+                for (auto const &[descriptor, entityMap] : components) {
+                    if (anchoringType->isSuperType(descriptor)) {
+                        for (auto const &[id, handle] : entityMap) {
+                            auto list = std::make_tuple(
+                                static_handle_cast<T>(handle),
+                                getComponent<Rest>(id)...
+                            );
+
+                            if (((std::get<ObjectHandle<Rest>>(list) != nullptr) && ...)) {
+                                results.emplace_back(std::move(list));
+                            }
+                        }
+                    }
                 }
             }
-
             return results;
         }
 

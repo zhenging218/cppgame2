@@ -7,8 +7,8 @@ namespace {
     using namespace cppengine;
     
     using renderable_entity_type = std::tuple<
-        ObjectHandle<Transform>,
     ObjectHandle<Renderable>,
+    ObjectHandle<Transform>,
     ObjectHandle<Material>>;
 
     using renderable_item_type = std::tuple<
@@ -102,7 +102,7 @@ namespace {
         }
 
         for (auto const &[id, group] : grouped) {
-            for (auto const &[t, r, m] : group) {
+            for (auto const &[r, t, m] : group) {
                 auto model = modelContext->getModel(r->getModelId());
 
                 result[id].push_back({t, model, m->getUniforms(), {}});
@@ -126,7 +126,7 @@ namespace cppengine {
 
     void Renderer::draw() {
 
-        auto cameras = SceneManager::getInstance().getAllComponentSets<Transform, Camera>();
+        auto cameras = SceneManager::getInstance().getAllComponentSets<Camera, Transform>();
 
         std::ranges::sort(cameras,
             [](auto const &lhs, auto const &rhs) {
@@ -136,7 +136,7 @@ namespace cppengine {
         auto renderables = preprocessAndGroupByShaders(
             context->getModelContext(),
             context->getTextureContext(),
-            SceneManager::getInstance().getAllComponentSets<Transform, Renderable, Material>()
+            SceneManager::getInstance().getAllComponentSets<Renderable, Transform, Material>()
             );
 
         auto shaderContext= context->getShaderContext();
@@ -145,7 +145,7 @@ namespace cppengine {
 
         auto [width, height] = context->getFrameBufferSize();
 
-        for (auto const &[cameraTransform, camera] : cameras) {
+        for (auto const &[camera, cameraTransform] : cameras) {
             auto const &relativeViewport = camera->getViewport();
             auto absoluteViewport = getAbsoluteViewport(relativeViewport,
                width, height);
