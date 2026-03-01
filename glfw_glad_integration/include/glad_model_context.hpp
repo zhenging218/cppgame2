@@ -14,8 +14,8 @@ namespace cppengine {
         GladModelContext(GladModelContext const &) = delete;
         GladModelContext &operator=(GladModelContext const &) = delete;
 
-        ModelID loadModel(const std::string &name, const Vector3 *vertices, const std::size_t *indices,
-            std::size_t vertexCount, std::size_t indexCount) override;
+        ModelID loadModel(const std::string &name, const Vector3 *vertices, const std::uint32_t *indices,
+            std::uint32_t vertexCount, std::uint32_t indexCount) override;
 
         ModelID getModel(std::string const &name) const override;
         ObjectHandle<ModelHandle> getModel(ModelID id) const override;

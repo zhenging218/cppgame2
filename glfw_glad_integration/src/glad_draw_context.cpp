@@ -68,6 +68,7 @@ namespace cppengine {
             auto mvp = vpMatrix * transform;
             shader->setUniform(ShaderLocation::SHADER_MVP_MATRIX_UNIFORM, mvp);
 
+            // glDrawArrays(GL_TRIANGLES, 0, 3);
             glDrawElements(GL_TRIANGLES, static_handle_cast<GladModelHandle>(model)->getElementCount(), GL_UNSIGNED_INT, 0);
         });
     }
@@ -88,5 +89,7 @@ namespace cppengine {
         if (error != GL_NO_ERROR) {
             throw std::runtime_error("encountered error while drawing");
         }
+
+
     }
 }

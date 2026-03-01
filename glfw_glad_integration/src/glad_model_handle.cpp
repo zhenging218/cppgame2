@@ -11,9 +11,9 @@ namespace {
         Vector2 uv;
     };
 
-    constexpr std::size_t stride = sizeof(VertexAttribute);
+    constexpr std::uint32_t stride = sizeof(VertexAttribute);
 
-    std::vector<VertexAttribute> createAttributeArray(Vector3 const *vertices, std::size_t vertexCount) {
+    std::vector<VertexAttribute> createAttributeArray(Vector3 const *vertices, std::uint32_t vertexCount) {
         std::vector<VertexAttribute> attributes;
         attributes.reserve(vertexCount);
         std::ranges::transform(vertices, vertices + vertexCount, std::back_insert_iterator(attributes), [](auto const &vertex) {
@@ -32,9 +32,9 @@ namespace {
     void initialiseModel(
         GLuint &vao, GLuint &vbo, GLuint &ebo,
         Vector3 const *vertices,
-        std::size_t vertexCount,
-        std::size_t const *indices,
-        std::size_t indexCount) {
+        std::uint32_t vertexCount,
+        std::uint32_t const *indices,
+        std::uint32_t indexCount) {
         glGenVertexArrays(1, &vao);
         glGenBuffers(1, &vbo);
         glGenBuffers(1, &ebo);
@@ -113,18 +113,18 @@ namespace cppengine {
     GladModelHandle::GladModelHandle(
         std::string &&name,
         Vector3 const *vertices,
-        std::size_t vertexCount,
-        std::size_t const *indices,
-        std::size_t indexCount) : name(std::move(name)), vao(0), vbo(0), ebo(0), elementCount(indexCount) {
+        std::uint32_t vertexCount,
+        std::uint32_t const *indices,
+        std::uint32_t indexCount) : name(std::move(name)), vao(0), vbo(0), ebo(0), elementCount(indexCount) {
         initialiseModel(vao, vbo, ebo, vertices, vertexCount, indices, indexCount);
     }
 
     GladModelHandle::GladModelHandle(
         std::string const &name,
         Vector3 const *vertices,
-        std::size_t vertexCount,
-        std::size_t const *indices,
-        std::size_t indexCount) : name(name), vao(0), vbo(0), ebo(0), elementCount(indexCount) {
+        std::uint32_t vertexCount,
+        std::uint32_t const *indices,
+        std::uint32_t indexCount) : name(name), vao(0), vbo(0), ebo(0), elementCount(indexCount) {
         initialiseModel(vao, vbo, ebo, vertices, vertexCount, indices, indexCount);
     }
 
@@ -144,7 +144,7 @@ namespace cppengine {
         return vao;
     }
 
-    std::size_t GladModelHandle::getElementCount() const {
+    std::uint32_t GladModelHandle::getElementCount() const {
         return elementCount;
     }
 

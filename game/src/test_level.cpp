@@ -15,7 +15,7 @@ namespace cppgame {
         scene->addComponent<TestComponent>(triangle);
         auto triangle_material = scene->addComponent<Material>(triangle);
         triangle_material->setShader(DEFAULT_SHADER_NAME);
-        triangle_material->setUniform(ShaderLocation::SHADER_DIFFUSE_COLOUR_UNIFORM, Colour{1.f, 1.f, 1.f, 1.f});
+        triangle_material->setUniform(ShaderLocation::SHADER_DIFFUSE_COLOUR_UNIFORM, Colour{1.f, 0.f, 0.f, 1.f});
 
         auto triangle_go = triangle_primitive->getGameObject();
         triangle_go.getTransform()->setScale({100, 100, 1});
@@ -24,7 +24,7 @@ namespace cppgame {
         auto box2d_primitive = scene->addComponent<Box2DPrimitive>(box2d);
         auto box2d_material = scene->addComponent<Material>(box2d);
         box2d_material->setShader(DEFAULT_SHADER_NAME);
-        box2d_material->setUniform(ShaderLocation::SHADER_DIFFUSE_COLOUR_UNIFORM, Colour{1.f, 1.f, 1.f, 1.f});
+        box2d_material->setUniform(ShaderLocation::SHADER_DIFFUSE_COLOUR_UNIFORM, Colour{0.f, 0.f, 1.f, 1.f});
         auto box2d_go = box2d_primitive->getGameObject();
         auto box2d_transform = box2d_go.getTransform();
         box2d_transform->setPosition({200, 200, 1});

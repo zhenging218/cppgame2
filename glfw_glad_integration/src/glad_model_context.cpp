@@ -41,12 +41,8 @@ namespace cppengine {
         return result != models.end() ? result->second : nullptr;
     }
 
-    ModelID GladModelContext::loadModel(
-        std::string const &name,
-        Vector3 const *vertices,
-        std::size_t const *indices,
-        std::size_t vertexCount,
-        std::size_t indexCount) {
+    ModelID GladModelContext::loadModel(const std::string &name, const Vector3 *vertices, const std::uint32_t *indices,
+            std::uint32_t vertexCount, std::uint32_t indexCount) {
         auto result = std::ranges::find_if(models, [&name] (auto const &model) {
             return model.second->getName() == name;
         });

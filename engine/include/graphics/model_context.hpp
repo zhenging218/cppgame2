@@ -14,7 +14,7 @@ namespace cppengine {
     private:
 
     public:
-        virtual ModelID loadModel(std::string const &name, Vector3 const *vertices, std::size_t const * indices, std::size_t vertexCount, std::size_t indexCount) = 0;
+        virtual ModelID loadModel(std::string const &name, Vector3 const *vertices, std::uint32_t const * indices, std::uint32_t vertexCount, std::uint32_t indexCount) = 0;
 
         virtual ModelID getModel(std::string const &name) const = 0;
         virtual ObjectHandle<ModelHandle> getModel(ModelID id) const = 0;

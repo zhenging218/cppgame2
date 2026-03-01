@@ -4,8 +4,7 @@
 namespace {
     using namespace cppengine;
 
-    constexpr char const DEFAULT_VERTEX_SHADER_SOURCE[] = R"(
-        #version 330 core
+    constexpr char const DEFAULT_VERTEX_SHADER_SOURCE[] = R"(#version 330 core
 
         layout(location = 0) in vec3 position;
         layout(location = 1) in vec3 normal;
@@ -25,8 +24,7 @@ namespace {
         }
     )";
 
-    constexpr char const DEFAULT_FRAGMENT_SHADER_SOURCE[] = R"(
-        #version 330 core
+    constexpr char const DEFAULT_FRAGMENT_SHADER_SOURCE[] = R"(#version 330 core
 
         in vec4 vertColour;
         // in vec2 vertUV;
@@ -39,6 +37,7 @@ namespace {
         void main() {
             // fragment = texture(albedo, vertUV) * vertColour * tint;
             fragment = vertColour * tint;
+            // fragment = vec4(1,1,1,1);
         }
     )";
 

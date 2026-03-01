@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include "maths/vector3.hpp"
 #include "maths/math_helper.hpp"
 
@@ -7,9 +9,9 @@ namespace cppengine {
     struct Triangle {
         using vertex_type = Vector3;
         using value_type = typename std::remove_reference<decltype(*(& std::declval<vertex_type&>()[0]))>::type;
-        static constexpr std::size_t vertex_count = 3;
-        static constexpr std::size_t index_count = 3;
-        static constexpr std::size_t indices[vertex_count] = { 0, 1, 2 };
+        static constexpr std::uint32_t vertex_count = 3;
+        static constexpr std::uint32_t index_count = 3;
+        static constexpr std::uint32_t indices[vertex_count] = { 0, 1, 2 };
 
         vertex_type vertices[vertex_count];
 
@@ -25,10 +27,10 @@ namespace cppengine {
         vertex_type& operator[](int i);
         vertex_type const& operator[](int i) const;
 
-        std::size_t constexpr inline getVertexCount() const noexcept { return vertex_count; }
-        constexpr inline std::size_t const * getIndices() const noexcept { return indices; }
+        std::uint32_t constexpr inline getVertexCount() const noexcept { return vertex_count; }
+        constexpr inline std::uint32_t const * getIndices() const noexcept { return indices; }
 
-        constexpr inline std::size_t getIndexCount() const noexcept { return index_count; }
+        constexpr inline std::uint32_t getIndexCount() const noexcept { return index_count; }
 
     };
 

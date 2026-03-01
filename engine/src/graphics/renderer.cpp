@@ -63,8 +63,8 @@ namespace {
         Matrix4x4 projection = buildOrthographicProjection(
                 -halfWidth,   // left
                  halfWidth,   // right
-                -halfHeight,  // bottom
                  halfHeight,  // top
+                -halfHeight,  // bottom
                 -1.0f,
                  1.0f
         );
@@ -186,7 +186,7 @@ namespace cppengine {
         return instance.context->getShaderContext()->getShader(name);
     }
 
-    ModelID Renderer::loadModel(std::string const &name, Vector3 const *vertices, std::size_t vertex_count, std::size_t const *indices, std::size_t index_count) {
+    ModelID Renderer::loadModel(std::string const &name, Vector3 const *vertices, std::uint32_t vertex_count, std::uint32_t const *indices, std::uint32_t index_count) {
         auto &instance = getInstance();
         return instance.context->getModelContext()->loadModel(name, vertices, indices, vertex_count, index_count);
     }

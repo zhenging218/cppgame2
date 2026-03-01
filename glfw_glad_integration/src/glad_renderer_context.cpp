@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "engine.hpp"
 #include "gg_integration.hpp"
 
@@ -13,6 +15,7 @@ namespace {
 namespace cppengine {
     GladRendererContext::GladRendererContext() {
         gladLoadGL(glfwGetProcAddress);
+
         modelContext = new GladModelContext();
         shaderContext = new GladShaderContext();
         textureContext = new GladTextureContext();
