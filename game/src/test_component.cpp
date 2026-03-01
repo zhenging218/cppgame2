@@ -6,40 +6,42 @@
 #include <cmath>
 
 namespace cppgame {
+    using namespace cppengine;
+    
     void TestComponent::init() {
         transform = getGameObject().getTransform();
     }
 
     void TestComponent::update() {
-        auto dt = cppengine::Time::deltaTime();
+        auto dt = Time::deltaTime();
 
-        if (cppengine::Input::isKeyDown(cppengine::KeyCode::SPACE)) {
-            auto delta = cppengine::Quaternion(cppengine::Vector3{0.f, 0.f, static_cast<float>(M_PI * dt)});
+        if (Input::isKeyDown(KeyCode::SPACE)) {
+            auto delta = Quaternion(Vector3{0.f, 0.f, static_cast<float>(M_PI * dt)});
             auto rotation = transform->getRotation() * delta;
             transform->setRotation(rotation);
         }
 
-        cppengine::Vector3 translation;
+        Vector3 translation;
         bool moved = false;
 
-        if (cppengine::Input::isKeyDown(cppengine::KeyCode::W)) {
-            translation += cppengine::Vector3{0.f, -50.f * dt, 0.f};
+        if (Input::isKeyDown(KeyCode::W)) {
+            translation += Vector3{0.f, -50.f * dt, 0.f};
             moved = true;
         }
 
-        if (cppengine::Input::isKeyDown(cppengine::KeyCode::A)) {
-            translation += cppengine::Vector3{-50.f * dt, 0.f, 0.f};
+        if (Input::isKeyDown(KeyCode::A)) {
+            translation += Vector3{-50.f * dt, 0.f, 0.f};
             moved = true;
         }
 
-        if (cppengine::Input::isKeyDown(cppengine::KeyCode::S)) {
-            translation += cppengine::Vector3{0.f, 50.f * dt, 0.f};
+        if (Input::isKeyDown(KeyCode::S)) {
+            translation += Vector3{0.f, 50.f * dt, 0.f};
 
             moved = true;
         }
 
-        if (cppengine::Input::isKeyDown(cppengine::KeyCode::D)) {
-            translation += cppengine::Vector3{50.f * dt, 0.f, 0.f};
+        if (Input::isKeyDown(KeyCode::D)) {
+            translation += Vector3{50.f * dt, 0.f, 0.f};
             moved = true;
         }
 

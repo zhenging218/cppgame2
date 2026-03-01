@@ -4,6 +4,8 @@
 #include "gg_integration.hpp"
 
 namespace {
+    using namespace cppengine;
+    
     bool keyIsDown[GLFW_KEY_LAST] = { false };
     bool keyIsPressed[GLFW_KEY_LAST] = { false };
     bool keyIsReleased[GLFW_KEY_LAST] = { false };
@@ -46,132 +48,132 @@ namespace {
         }
     }
 
-    int translateKeyCode(cppengine::KeyCode keyCode) {
+    int translateKeyCode(KeyCode keyCode) {
         switch (keyCode) {
-            case cppengine::KeyCode::A: return GLFW_KEY_A;
-            case cppengine::KeyCode::B: return GLFW_KEY_B;
-            case cppengine::KeyCode::C: return GLFW_KEY_C;
-            case cppengine::KeyCode::D: return GLFW_KEY_D;
-            case cppengine::KeyCode::E: return GLFW_KEY_E;
-            case cppengine::KeyCode::F: return GLFW_KEY_F;
-            case cppengine::KeyCode::G: return GLFW_KEY_G;
-            case cppengine::KeyCode::H: return GLFW_KEY_H;
-            case cppengine::KeyCode::I: return GLFW_KEY_I;
-            case cppengine::KeyCode::J: return GLFW_KEY_J;
-            case cppengine::KeyCode::K: return GLFW_KEY_K;
-            case cppengine::KeyCode::L: return GLFW_KEY_L;
-            case cppengine::KeyCode::M: return GLFW_KEY_M;
-            case cppengine::KeyCode::N: return GLFW_KEY_N;
-            case cppengine::KeyCode::O: return GLFW_KEY_O;
-            case cppengine::KeyCode::P: return GLFW_KEY_P;
-            case cppengine::KeyCode::Q: return GLFW_KEY_Q;
-            case cppengine::KeyCode::R: return GLFW_KEY_R;
-            case cppengine::KeyCode::S: return GLFW_KEY_S;
-            case cppengine::KeyCode::T: return GLFW_KEY_T;
-            case cppengine::KeyCode::U: return GLFW_KEY_U;
-            case cppengine::KeyCode::V: return GLFW_KEY_V;
-            case cppengine::KeyCode::W: return GLFW_KEY_W;
-            case cppengine::KeyCode::X: return GLFW_KEY_X;
-            case cppengine::KeyCode::Y: return GLFW_KEY_Y;
-            case cppengine::KeyCode::Z: return GLFW_KEY_Z;
-            case cppengine::KeyCode::NUM_0: return GLFW_KEY_0;
-            case cppengine::KeyCode::NUM_1: return GLFW_KEY_1;
-            case cppengine::KeyCode::NUM_2: return GLFW_KEY_2;
-            case cppengine::KeyCode::NUM_3: return GLFW_KEY_3;
-            case cppengine::KeyCode::NUM_4: return GLFW_KEY_4;
-            case cppengine::KeyCode::NUM_5: return GLFW_KEY_5;
-            case cppengine::KeyCode::NUM_6: return GLFW_KEY_6;
-            case cppengine::KeyCode::NUM_7: return GLFW_KEY_7;
-            case cppengine::KeyCode::NUM_8: return GLFW_KEY_8;
-            case cppengine::KeyCode::NUM_9: return GLFW_KEY_9;
-            case cppengine::KeyCode::F1: return GLFW_KEY_F1;
-            case cppengine::KeyCode::F2: return GLFW_KEY_F2;
-            case cppengine::KeyCode::F3: return GLFW_KEY_F3;
-            case cppengine::KeyCode::F4: return GLFW_KEY_F4;
-            case cppengine::KeyCode::F5: return GLFW_KEY_F5;
-            case cppengine::KeyCode::F6: return GLFW_KEY_F6;
-            case cppengine::KeyCode::F7: return GLFW_KEY_F7;
-            case cppengine::KeyCode::F8: return GLFW_KEY_F8;
-            case cppengine::KeyCode::F9: return GLFW_KEY_F9;
-            case cppengine::KeyCode::F10: return GLFW_KEY_F10;
-            case cppengine::KeyCode::F11: return GLFW_KEY_F11;
-            case cppengine::KeyCode::F12: return GLFW_KEY_F12;
-            case cppengine::KeyCode::UP_ARROW: return GLFW_KEY_UP;
-            case cppengine::KeyCode::DOWN_ARROW: return GLFW_KEY_DOWN;
-            case cppengine::KeyCode::LEFT_ARROW: return GLFW_KEY_LEFT;
-            case cppengine::KeyCode::RIGHT_ARROW: return GLFW_KEY_RIGHT;
-            case cppengine::KeyCode::LEFT_SHIFT: return GLFW_KEY_LEFT_SHIFT;
-            case cppengine::KeyCode::RIGHT_SHIFT: return GLFW_KEY_RIGHT_SHIFT;
-            case cppengine::KeyCode::LEFT_CONTROL: return GLFW_KEY_LEFT_CONTROL;
-            case cppengine::KeyCode::RIGHT_CONTROL: return GLFW_KEY_RIGHT_CONTROL;
-            case cppengine::KeyCode::LEFT_ALT: return GLFW_KEY_LEFT_ALT;
-            case cppengine::KeyCode::RIGHT_ALT: return GLFW_KEY_RIGHT_ALT;
-            case cppengine::KeyCode::LEFT_SUPER: return GLFW_KEY_LEFT_SUPER;
-            case cppengine::KeyCode::RIGHT_SUPER: return GLFW_KEY_RIGHT_SUPER;
-            case cppengine::KeyCode::SPACE: return GLFW_KEY_SPACE;
-            case cppengine::KeyCode::ENTER: return GLFW_KEY_ENTER;
-            case cppengine::KeyCode::ESCAPE: return GLFW_KEY_ESCAPE;
-            case cppengine::KeyCode::TAB: return GLFW_KEY_TAB;
-            case cppengine::KeyCode::BACKSPACE: return GLFW_KEY_BACKSPACE;
-            case cppengine::KeyCode::INSERT: return GLFW_KEY_INSERT;
-            case cppengine::KeyCode::DELETE: return GLFW_KEY_DELETE;
-            case cppengine::KeyCode::HOME: return GLFW_KEY_HOME;
-            case cppengine::KeyCode::END: return GLFW_KEY_END;
-            case cppengine::KeyCode::PAGE_UP: return GLFW_KEY_PAGE_UP;
-            case cppengine::KeyCode::PAGE_DOWN: return GLFW_KEY_PAGE_DOWN;
-            case cppengine::KeyCode::MINUS: return GLFW_KEY_MINUS;
-            case cppengine::KeyCode::EQUAL: return GLFW_KEY_EQUAL;
-            case cppengine::KeyCode::LEFT_BRACKET: return GLFW_KEY_LEFT_BRACKET;
-            case cppengine::KeyCode::RIGHT_BRACKET: return GLFW_KEY_RIGHT_BRACKET;
-            case cppengine::KeyCode::SEMICOLON: return GLFW_KEY_SEMICOLON;
-            case cppengine::KeyCode::APOSTROPHE: return GLFW_KEY_APOSTROPHE;
-            case cppengine::KeyCode::COMMA: return GLFW_KEY_COMMA;
-            case cppengine::KeyCode::PERIOD: return GLFW_KEY_PERIOD;
-            case cppengine::KeyCode::SLASH: return GLFW_KEY_SLASH;
-            case cppengine::KeyCode::BACKSLASH: return GLFW_KEY_BACKSLASH;
-            case cppengine::KeyCode::GRAVE_ACCENT: return GLFW_KEY_GRAVE_ACCENT;
-            case cppengine::KeyCode::KP_0: return GLFW_KEY_KP_0;
-            case cppengine::KeyCode::KP_1: return GLFW_KEY_KP_1;
-            case cppengine::KeyCode::KP_2: return GLFW_KEY_KP_2;
-            case cppengine::KeyCode::KP_3: return GLFW_KEY_KP_3;
-            case cppengine::KeyCode::KP_4: return GLFW_KEY_KP_4;
-            case cppengine::KeyCode::KP_5: return GLFW_KEY_KP_5;
-            case cppengine::KeyCode::KP_6: return GLFW_KEY_KP_6;
-            case cppengine::KeyCode::KP_7: return GLFW_KEY_KP_7;
-            case cppengine::KeyCode::KP_8: return GLFW_KEY_KP_8;
-            case cppengine::KeyCode::KP_9: return GLFW_KEY_KP_9;
-            case cppengine::KeyCode::KP_DECIMAL: return GLFW_KEY_KP_DECIMAL;
-            case cppengine::KeyCode::KP_DIVIDE: return GLFW_KEY_KP_DIVIDE;
-            case cppengine::KeyCode::KP_MULTIPLY: return GLFW_KEY_KP_MULTIPLY;
-            case cppengine::KeyCode::KP_SUBTRACT: return GLFW_KEY_KP_SUBTRACT;
-            case cppengine::KeyCode::KP_ADD: return GLFW_KEY_KP_ADD;
-            case cppengine::KeyCode::KP_ENTER: return GLFW_KEY_KP_ENTER;
-            case cppengine::KeyCode::KP_EQUAL: return GLFW_KEY_KP_EQUAL;
-            case cppengine::KeyCode::CAPS_LOCK: return GLFW_KEY_CAPS_LOCK;
-            case cppengine::KeyCode::NUM_LOCK: return GLFW_KEY_NUM_LOCK;
-            case cppengine::KeyCode::SCROLL_LOCK: return GLFW_KEY_SCROLL_LOCK;
-            case cppengine::KeyCode::PRINT_SCREEN: return GLFW_KEY_PRINT_SCREEN;
-            case cppengine::KeyCode::PAUSE: return GLFW_KEY_PAUSE;
-            case cppengine::KeyCode::MENU: return GLFW_KEY_MENU;
+            case KeyCode::A: return GLFW_KEY_A;
+            case KeyCode::B: return GLFW_KEY_B;
+            case KeyCode::C: return GLFW_KEY_C;
+            case KeyCode::D: return GLFW_KEY_D;
+            case KeyCode::E: return GLFW_KEY_E;
+            case KeyCode::F: return GLFW_KEY_F;
+            case KeyCode::G: return GLFW_KEY_G;
+            case KeyCode::H: return GLFW_KEY_H;
+            case KeyCode::I: return GLFW_KEY_I;
+            case KeyCode::J: return GLFW_KEY_J;
+            case KeyCode::K: return GLFW_KEY_K;
+            case KeyCode::L: return GLFW_KEY_L;
+            case KeyCode::M: return GLFW_KEY_M;
+            case KeyCode::N: return GLFW_KEY_N;
+            case KeyCode::O: return GLFW_KEY_O;
+            case KeyCode::P: return GLFW_KEY_P;
+            case KeyCode::Q: return GLFW_KEY_Q;
+            case KeyCode::R: return GLFW_KEY_R;
+            case KeyCode::S: return GLFW_KEY_S;
+            case KeyCode::T: return GLFW_KEY_T;
+            case KeyCode::U: return GLFW_KEY_U;
+            case KeyCode::V: return GLFW_KEY_V;
+            case KeyCode::W: return GLFW_KEY_W;
+            case KeyCode::X: return GLFW_KEY_X;
+            case KeyCode::Y: return GLFW_KEY_Y;
+            case KeyCode::Z: return GLFW_KEY_Z;
+            case KeyCode::NUM_0: return GLFW_KEY_0;
+            case KeyCode::NUM_1: return GLFW_KEY_1;
+            case KeyCode::NUM_2: return GLFW_KEY_2;
+            case KeyCode::NUM_3: return GLFW_KEY_3;
+            case KeyCode::NUM_4: return GLFW_KEY_4;
+            case KeyCode::NUM_5: return GLFW_KEY_5;
+            case KeyCode::NUM_6: return GLFW_KEY_6;
+            case KeyCode::NUM_7: return GLFW_KEY_7;
+            case KeyCode::NUM_8: return GLFW_KEY_8;
+            case KeyCode::NUM_9: return GLFW_KEY_9;
+            case KeyCode::F1: return GLFW_KEY_F1;
+            case KeyCode::F2: return GLFW_KEY_F2;
+            case KeyCode::F3: return GLFW_KEY_F3;
+            case KeyCode::F4: return GLFW_KEY_F4;
+            case KeyCode::F5: return GLFW_KEY_F5;
+            case KeyCode::F6: return GLFW_KEY_F6;
+            case KeyCode::F7: return GLFW_KEY_F7;
+            case KeyCode::F8: return GLFW_KEY_F8;
+            case KeyCode::F9: return GLFW_KEY_F9;
+            case KeyCode::F10: return GLFW_KEY_F10;
+            case KeyCode::F11: return GLFW_KEY_F11;
+            case KeyCode::F12: return GLFW_KEY_F12;
+            case KeyCode::UP_ARROW: return GLFW_KEY_UP;
+            case KeyCode::DOWN_ARROW: return GLFW_KEY_DOWN;
+            case KeyCode::LEFT_ARROW: return GLFW_KEY_LEFT;
+            case KeyCode::RIGHT_ARROW: return GLFW_KEY_RIGHT;
+            case KeyCode::LEFT_SHIFT: return GLFW_KEY_LEFT_SHIFT;
+            case KeyCode::RIGHT_SHIFT: return GLFW_KEY_RIGHT_SHIFT;
+            case KeyCode::LEFT_CONTROL: return GLFW_KEY_LEFT_CONTROL;
+            case KeyCode::RIGHT_CONTROL: return GLFW_KEY_RIGHT_CONTROL;
+            case KeyCode::LEFT_ALT: return GLFW_KEY_LEFT_ALT;
+            case KeyCode::RIGHT_ALT: return GLFW_KEY_RIGHT_ALT;
+            case KeyCode::LEFT_SUPER: return GLFW_KEY_LEFT_SUPER;
+            case KeyCode::RIGHT_SUPER: return GLFW_KEY_RIGHT_SUPER;
+            case KeyCode::SPACE: return GLFW_KEY_SPACE;
+            case KeyCode::ENTER: return GLFW_KEY_ENTER;
+            case KeyCode::ESCAPE: return GLFW_KEY_ESCAPE;
+            case KeyCode::TAB: return GLFW_KEY_TAB;
+            case KeyCode::BACKSPACE: return GLFW_KEY_BACKSPACE;
+            case KeyCode::INSERT: return GLFW_KEY_INSERT;
+            case KeyCode::DELETE: return GLFW_KEY_DELETE;
+            case KeyCode::HOME: return GLFW_KEY_HOME;
+            case KeyCode::END: return GLFW_KEY_END;
+            case KeyCode::PAGE_UP: return GLFW_KEY_PAGE_UP;
+            case KeyCode::PAGE_DOWN: return GLFW_KEY_PAGE_DOWN;
+            case KeyCode::MINUS: return GLFW_KEY_MINUS;
+            case KeyCode::EQUAL: return GLFW_KEY_EQUAL;
+            case KeyCode::LEFT_BRACKET: return GLFW_KEY_LEFT_BRACKET;
+            case KeyCode::RIGHT_BRACKET: return GLFW_KEY_RIGHT_BRACKET;
+            case KeyCode::SEMICOLON: return GLFW_KEY_SEMICOLON;
+            case KeyCode::APOSTROPHE: return GLFW_KEY_APOSTROPHE;
+            case KeyCode::COMMA: return GLFW_KEY_COMMA;
+            case KeyCode::PERIOD: return GLFW_KEY_PERIOD;
+            case KeyCode::SLASH: return GLFW_KEY_SLASH;
+            case KeyCode::BACKSLASH: return GLFW_KEY_BACKSLASH;
+            case KeyCode::GRAVE_ACCENT: return GLFW_KEY_GRAVE_ACCENT;
+            case KeyCode::KP_0: return GLFW_KEY_KP_0;
+            case KeyCode::KP_1: return GLFW_KEY_KP_1;
+            case KeyCode::KP_2: return GLFW_KEY_KP_2;
+            case KeyCode::KP_3: return GLFW_KEY_KP_3;
+            case KeyCode::KP_4: return GLFW_KEY_KP_4;
+            case KeyCode::KP_5: return GLFW_KEY_KP_5;
+            case KeyCode::KP_6: return GLFW_KEY_KP_6;
+            case KeyCode::KP_7: return GLFW_KEY_KP_7;
+            case KeyCode::KP_8: return GLFW_KEY_KP_8;
+            case KeyCode::KP_9: return GLFW_KEY_KP_9;
+            case KeyCode::KP_DECIMAL: return GLFW_KEY_KP_DECIMAL;
+            case KeyCode::KP_DIVIDE: return GLFW_KEY_KP_DIVIDE;
+            case KeyCode::KP_MULTIPLY: return GLFW_KEY_KP_MULTIPLY;
+            case KeyCode::KP_SUBTRACT: return GLFW_KEY_KP_SUBTRACT;
+            case KeyCode::KP_ADD: return GLFW_KEY_KP_ADD;
+            case KeyCode::KP_ENTER: return GLFW_KEY_KP_ENTER;
+            case KeyCode::KP_EQUAL: return GLFW_KEY_KP_EQUAL;
+            case KeyCode::CAPS_LOCK: return GLFW_KEY_CAPS_LOCK;
+            case KeyCode::NUM_LOCK: return GLFW_KEY_NUM_LOCK;
+            case KeyCode::SCROLL_LOCK: return GLFW_KEY_SCROLL_LOCK;
+            case KeyCode::PRINT_SCREEN: return GLFW_KEY_PRINT_SCREEN;
+            case KeyCode::PAUSE: return GLFW_KEY_PAUSE;
+            case KeyCode::MENU: return GLFW_KEY_MENU;
             default: return GLFW_KEY_UNKNOWN;
         }
     }
     
-    int translateMouseCode(cppengine::KeyCode mouseCode) {
+    int translateMouseCode(KeyCode mouseCode) {
         switch (mouseCode) {
-            case cppengine::KeyCode::MOUSE_LEFT: return GLFW_MOUSE_BUTTON_LEFT;
-            case cppengine::KeyCode::MOUSE_RIGHT: return GLFW_MOUSE_BUTTON_RIGHT;
-            case cppengine::KeyCode::MOUSE_MIDDLE: return GLFW_MOUSE_BUTTON_MIDDLE;
+            case KeyCode::MOUSE_LEFT: return GLFW_MOUSE_BUTTON_LEFT;
+            case KeyCode::MOUSE_RIGHT: return GLFW_MOUSE_BUTTON_RIGHT;
+            case KeyCode::MOUSE_MIDDLE: return GLFW_MOUSE_BUTTON_MIDDLE;
             default: return GLFW_KEY_UNKNOWN;
         }
     }
 
-    bool isMouseCode(cppengine::KeyCode keyCode) {
+    bool isMouseCode(KeyCode keyCode) {
         int value = static_cast<int>(keyCode);
-        return value > static_cast<int>(cppengine::KeyCode::MOUSE_BUTTON_BEGIN) && value < static_cast<int>(cppengine::KeyCode::MOUSE_BUTTON_END);
+        return value > static_cast<int>(KeyCode::MOUSE_BUTTON_BEGIN) && value < static_cast<int>(KeyCode::MOUSE_BUTTON_END);
     }
 
-    bool testKey(cppengine::KeyCode keyCode, bool const *mouseStates, bool const *keyStates) {
+    bool testKey(KeyCode keyCode, bool const *mouseStates, bool const *keyStates) {
         if (int key; isMouseCode(keyCode) && (key = translateMouseCode(keyCode)) != GLFW_KEY_UNKNOWN) {
             return mouseStates[key];
         }

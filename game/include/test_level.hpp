@@ -3,11 +3,13 @@
 #include "ecs/scene_setup.hpp"
 
 namespace cppgame {
-    class TestLevel : public cppengine::SceneSetup {
+    using namespace cppengine;
+    
+    class TestLevel : public SceneSetup {
     private:
 
     public:
-        void setup(cppengine::ObjectHandle<cppengine::Scene> scene) override;
+        void setup(ObjectHandle<Scene> scene) override;
     };
 }
 

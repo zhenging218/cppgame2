@@ -3,9 +3,10 @@
 #include "ecs/component.hpp"
 
 namespace cppgame {
-    class TestComponent : public cppengine::Component {
+    using namespace cppengine;
+    class TestComponent : public Component {
     private:
-        cppengine::ObjectHandle<cppengine::Transform> transform;
+        ObjectHandle<Transform> transform;
     public:
         void init();
         void update();

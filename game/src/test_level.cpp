@@ -3,6 +3,7 @@
 
 namespace cppgame {
     using namespace cppengine;
+
     void TestLevel::setup(ObjectHandle<Scene> scene) {
         auto camera = scene->createEntity();
         auto camera_camera2d = scene->addComponent<Camera2D>(camera);
