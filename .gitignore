@@ -3,6 +3,7 @@
 
 .idea
 .vscode
+build
 
 # User-specific stuff
 .idea/**/workspace.xml
