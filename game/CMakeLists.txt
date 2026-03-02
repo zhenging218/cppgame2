@@ -15,11 +15,11 @@ target_link_libraries(${GAME_TARGET_NAME} PRIVATE ${CPP_GAME_ENGINE} ${CPP_GAME_
 target_include_directories(${GAME_TARGET_NAME} PUBLIC ${GAME_INC_DIR})
 target_precompile_headers(${GAME_TARGET_NAME} PUBLIC ${GAME_INC_DIR}/game.hpp)
 
-if(NOT EXISTS "$<TARGET_FILE_DIR:${GAME_TARGET_NAME}>/assets")
-	add_custom_command(TARGET demo POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E create_symlink
-			"${CMAKE_CURRENT_SOURCE_DIR}/assets"
-			"$<TARGET_FILE_DIR:${GAME_TARGET_NAME}>/assets"
-		COMMENT "creating symlink for assets folder ${CMAKE_CURRENT_SOURCE_DIR}/assets <-> $<TARGET_FILE_DIR:${GAME_TARGET_NAME}>/assets"
-	)
-endif()
+#if(NOT EXISTS "$<TARGET_FILE_DIR:${GAME_TARGET_NAME}>/assets")
+#	add_custom_command(TARGET demo POST_BUILD
+#		COMMAND ${CMAKE_COMMAND} -E create_symlink
+#			"${CMAKE_CURRENT_SOURCE_DIR}/assets"
+#			"$<TARGET_FILE_DIR:${GAME_TARGET_NAME}>/assets"
+#		COMMENT "creating symlink for assets folder ${CMAKE_CURRENT_SOURCE_DIR}/assets <-> $<TARGET_FILE_DIR:${GAME_TARGET_NAME}>/assets"
+#	)
+#endif()
