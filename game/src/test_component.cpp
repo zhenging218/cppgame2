@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#define _USE_MATH_DEFINES
+#include <numbers>
 #include <cmath>
 
 namespace cppgame {
@@ -16,7 +16,7 @@ namespace cppgame {
         auto dt = Time::deltaTime();
 
         if (Input::isKeyDown(KeyCode::SPACE)) {
-            auto delta = Quaternion(Vector3{0.f, 0.f, static_cast<float>(M_PI * dt)});
+            auto delta = Quaternion(Vector3{0.f, 0.f, static_cast<float>(std::numbers::pi * dt)});
             auto rotation = transform->getRotation() * delta;
             transform->setRotation(rotation);
         }

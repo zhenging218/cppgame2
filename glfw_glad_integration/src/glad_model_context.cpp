@@ -1,5 +1,3 @@
-#include <bits/atomic_base.h>
-
 #include "engine.hpp"
 #include "gg_integration.hpp"
 

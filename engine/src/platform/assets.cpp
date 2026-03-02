@@ -17,6 +17,6 @@ namespace cppengine {
     }
 
     std::ifstream Assets::openFile(std::string_view filename) {
-        return {std::filesystem::path(filename)};
+        return std::ifstream{std::filesystem::path(filename)};
     }
 }
