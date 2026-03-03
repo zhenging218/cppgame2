@@ -27,12 +27,3 @@ add_custom_command(
             -P "${CMAKE_CURRENT_SOURCE_DIR}/game_postbuild.cmake"
         COMMENT "creating symlink to assets folder"
 )
-
-#if(NOT EXISTS "$<TARGET_FILE_DIR:${GAME_TARGET_NAME}>/assets")
-#	add_custom_command(TARGET demo POST_BUILD
-#		COMMAND ${CMAKE_COMMAND} -E create_symlink
-#			"${CMAKE_CURRENT_SOURCE_DIR}/assets"
-#			"$<TARGET_FILE_DIR:${GAME_TARGET_NAME}>/assets"
-#		COMMENT "creating symlink for assets folder ${CMAKE_CURRENT_SOURCE_DIR}/assets <-> $<TARGET_FILE_DIR:${GAME_TARGET_NAME}>/assets"
-#	)
-#endif()
