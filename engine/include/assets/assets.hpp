@@ -4,9 +4,15 @@
 #include <utility>
 #include <fstream>
 
+#include "image_loader_context.hpp"
+
 namespace cppengine {
     class Assets {
     private:
+
+        ObjectHandle<ImageLoaderContext> imageLoaderContext;
+
+        static ObjectHandle<ImageLoaderContext> createImageLoaderContext();
 
     public:
         Assets();

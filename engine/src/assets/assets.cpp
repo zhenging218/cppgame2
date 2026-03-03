@@ -2,7 +2,7 @@
 #include <filesystem>
 
 namespace cppengine {
-    Assets::Assets() {
+    Assets::Assets() : imageLoaderContext(createImageLoaderContext()){
 
     }
 
