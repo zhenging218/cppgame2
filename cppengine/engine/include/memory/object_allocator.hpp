@@ -209,7 +209,7 @@ namespace cppengine {
 
     template <typename T, std::size_t PageSize>
     ObjectAllocator<T, PageSize>& ObjectAllocator<T, PageSize>::getInstance() {
-        auto instance = new ObjectAllocator();
+        static auto instance = new ObjectAllocator();
         return *instance;
     }
 
