@@ -1,10 +1,10 @@
 #include "engine.hpp"
-#include "../include/stb_image_loader_context.hpp"
+#include "../include/stb_image_context.hpp"
 
 namespace cppengine
 {
-    ObjectHandle<ImageLoaderContext> Assets::createImageLoaderContext()
+    ObjectHandle<ImageContext> Assets::createImageContext()
     {
-        return new StbImageLoaderContext();
+        return new StbImageContext();
     }
 }

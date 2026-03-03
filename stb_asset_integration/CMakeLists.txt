@@ -12,7 +12,8 @@ set(STB_ASSET_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 add_library(stb_asset_integration STATIC
     ${STB_ASSET_SRC_DIR}/stb_assets.cpp
-    ${STB_ASSET_SRC_DIR}/stb_image_loader_context.cpp
+    ${STB_ASSET_SRC_DIR}/stb_image_handle.cpp
+    ${STB_ASSET_SRC_DIR}/stb_image_context.cpp
 )
 
 target_include_directories(stb_asset_integration PUBLIC ${ENGINE_INC_DIR} ${STB_ASSET_INC_DIR})
