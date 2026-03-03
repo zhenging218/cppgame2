@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-set(GAME_TARGET_NAME demo)
-
+set(GAME_TARGET_NAME game)
 set(GAME_ASSET_FOLDER_NAME assets)
 set(GAME_ASSET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${GAME_ASSET_FOLDER_NAME})
 
@@ -18,13 +17,5 @@ target_link_libraries(${GAME_TARGET_NAME} PRIVATE ${CPP_GAME_ENGINE} ${CPP_GAME_
 target_include_directories(${GAME_TARGET_NAME} PUBLIC ${GAME_INC_DIR})
 target_precompile_headers(${GAME_TARGET_NAME} PUBLIC ${GAME_INC_DIR}/game.hpp)
 
-add_custom_target(
-        link_assets
-        COMMAND ${CMAKE_COMMAND}
-            -DASSET_SRC_LOCATION="${GAME_ASSET_DIR}"
-            -DASSET_SYMLINK_LOCATION="${CMAKE_CURRENT_BINARY_DIR}/${GAME_ASSET_FOLDER_NAME}"
-            -P "${CMAKE_CURRENT_SOURCE_DIR}/game_postbuild.cmake"
-        COMMENT "creating assets folder for target"
-)
-
-add_dependencies(${GAME_TARGET_NAME} link_assets)
+set(CPP_GAME_TARGET_NAME ${GAME_TARGET_NAME} PARENT_SCOPE)
+set(CPP_GAME_ASSET_LOCATION ${GAME_ASSET_DIR} PARENT_SCOPE)
