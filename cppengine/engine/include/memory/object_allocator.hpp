@@ -121,8 +121,12 @@ namespace cppengine {
                 if (curr->referenceCounter != nullptr) {
                     if (curr->referenceCounter->active) {
                         reinterpret_cast<object_pointer>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_HEADER_SIZE + DATA_AREA_OFFSET)->~T();
+                        curr->referenceCounter->active = false;
                     }
-                    delete curr->referenceCounter;
+
+                    if (curr->referenceCounter->getAcquireCount() == 0 & curr->referenceCounter->getWeakAcquireCount() == 0) {
+                        delete curr->referenceCounter;
+                    }
                 }
                 curr = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(curr) + BLOCK_SIZE);
             }
@@ -205,8 +209,8 @@ namespace cppengine {
 
     template <typename T, std::size_t PageSize>
     ObjectAllocator<T, PageSize>& ObjectAllocator<T, PageSize>::getInstance() {
-        static ObjectAllocator instance;
-        return instance;
+        auto instance = new ObjectAllocator();
+        return *instance;
     }
 
 }
