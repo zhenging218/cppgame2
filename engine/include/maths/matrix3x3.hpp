@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MATRIX3X3_HPP
+#define MATRIX3X3_HPP
 
 #include <ostream>
 
@@ -52,3 +53,5 @@ namespace cppengine {
 
     std::ostream& operator<<(std::ostream& os, Matrix3x3 const& m);
 }
+
+#endif

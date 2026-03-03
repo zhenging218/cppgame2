@@ -1,4 +1,5 @@
-#pragma once
+#ifndef QUATERNION_HPP
+#define QUATERNION_HPP
 
 #include <ostream>
 namespace cppengine {
@@ -42,3 +43,5 @@ namespace cppengine {
 
     std::ostream& operator<<(std::ostream& os, Quaternion const& v);
 }
+
+#endif

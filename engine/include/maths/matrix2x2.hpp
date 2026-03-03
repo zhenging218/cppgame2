@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MATRIX2X2_HPP
+#define MATRIX2X2_HPP
 
 #include <ostream>
 
@@ -50,3 +51,5 @@ namespace cppengine {
 
     std::ostream& operator<<(std::ostream& os, Matrix2x2 const& m);
 }
+
+#endif

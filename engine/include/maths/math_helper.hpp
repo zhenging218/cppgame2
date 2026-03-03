@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MATH_HELPER_HPP
+#define MATH_HELPER_HPP
 
 #include <type_traits>
 
@@ -40,3 +41,4 @@ namespace cppengine {
         };
     }
 }
+#endif

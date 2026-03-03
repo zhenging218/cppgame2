@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MATHS_HPP
+#define MATHS_HPP
 
 #include "math_helper.hpp"
 #include "vector2.hpp"
@@ -11,3 +12,5 @@
 #include "matrix2x2.hpp"
 #include "matrix3x3.hpp"
 #include "matrix4x4.hpp"
+
+#endif
