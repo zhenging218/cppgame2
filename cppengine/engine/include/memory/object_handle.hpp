@@ -34,7 +34,6 @@ namespace cppengine {
         template <typename U>
         static bool equals(ObjectHandle const& lhs, WeakHandle<U> const& rhs);
 
-    public:
         ObjectHandle(T* object_, MemoryControlBlock* counter_)
             : counter(new TypeReferenceCounter<T>(object_, counter_)), object(object_) {
             counter->acquire();
@@ -48,9 +47,11 @@ namespace cppengine {
             counter->acquire();
         }
 
-        ObjectHandle(T* object_) : object(object_), counter(new ImmediateReferenceCounter<T>(object_)) {
-            counter->acquire();
-        }
+    public:
+        ObjectHandle(T *object_) : ObjectHandle(object_, new ImmediateReferenceCounter<T>(object_)) {}
+
+        template <typename U> requires (std::is_base_of_v<T, U> && !std::is_same_v<T, U>)
+        ObjectHandle(U *object_) : ObjectHandle(object_, new ImmediateReferenceCounter<U>(object_)) {}
 
         ObjectHandle(T* object_, deallocator_type deallocator) : object(object_), counter(new ImmediateReferenceCounter<T>(object_, deallocator)) {
             counter->acquire();
