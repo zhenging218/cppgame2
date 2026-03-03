@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MEMORY_CONTROL_BLOCK_HPP
+#define MEMORY_CONTROL_BLOCK_HPP
 
 namespace cppengine {
     struct MemoryControlBlock {
@@ -27,3 +28,5 @@ namespace cppengine {
         void weakRelease();
     };
 }
+
+#endif

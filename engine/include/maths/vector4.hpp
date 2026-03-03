@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VECTOR4_HPP
+#define VECTOR4_HPP
 
 #include <ostream>
 
@@ -43,3 +44,5 @@ namespace cppengine {
 
     std::ostream& operator<<(std::ostream& os, Vector4 const& v);
 }
+
+#endif

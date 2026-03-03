@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WEAK_HANDLE_HPP
+#define WEAK_HANDLE_HPP
 
 #include "memory/object_handle.hpp"
 
@@ -128,3 +129,5 @@ namespace cppengine {
 		return lhs.counter == rhs.counter;
 	}
 }
+
+#endif

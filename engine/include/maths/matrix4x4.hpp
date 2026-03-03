@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MATRIX4X4_HPP
+#define MATRIX4X4_HPP
 
 #include <ostream>
 
@@ -77,3 +78,5 @@ namespace cppengine {
 
     std::ostream& operator<<(std::ostream& os, Matrix4x4 const& m);
 }
+
+#endif

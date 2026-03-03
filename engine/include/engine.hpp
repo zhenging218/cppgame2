@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ENGINE_HPP
+#define ENGINE_HPP
 
 #include "maths/maths.hpp"
 #include "memory/objects.hpp"
@@ -7,3 +8,5 @@
 #include "graphics/graphics.hpp"
 #include "platform/platform.hpp"
 #include "assets/assets_pch.hpp"
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef OBJECT_HANDLE_HPP
+#define OBJECT_HANDLE_HPP
 
 #include <type_traits>
 
@@ -240,3 +241,5 @@ namespace cppengine {
         return ObjectHandle<T>(obj, new UnownedTypeReference<T>());
     }
 }
+
+#endif

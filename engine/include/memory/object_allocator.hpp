@@ -1,4 +1,5 @@
-#pragma once
+#ifndef OBJECT_ALLOCATOR_HPP
+#define OBJECT_ALLOCATOR_HPP
 
 #include <type_traits>
 #include <cstdint>
@@ -209,3 +210,5 @@ namespace cppengine {
     }
 
 }
+
+#endif

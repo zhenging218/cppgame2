@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TRIANGLE_HPP
+#define TRIANGLE_HPP
 
 #include <cstdint>
 
@@ -37,3 +38,5 @@ namespace cppengine {
     bool operator==(Triangle const& lhs, Triangle const& rhs);
     std::ostream& operator<<(std::ostream& os, Triangle const& t);
 }
+
+#endif

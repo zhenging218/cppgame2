@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TRANSFORM_HPP
+#define TRANSFORM_HPP
 
 #include <vector>
 
@@ -51,3 +52,5 @@ namespace cppengine {
         Matrix4x4 const &getMatrix();
     };
 }
+
+#endif

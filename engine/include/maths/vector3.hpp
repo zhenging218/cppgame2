@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VECTOR3_HPP
+#define VECTOR3_HPP
 
 #include <ostream>
 
@@ -54,3 +55,5 @@ namespace cppengine {
 
     std::ostream& operator<<(std::ostream& os, Vector3 const& v);
 }
+
+#endif
