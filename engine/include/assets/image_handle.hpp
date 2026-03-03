@@ -13,27 +13,16 @@ namespace cppengine
         using image_data_pointer = image_data_type *;
         using image_data_const_pointer = const_image_data_type *;
 
-        ImageHandle();
+        virtual ~ImageHandle() = 0;
 
-        ImageHandle(std::string const &name_,
-            image_data_pointer data_,
-            int width_,
-            int height_,
-            int channels_);
+        virtual image_data_type &operator[](int index) = 0;
+        virtual const_image_data_type&operator[](int index) const = 0;
 
-        ImageHandle(ImageHandle const &other);
-        ImageHandle(ImageHandle &&other) noexcept;
-        ImageHandle &operator=(ImageHandle const &other);
-        ImageHandle &operator=(ImageHandle &&other) noexcept;
-        ~ImageHandle();
-
-        image_data_type &operator[](int index);
-        const_image_data_type&operator[](int index) const;
-
-        explicit operator image_data_pointer();
-        explicit operator image_data_const_pointer() const;
-
+        virtual image_data_pointer getData() = 0;
+        virtual image_data_const_pointer getData() const = 0;
     };
+
+    inline ImageHandle::~ImageHandle() = default;
 }
 
 #endif
