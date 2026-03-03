@@ -18,8 +18,6 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(glfw)
 
-set(ENGINE_INC_DIR ${CMAKE_SOURCE_DIR}/engine/include)
-
 set(INTEGRATION_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INTEGRATION_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -41,10 +39,11 @@ add_library(gg_integration OBJECT
 	${INTEGRATION_SRC_DIR}/glfw_input.cpp
 )
 
-target_include_directories(gg_integration PUBLIC ${ENGINE_INC_DIR} ${INTEGRATION_INC_DIR})
+target_include_directories(gg_integration PUBLIC ${INTEGRATION_INC_DIR})
 target_precompile_headers(gg_integration PUBLIC ${INTEGRATION_INC_DIR}/gg_integration.hpp)
 
 target_link_libraries(gg_integration PUBLIC ${GLAD_LIB_NAME} glfw engine)
+add_dependencies(gg_integration ${GLAD_LIB_NAME} glfw engine)
 
 set(CPP_GAME_INTEGRATION gg_integration PARENT_SCOPE)
 set(CPP_GAME_INTEGRATION_NOT_LINKED 0 PARENT_SCOPE)

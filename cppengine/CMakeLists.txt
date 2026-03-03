@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.24)
+
+project(cppengine CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+set(INTEGRATION_API "GLFW_GLAD")
+set(ASSET_INTEGRATION_API "STB")
+
+set(CPP_GAME_ENGINE_NOT_LINKED 1)
+set(CPP_GAME_INTEGRATION_NOT_LINKED 1)
+set(CPP_GAME_ASSET_INTEGRATION_NOT_LINKED 1)
+
+set(CPP_GAME_ENGINE)
+set(CPP_GAME_INTEGRATION)
+set(CPP_GAME_ASSET_INTEGRATION)
+
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/engine/")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/glfw_glad_integration/")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/stb_asset_integration/")
+
+if(${CPP_GAME_ENGINE_NOT_LINKED} OR ${CPP_GAME_INTEGRATION_NOT_LINKED} OR ${CPP_GAME_ASSET_INTEGRATION_NOT_LINKED})
+    message(FATAL_ERROR "essential libraries could not be linked, please check settings.")
+else()
+add_library(${PROJECT_NAME} STATIC)
+target_link_libraries(${PROJECT_NAME} ${CPP_GAME_ENGINE} ${CPP_GAME_INTEGRATION} ${CPP_GAME_ASSET_INTEGRATION})
+add_dependencies(${PROJECT_NAME} ${CPP_GAME_ENGINE} ${CPP_GAME_INTEGRATION} ${CPP_GAME_ASSET_INTEGRATION})
+set_property(GLOBAL PROPERTY CPP_GAME_ENGINE_LIB ${PROJECT_NAME})
+endif()
