@@ -23,7 +23,7 @@ set(ENGINE_INC_DIR ${CMAKE_SOURCE_DIR}/engine/include)
 set(INTEGRATION_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INTEGRATION_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_library(gg_integration STATIC
+add_library(gg_integration OBJECT
 	${INTEGRATION_SRC_DIR}/glad_texture_handle.cpp
 	${INTEGRATION_SRC_DIR}/glad_texture_context.cpp
 	${INTEGRATION_SRC_DIR}/glad_model_handle.cpp

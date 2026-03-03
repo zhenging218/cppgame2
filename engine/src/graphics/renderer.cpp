@@ -201,7 +201,7 @@ namespace cppengine {
     }
 
     Renderer &Renderer::getInstance() {
-        static Renderer Renderer;
-        return Renderer;
+        static Renderer renderer;
+        return renderer;
     }
 }

@@ -8,5 +8,7 @@
 #include "enum_scene_state.hpp"
 #include "scene_setup.hpp"
 #include "scene_manager.hpp"
+#include "component_impl.hpp"
+#include "scene_impl.hpp"
 
 #endif

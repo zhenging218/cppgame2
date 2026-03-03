@@ -1,32 +1,20 @@
-
-if(NOT EXISTS "${ASSET_SYMLINK_LOCATION}")
-    message(STATUS "Creating symlink [${ASSET_SRC_LOCATION} <-> ${ASSET_SYMLINK_LOCATION}]")
+function(copy_assets)
     execute_process(
-            COMMAND ${CMAKE_COMMAND} -E create_symlink
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${ASSET_SRC_LOCATION}"
             "${ASSET_SYMLINK_LOCATION}"
-            RESULT_VARIABLE symlink_result
+            RESULT_VARIABLE copy_result
             ERROR_QUIET
     )
-
-    if(NOT symlink_result EQUAL 0)
-        message(WARNING "failed to create symlink [${ASSET_SRC_LOCATION} <-> ${ASSET_SYMLINK_LOCATION}], will perform a copy")
-        execute_process(
-                COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${ASSET_SRC_LOCATION}"
-                "${ASSET_SYMLINK_LOCATION}"
-                RESULT_VARIABLE copy_result
-                ERROR_QUIET
-        )
-        if(NOT copy_result EQUAL 0)
-            message(FATAL_ERROR "failed to copy [${ASSET_SRC_LOCATION} <-> ${ASSET_SYMLINK_LOCATION}]...")
-        else()
-            message(STATUS "copy [${ASSET_SRC_LOCATION} <-> ${ASSET_SYMLINK_LOCATION}] completed successfully")
-        endif()
+    if(NOT copy_result EQUAL 0)
+        message(FATAL_ERROR "failed to copy [${ASSET_SRC_LOCATION} <-> ${ASSET_SYMLINK_LOCATION}]...")
     else()
-        message(STATUS "symlink [${ASSET_SRC_LOCATION} <-> ${ASSET_SYMLINK_LOCATION}] created successfully")
+        message(STATUS "copy [${ASSET_SRC_LOCATION} <-> ${ASSET_SYMLINK_LOCATION}] completed successfully")
     endif()
-else()
+endfunction()
+
+function(update_stale_assets)
+    message(STATUS "scanning asset folder to check if a recopy is needed...")
     get_filename_component(actual_path "${ASSET_SYMLINK_LOCATION}" REALPATH)
     if(actual_path STREQUAL "${ASSET_SYMLINK_LOCATION}")
         # actual path, not symlink
@@ -35,12 +23,11 @@ else()
         foreach(asset_file ${asset_files})
             file(RELATIVE_PATH source_file "${ASSET_SRC_LOCATION}" "${asset_file}")
             set(dest_file "${ASSET_SYMLINK_LOCATION}/${source_file}")
-
             if(NOT EXISTS "${dest_file}")
                 set(stale TRUE)
                 break()
             else()
-                file(TIMESTAMP "${source_file}" source_modified_time)
+                file(TIMESTAMP "${asset_file}" source_modified_time)
                 file(TIMESTAMP "${dest_file}" dest_modified_time)
                 if(source_modified_time STRGREATER dest_modified_time)
                     set(stale TRUE)
@@ -51,17 +38,71 @@ else()
 
         if(stale)
             message(STATUS "detected modifications from source [${ASSET_SRC_LOCATION}], will update the copy at [${ASSET_SYMLINK_LOCATION}]...")
-            execute_process(
-                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                    "${ASSET_SRC_LOCATION}"
-                    "${ASSET_SYMLINK_LOCATION}"
-                    RESULT_VARIABLE copy_result
-                    ERROR_QUIET
-            )
+            file(REMOVE_RECURSE "${ASSET_SYMLINK_LOCATION}")
+            copy_assets()
         else()
-            message(STATUS "[${ASSET_SYMLINK_LOCATION}] is up-to-date.")
+            file(GLOB_RECURSE linked_files "${ASSET_SYMLINK_LOCATION}/*")
+            foreach (linked_file ${linked_files})
+                file(RELATIVE_PATH dest_file "${ASSET_SYMLINK_LOCATION}" "${linked_file}")
+                set(source_file "${ASSET_SRC_LOCATION}/${dest_file}")
+                if(NOT EXISTS "${source_file}")
+                    set(stale TRUE)
+                    break()
+                endif()
+            endforeach()
+
+            if(stale)
+                message(STATUS "detected removed files from destination [${ASSET_SYMLINK_LOCATION}], will update...")
+                file(REMOVE_RECURSE "${ASSET_SYMLINK_LOCATION}")
+                copy_assets()
+            else()
+                message(STATUS "[${ASSET_SYMLINK_LOCATION}] is up-to-date.")
+            endif()
         endif()
     else()
         message(STATUS "[${ASSET_SYMLINK_LOCATION}] is up-to-date.")
     endif()
-endif()
+endfunction()
+
+function(symlink_assets)
+    message(STATUS "Creating symlink [${ASSET_SRC_LOCATION} <-> ${ASSET_SYMLINK_LOCATION}]")
+    execute_process(
+            COMMAND ${CMAKE_COMMAND} -E create_symlink
+            "${ASSET_SRC_LOCATION}"
+            "${ASSET_SYMLINK_LOCATION}"
+            RESULT_VARIABLE symlink_result
+            ERROR_QUIET
+    )
+    if(NOT symlink_result EQUAL 0)
+        message(WARNING "failed to create symlink [${ASSET_SRC_LOCATION} <-> ${ASSET_SYMLINK_LOCATION}], will perform a copy")
+        copy_assets()
+    else()
+        message(STATUS "symlink [${ASSET_SRC_LOCATION} <-> ${ASSET_SYMLINK_LOCATION}] created successfully")
+    endif()
+endfunction()
+
+function(postbuild)
+    if(NOT EXISTS "${ASSET_SYMLINK_LOCATION}")
+        if(${ALWAYS_COPY})
+            message(STATUS "ALWAYS_COPY set to ${ALWAYS_COPY}, will copy asset contents...")
+            copy_assets()
+        else()
+            symlink_assets()
+        endif()
+    else()
+        if(${ALWAYS_COPY})
+            get_filename_component(actual_path "${ASSET_SYMLINK_LOCATION}" REALPATH)
+            if(actual_path STREQUAL "${ASSET_SYMLINK_LOCATION}")
+                update_stale_assets()
+            else()
+                message(STATUS "ALWAYS_COPY set to ${ALWAYS_COPY}, will replace symlink with copied contents...")
+                file(REMOVE "${ASSET_SYMLINK_LOCATION}")
+                copy_assets()
+            endif()
+        else()
+            message(STATUS "[${ASSET_SYMLINK_LOCATION}] is up-to-date.")
+        endif()
+    endif()
+endfunction()
+
+postbuild()

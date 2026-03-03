@@ -1,5 +1,5 @@
 #include "engine.hpp"
-#include "../include/stb_image_context.hpp"
+#include "stb_assets_pch.hpp"
 
 namespace cppengine
 {

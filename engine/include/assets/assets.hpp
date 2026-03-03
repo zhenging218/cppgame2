@@ -4,6 +4,7 @@
 #include <utility>
 #include <fstream>
 
+#include "memory/object_handle.hpp"
 #include "image_context.hpp"
 
 namespace cppengine {

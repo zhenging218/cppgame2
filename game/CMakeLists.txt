@@ -12,7 +12,8 @@ add_executable(${GAME_TARGET_NAME}
         ${GAME_SRC_DIR}/test_level.cpp
         ${GAME_SRC_DIR}/main.cpp
 )
-target_link_libraries(${GAME_TARGET_NAME} PRIVATE ${CPP_GAME_ENGINE} ${CPP_GAME_INTEGRATION} ${CPP_GAME_ASSET_IMAGE_LOADER})
+
+target_link_libraries(${GAME_TARGET_NAME} PRIVATE ${CPP_GAME_ENGINE} ${CPP_GAME_INTEGRATION} ${CPP_GAME_ASSET_INTEGRATION})
 
 target_include_directories(${GAME_TARGET_NAME} PUBLIC ${GAME_INC_DIR})
 target_precompile_headers(${GAME_TARGET_NAME} PUBLIC ${GAME_INC_DIR}/game.hpp)

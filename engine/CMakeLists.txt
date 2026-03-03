@@ -59,7 +59,7 @@ set(ENGINE_PLATFORM_SRCS
 	${ENGINE_SRC_DIR}/platform/input.cpp
 )
 
-add_library(engine STATIC
+add_library(engine OBJECT
 	${ENGINE_MEMORY_SRCS}
 	${ENGINE_MATH_SRCS}
 	${ENGINE_ECS_SRCS}
