@@ -1,7 +1,7 @@
 #include "memory/objects.hpp"
 
 namespace cppengine {
-    void dummyDeallocator(void*) {}
+    void dummyDeallocator(void*, void*) {}
 
     ReferenceCounter::ReferenceCounter() {}
     ReferenceCounter::~ReferenceCounter() {}
@@ -40,6 +40,6 @@ namespace cppengine {
     }
 
     ReferenceCounter::deallocator_type EmptyReferenceCounter::getDeallocator() const {
-        return &dummyDeallocator;
+        return {&dummyDeallocator};
     }
 }

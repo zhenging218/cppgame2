@@ -63,16 +63,16 @@ namespace cppengine {
         PageInfo * pages;
         MemoryBlockInfo * freeList;
 
-        static void deallocatePolymorphicObject(void* data) {
-            auto& instance = getInstance();
+        static void deallocatePolymorphicObject(void *allocator, void* data) {
+            auto* instance = reinterpret_cast<ObjectAllocator*>(allocator);
             MemoryBlockInfo* block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(data) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
             block->referenceCounter->active = false;
             object_pointer target = reinterpret_cast<object_pointer>(data);
             target->~object_type();
-            block->next = instance.freeList;
-            instance.freeList = block;
-            instance.allocated--;
-            instance.available++;
+            block->next = instance->freeList;
+            instance->freeList = block;
+            instance->allocated--;
+            instance->available++;
         }
 
         void initialiseBlocks(PageInfo* page) {
@@ -98,7 +98,7 @@ namespace cppengine {
             prev = nullptr;
 
             while (curr != nullptr) {
-                curr->referenceCounter = new MemoryControlBlock(&deallocatePolymorphicObject);
+                curr->referenceCounter = new MemoryControlBlock({this, &deallocatePolymorphicObject});
                 prev = curr;
                 curr = curr->next;
             }

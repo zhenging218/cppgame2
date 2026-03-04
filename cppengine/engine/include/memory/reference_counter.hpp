@@ -8,7 +8,7 @@ namespace cppengine {
     private:
 
     protected:
-        using deallocator_type = void(*)(void*);
+        using deallocator_type = MemoryDeallocator;
         using count_getter_type = std::size_t& (*)(void*);
         using count_manipulator_type = void(*)(std::size_t&);
 
@@ -56,7 +56,7 @@ namespace cppengine {
         std::size_t weakCount;
         deallocator_type deallocator;
 
-        static void defaultDeallocator(void* object) { delete reinterpret_cast<T*>(object); }
+        static void defaultDeallocator(void *, void* object) { delete reinterpret_cast<T*>(object); }
 
     public:
         ImmediateReferenceCounter(T* data_, deallocator_type deallocator_)
@@ -66,7 +66,7 @@ namespace cppengine {
         }
 
         ImmediateReferenceCounter(T* data_) :
-            ImmediateReferenceCounter(data_, &defaultDeallocator)
+            ImmediateReferenceCounter(data_, {&defaultDeallocator})
         {
 
         }

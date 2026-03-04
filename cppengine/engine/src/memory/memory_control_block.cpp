@@ -1,7 +1,7 @@
 #include "memory/objects.hpp"
 
 namespace cppengine {
-	MemoryControlBlock::MemoryControlBlock(deallocator_pointer deallocator_)
+	MemoryControlBlock::MemoryControlBlock(MemoryDeallocator deallocator_)
 		: active(false), acquireCount(0), weakAcquireCount(0), deallocator(deallocator_) {}
 
 	std::size_t MemoryControlBlock::getAcquireCount() const {
@@ -12,7 +12,7 @@ namespace cppengine {
 		return weakAcquireCount;
 	}
 
-	MemoryControlBlock::deallocator_pointer MemoryControlBlock::getDeallocator() const {
+	MemoryControlBlock::deallocator_type MemoryControlBlock::getDeallocator() const {
 		return deallocator;
 	}
 

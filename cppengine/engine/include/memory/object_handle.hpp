@@ -22,7 +22,7 @@ namespace cppengine {
         template <typename U>
         friend class WeakHandle;
 
-        using deallocator_type = void(*)(void*);
+        using deallocator_type = MemoryDeallocator;
         using count_getter_type = std::size_t&(*)(void*);
 
         ReferenceCounter *counter;
@@ -33,6 +33,9 @@ namespace cppengine {
 
         template <typename U>
         static bool equals(ObjectHandle const& lhs, WeakHandle<U> const& rhs);
+
+    public:
+        ObjectHandle(T *object_) : ObjectHandle(object_, new ImmediateReferenceCounter<T>(object_)) {}
 
         ObjectHandle(T* object_, MemoryControlBlock* counter_)
             : counter(new TypeReferenceCounter<T>(object_, counter_)), object(object_) {
@@ -46,9 +49,6 @@ namespace cppengine {
         ObjectHandle(T* object_, ReferenceCounter* counter_) : counter(counter_), object(object_) {
             counter->acquire();
         }
-
-    public:
-        ObjectHandle(T *object_) : ObjectHandle(object_, new ImmediateReferenceCounter<T>(object_)) {}
 
         template <typename U> requires (std::is_base_of_v<T, U> && !std::is_same_v<T, U>)
         ObjectHandle(U *object_) : ObjectHandle(object_, new ImmediateReferenceCounter<U>(object_)) {}
