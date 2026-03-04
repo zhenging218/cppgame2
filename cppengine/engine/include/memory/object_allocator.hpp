@@ -22,9 +22,10 @@ namespace cppengine {
         MemoryBlockInfo *next;
     };
 
-    template <typename T, std::size_t PageSize = 4096>
+    template <typename T, std::size_t SuggestedPageSize = 4096>
     class ObjectAllocator {
     private:
+
         using byte_type = std::uint8_t;
         using byte_pointer_type = byte_type *;
 
@@ -35,9 +36,17 @@ namespace cppengine {
         using object_pointer = object_type *;
         using const_object_pointer = const_object_type *;
 
-        static constexpr std::size_t OBJECT_SIZE = sizeof(object_type);
+        static constexpr std::size_t getAdjustedPageSize(std::size_t minimumBlocks, std::size_t blockSize, std::size_t pageSize) {
+            while (blockSize > pageSize >> minimumBlocks) {
+                pageSize = pageSize << 1;
+            }
 
-        static constexpr std::size_t PAGE_SIZE = PageSize;
+            return pageSize;
+        }
+
+        static constexpr std::size_t MIN_BLOCK_COUNT_LOG_BASE_2 = 4;
+
+        static constexpr std::size_t OBJECT_SIZE = sizeof(object_type);
 
         static constexpr std::size_t ALIGNMENT_SIZE = alignof(object_type);
 
@@ -48,6 +57,8 @@ namespace cppengine {
         static constexpr std::size_t DATA_AREA_OFFSET = (ALIGNMENT_SIZE - (BLOCK_HEADER_SIZE % ALIGNMENT_SIZE)) % ALIGNMENT_SIZE;
 
         static constexpr std::size_t BLOCK_SIZE = BLOCK_HEADER_SIZE + DATA_AREA_OFFSET + OBJECT_SIZE;
+
+        static constexpr std::size_t PAGE_SIZE = getAdjustedPageSize(MIN_BLOCK_COUNT_LOG_BASE_2, BLOCK_SIZE, SuggestedPageSize);
 
         static constexpr std::size_t PAGE_BLOCK_COUNT = (PAGE_SIZE - PAGE_HEADER_SIZE - BLOCK_AREA_OFFSET) / BLOCK_SIZE;
 

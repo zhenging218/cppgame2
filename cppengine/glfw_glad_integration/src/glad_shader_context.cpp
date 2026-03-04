@@ -51,13 +51,13 @@ namespace {
 }
 
 namespace cppengine {
-    GladShaderContext::GladShaderContext() : shaders({
-    {
-            ShaderID::DEFAULT_DIFFUSE_SHADER,
-            ObjectHandle(new GladShaderHandle(DEFAULT_SHADER_NAME, loadDefaultShader()))
-        }
-    }) {
-
+    GladShaderContext::GladShaderContext() {
+        shaders = {
+            {
+                ShaderID::DEFAULT_DIFFUSE_SHADER,
+                allocator.createHandle(DEFAULT_SHADER_NAME, loadDefaultShader())
+            }
+        };
     }
 
     ShaderID GladShaderContext::getShader(std::string const &shaderName) const {
@@ -93,7 +93,7 @@ namespace cppengine {
             return result->first;
         }
 
-        ObjectHandle<ShaderHandle> shader = new GladShaderHandle(shaderName);
+        ObjectHandle<ShaderHandle> shader = allocator.createHandle(shaderName);
         auto const [it, inserted] = shaders.try_emplace(static_cast<ShaderID>(static_handle_cast<GladShaderHandle>(shader)->getId()), shader);
 
         if (inserted) {
