@@ -7,7 +7,6 @@
 namespace cppengine {
     class GladShaderContext : public ShaderContext {
     private:
-        ObjectAllocator<GladShaderHandle> allocator;
         std::unordered_map<ShaderID, ObjectHandle<ShaderHandle>> shaders;
 
     public:

@@ -7,8 +7,7 @@
 namespace cppengine {
     class GladModelContext : public ModelContext {
     private:
-        ObjectAllocator<GladModelHandle> allocator;
-        std::unordered_map<ModelID, ObjectHandle<GladModelHandle>> models;
+        std::unordered_map<ModelID, ObjectHandle<ModelHandle>> models;
 
     public:
         GladModelContext();

@@ -55,7 +55,7 @@ namespace cppengine {
         shaders = {
             {
                 ShaderID::DEFAULT_DIFFUSE_SHADER,
-                allocator.createHandle(DEFAULT_SHADER_NAME, loadDefaultShader())
+                ObjectHandle(new GladShaderHandle(DEFAULT_SHADER_NAME, loadDefaultShader()))
             }
         };
     }
@@ -93,7 +93,7 @@ namespace cppengine {
             return result->first;
         }
 
-        ObjectHandle<ShaderHandle> shader = allocator.createHandle(shaderName);
+        ObjectHandle<ShaderHandle> shader = new GladShaderHandle(shaderName);
         auto const [it, inserted] = shaders.try_emplace(static_cast<ShaderID>(static_handle_cast<GladShaderHandle>(shader)->getId()), shader);
 
         if (inserted) {
