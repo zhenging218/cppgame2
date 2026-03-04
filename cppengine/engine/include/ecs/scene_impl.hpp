@@ -2,14 +2,20 @@
 #define SCENE_IMPL_HPP
 
 namespace cppengine {
+    template<typename T>
+    template<typename... Args>
+    ObjectHandle<T> Scene::ComponentAllocatorImpl<T>::createHandle(Args &&... args) {
+        return allocator.createHandle(std::forward<Args>(args)...);
+    }
+
     template <typename T>
-        ComponentDescriptor const *Scene::getComponentDescriptor() {
+    ComponentDescriptor const *Scene::getComponentDescriptor() {
         static const ComponentDescriptorImpl<T> descriptor = TypeDescriptor::getTypeDescriptor<T>();
         return &descriptor;
     }
 
     template <typename T, typename U> requires ComponentType<T>
-        ObjectHandle<T> Scene::castComponentHandle(ObjectHandle<U> handle) {
+    ObjectHandle<T> Scene::castComponentHandle(ObjectHandle<U> handle) {
         return static_handle_cast<T>(handle);
     }
 
@@ -20,7 +26,7 @@ namespace cppengine {
     }
 
     template <typename T>  requires (ComponentType<T> || TransformType<T>)
-        ObjectHandle<T> Scene::getComponent(const std::uint64_t ownerId) const {
+    ObjectHandle<T> Scene::getComponent(const std::uint64_t ownerId) const {
         if constexpr (TransformType<T>) {
             return getTransformOfEntity(ownerId);
         } else {
@@ -47,7 +53,7 @@ namespace cppengine {
     }
 
     template <typename T, typename ... Args> requires ComponentType<T>
-        ObjectHandle<T> Scene::addComponent(const std::uint64_t ownerId, Args &&... args) {
+    ObjectHandle<T> Scene::addComponent(const std::uint64_t ownerId, Args &&... args) {
         ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
 
         if (ecs.contains(ownerId)) {
@@ -55,7 +61,8 @@ namespace cppengine {
                 return dynamic_handle_cast<T>(components.at(descriptor).at(ownerId));
             }
 
-            ObjectHandle<Component> handle = createHandle<T>(std::forward<Args>(args)...);
+            ObjectHandle<Component> handle = createHandle<T>(allocators, std::forward<Args>(args)...);
+
             handle->descriptor = descriptor;
             components[descriptor][ownerId] = handle;
             ecs[ownerId].insert(descriptor);
@@ -66,7 +73,7 @@ namespace cppengine {
     }
 
     template <typename T> requires ComponentType<T>
-        void Scene::removeComponent(const std::uint64_t ownerId) {
+    void Scene::removeComponent(const std::uint64_t ownerId) {
         ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
 
         if (ecs.contains(ownerId) && ecs.at(ownerId).contains(descriptor)) {
@@ -77,7 +84,7 @@ namespace cppengine {
     }
 
     template <typename T> requires ComponentType<T>
-        std::uint64_t Scene::getEntityOfComponent(ObjectHandle<T> component) const {
+    std::uint64_t Scene::getEntityOfComponent(ObjectHandle<T> component) const {
         if (component != nullptr) {
             // no need poly check, descriptor should always tally
             ComponentDescriptor const *descriptor = dynamic_handle_cast<Component>(component)->descriptor;
@@ -103,7 +110,7 @@ namespace cppengine {
     }
 
     template<typename T> requires ComponentType<T>
-        std::vector<ObjectHandle<T>> Scene::getAllComponentsOfType(const std::uint64_t ownerId) const {
+    std::vector<ObjectHandle<T>> Scene::getAllComponentsOfType(const std::uint64_t ownerId) const {
         ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
         std::vector<ObjectHandle<T>> results;
         if (ecs.contains(ownerId)) {
@@ -119,7 +126,7 @@ namespace cppengine {
     }
 
     template <typename T> requires ComponentType<T>
-        std::vector<ObjectHandle<T>> Scene::getAllComponentsOfType() const {
+    std::vector<ObjectHandle<T>> Scene::getAllComponentsOfType() const {
         ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
 
         std::vector<ObjectHandle<T>> results;
@@ -137,7 +144,7 @@ namespace cppengine {
     }
 
     template <typename T, typename ... Rest>
-        std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> Scene::getAllComponentSets() const {
+    std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> Scene::getAllComponentSets() const {
 
         std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> results;
 

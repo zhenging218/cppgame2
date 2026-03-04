@@ -23,6 +23,19 @@ namespace cppengine {
         template <typename T>
         static ComponentDescriptor const *getComponentDescriptor();
 
+        struct ComponentAllocator {
+            virtual ~ComponentAllocator() = 0;
+        };
+
+        template <typename T>
+        struct ComponentAllocatorImpl : ComponentAllocator {
+            ObjectAllocator<T> allocator;
+
+            template <typename ... Args>
+            ObjectHandle<T> createHandle(Args &&...args);
+        };
+
+        using allocator_map_type = std::unordered_map<ComponentDescriptor const *, ObjectHandle<ComponentAllocator>>;
         using entity_map_type = std::unordered_map<std::uint64_t, std::string>;
         using transform_graph_type = std::unordered_map<std::uint64_t, ObjectHandle<Transform>>;
         using entity_component_map_type = std::unordered_map<uint64_t, std::unordered_set<ComponentDescriptor const *>>;
@@ -30,10 +43,26 @@ namespace cppengine {
         using component_map_type = std::unordered_map<ComponentDescriptor const *, component_entity_map_type>;
 
         std::uint64_t nextId;
+        allocator_map_type allocators;
         entity_map_type entities;
         transform_graph_type transforms;
         entity_component_map_type ecs;
         component_map_type components;
+
+        template <typename T, typename ...Args>
+        static ObjectHandle<T> createHandle(allocator_map_type &allocators, Args &&... args) {
+            auto const *descriptor = getComponentDescriptor<T>();
+            auto allocator = allocators.find(descriptor);
+
+            if (allocator == allocators.end()) {
+                allocator = allocators.emplace(descriptor, ObjectHandle(new ComponentAllocatorImpl<T>())).first;
+            }
+
+            ObjectHandle<T> handle =
+                static_handle_cast<ComponentAllocatorImpl<T>>(allocator->second)->allocator.createHandle(std::forward<Args>(args)...);
+
+            return handle;
+        }
 
         template <typename T, typename U> requires ComponentType<T>
         static ObjectHandle<T> castComponentHandle(ObjectHandle<U> handle);
@@ -87,6 +116,7 @@ namespace cppengine {
         void dispose();
     };
 
+    inline Scene::ComponentAllocator::~ComponentAllocator() = default;
 }
 
 #endif

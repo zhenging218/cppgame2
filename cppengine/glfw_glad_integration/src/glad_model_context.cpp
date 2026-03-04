@@ -8,9 +8,9 @@ namespace {
         Triangle triangle;
         Box2D box2D;
         return {
-            {ModelID::TRIANGLE, ObjectHandle(createHandle<GladModelHandle>("TRIANGLE",
+            {ModelID::TRIANGLE, ObjectHandle(new GladModelHandle("TRIANGLE",
                 triangle.vertices, triangle.getVertexCount(), Triangle::indices, Triangle::index_count)) },
-            {ModelID::BOX2D, ObjectHandle(createHandle<GladModelHandle>("BOX2D",
+            {ModelID::BOX2D, ObjectHandle(new GladModelHandle("BOX2D",
                 box2D.vertices, box2D.getVertexCount(), Box2D::indices, Box2D::index_count)) }
         };
     }
@@ -49,7 +49,7 @@ namespace cppengine {
             return result->first;
         }
 
-        ObjectHandle model = createHandle<GladModelHandle>(name, vertices, vertexCount, indices, indexCount);
+        ObjectHandle<GladModelHandle> model = new GladModelHandle(name, vertices, vertexCount, indices, indexCount);
         auto const [it, inserted] = models.try_emplace(static_cast<ModelID>(model->getId()), model);
 
         if (inserted) {

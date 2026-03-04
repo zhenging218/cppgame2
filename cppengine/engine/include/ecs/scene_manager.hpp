@@ -27,7 +27,7 @@ namespace cppengine {
 
         template <typename T, typename ... Args>
         void loadLevel(Args &&... args) {
-            nextScene = createHandle<T>(std::forward<Args>(args)...);
+            nextScene = new T(std::forward<Args>(args)...);
             ++state;
         }
 

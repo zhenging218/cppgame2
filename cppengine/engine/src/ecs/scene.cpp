@@ -70,7 +70,7 @@ namespace cppengine {
     std::uint64_t Scene::createEntity() {
         auto id = nextId++;
         entities[id] = "entity";
-        transforms[id] = createHandle<Transform>();
+        transforms[id] = createHandle<Transform>(allocators);
         ecs[id] = {};
         return id;
     }

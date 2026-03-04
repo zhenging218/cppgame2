@@ -221,20 +221,12 @@ namespace cppengine {
         ReferenceCounter const& getReferenceCounter() const {
             return *counter;
         }
-
-        template <typename ... Args>
-        friend ObjectHandle createHandle(Args &&... args);
     };
 
     template <typename T>
     template <typename U>
     bool ObjectHandle<T>::equals(ObjectHandle<T> const& lhs, ObjectHandle<U> const& rhs) {
         return lhs.counter == rhs.counter;
-    }
-
-    template <typename T, typename ... Args>
-    ObjectHandle<T> createHandle(Args &&... args) {
-        return ObjectAllocator<T>::getInstance().createHandle(std::forward<Args>(args)...);
     }
 
     template <typename T>

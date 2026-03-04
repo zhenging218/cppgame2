@@ -24,9 +24,6 @@ namespace cppengine {
 
     template <typename T, std::size_t PageSize = 4096>
     class ObjectAllocator {
-    public:
-        static ObjectAllocator& getInstance();
-
     private:
         using byte_type = std::uint8_t;
         using byte_pointer_type = byte_type *;
@@ -124,7 +121,7 @@ namespace cppengine {
                         curr->referenceCounter->active = false;
                     }
 
-                    if (curr->referenceCounter->getAcquireCount() == 0 & curr->referenceCounter->getWeakAcquireCount() == 0) {
+                    if (curr->referenceCounter->getAcquireCount() == 0 && curr->referenceCounter->getWeakAcquireCount() == 0) {
                         delete curr->referenceCounter;
                     }
                 }
@@ -143,13 +140,13 @@ namespace cppengine {
                 throw std::bad_alloc();
             }
         }
-
+    public:
         ObjectAllocator() : totalPages(0), allocated(0), available(0), pages(nullptr), freeList(nullptr)
         {}
 
         ObjectAllocator(ObjectAllocator const &) = delete;
         ObjectAllocator &operator=(ObjectAllocator const &) = delete;
-    public:
+
         ~ObjectAllocator() {
             while (pages != nullptr) {
                 PageInfo* toFree = pages;
@@ -162,7 +159,7 @@ namespace cppengine {
         template <typename U, typename = typename std::enable_if<std::is_base_of<T, U>::value>::type>
         void destroy(U *object) {
             MemoryBlockInfo * block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(object) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
-            (block->referenceCounter->deallocator)(reinterpret_cast<void*>(object));
+            (block->referenceCounter->getDeallocator())(reinterpret_cast<void*>(object));
         }
 
         template <typename ... Args>
@@ -206,12 +203,6 @@ namespace cppengine {
 
     template <typename T, std::size_t PageSize>
     class ObjectAllocator<T&, PageSize>;
-
-    template <typename T, std::size_t PageSize>
-    ObjectAllocator<T, PageSize>& ObjectAllocator<T, PageSize>::getInstance() {
-        static auto instance = new ObjectAllocator();
-        return *instance;
-    }
 
 }
 
