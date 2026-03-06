@@ -12,11 +12,9 @@ namespace cppengine {
     class Scene;
 
     class SceneManager {
-    public:
-        using allocator_map_type = std::unordered_map<ComponentDescriptor const *, ObjectHandle<ComponentAllocator>>;
     private:
         SceneState state;
-        allocator_map_type allocators;
+        ObjectAllocatorContext allocators;
         ObjectHandle<SceneSetup> nextScene;
         ObjectHandle<Scene> scene;
     public:

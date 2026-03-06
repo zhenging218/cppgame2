@@ -230,8 +230,8 @@ namespace cppengine {
     }
 
     template <typename T>
-    ObjectHandle<T> wrapWithHandle(T *obj) {
-        return ObjectHandle<T>(obj, new UnownedTypeReference<T>());
+    ObjectHandle<T> wrapWithHandle(T &obj) {
+        return ObjectHandle<T>(&obj, new UnownedTypeReference<T>(obj));
     }
 }
 

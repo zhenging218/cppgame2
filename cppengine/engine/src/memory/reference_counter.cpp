@@ -7,7 +7,7 @@ namespace cppengine {
     ReferenceCounter::~ReferenceCounter() {}
 
     EmptyReferenceCounter::EmptyReferenceCounter()
-        : ReferenceCounter(), count(0), weakCount(0) {
+        : count(0), weakCount(0) {
 
     }
 

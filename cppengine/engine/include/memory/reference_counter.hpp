@@ -152,7 +152,7 @@ namespace cppengine {
     private:
         T *data;
     public:
-        UnownedTypeReference(T &reference) : EmptyReferenceCounter(), data(&reference) {
+        UnownedTypeReference(T &reference) : data(&reference) {
         }
 
         virtual void *getData() const override {

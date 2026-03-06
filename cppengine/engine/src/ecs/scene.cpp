@@ -3,7 +3,7 @@
 #include "engine.hpp"
 
 namespace cppengine {
-    Scene::Scene() : nextId(1) {}
+    Scene::Scene(ObjectHandle<ObjectAllocatorContext> allocators_) : allocators(allocators_), nextId(1) {}
 
     Scene::Scene(Scene &&other) noexcept
             : nextId(other.nextId),
@@ -70,7 +70,7 @@ namespace cppengine {
     std::uint64_t Scene::createEntity() {
         auto id = nextId++;
         entities[id] = "entity";
-        transforms[id] = createHandle<Transform>(allocators);
+        transforms[id] = allocators->createHandle<Transform>();
         ecs[id] = {};
         return id;
     }

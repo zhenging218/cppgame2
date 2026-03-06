@@ -23,10 +23,7 @@ namespace cppengine {
 
     class Scene {
     private:
-        template <typename T>
-        static ComponentDescriptor const *getComponentDescriptor();
 
-        using allocator_map_type = SceneManager::allocator_map_type;
         using entity_map_type = std::unordered_map<std::uint64_t, std::string>;
         using transform_graph_type = std::unordered_map<std::uint64_t, ObjectHandle<Transform>>;
         using entity_component_map_type = std::unordered_map<uint64_t, std::unordered_set<ComponentDescriptor const *>>;
@@ -34,14 +31,11 @@ namespace cppengine {
         using component_map_type = std::unordered_map<ComponentDescriptor const *, component_entity_map_type>;
 
         std::uint64_t nextId;
-        allocator_map_type allocators;
+        ObjectHandle<ObjectAllocatorContext> allocators;
         entity_map_type entities;
         transform_graph_type transforms;
         entity_component_map_type ecs;
         component_map_type components;
-
-        template <typename T, typename ...Args>
-        static ObjectHandle<T> createHandle(allocator_map_type &allocators, Args &&... args);
 
         template <typename T, typename U> requires ComponentType<T>
         static ObjectHandle<T> castComponentHandle(ObjectHandle<U> handle);
@@ -50,7 +44,7 @@ namespace cppengine {
         static ObjectHandle<T> castComponentHandle(ObjectHandle<U> handle);
 
     public:
-        Scene();
+        Scene(ObjectHandle<ObjectAllocatorContext> allocators_);
         Scene(const Scene &other) = delete;
         Scene & operator=(const Scene &other) = delete;
 

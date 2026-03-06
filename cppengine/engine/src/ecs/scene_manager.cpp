@@ -42,7 +42,7 @@ namespace cppengine {
     }
 
     void SceneManager::load() {
-        scene = new Scene();
+        scene = new Scene(wrapWithHandle(allocators));
         nextScene->setup(scene);
         nextScene = nullptr;
         ++state;

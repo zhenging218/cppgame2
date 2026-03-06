@@ -2,13 +2,6 @@
 #define SCENE_IMPL_HPP
 
 namespace cppengine {
-
-    template <typename T>
-    ComponentDescriptor const *Scene::getComponentDescriptor() {
-        static const ComponentDescriptorImpl<T> descriptor = TypeDescriptor::getTypeDescriptor<T>();
-        return &descriptor;
-    }
-
     template <typename T, typename U> requires ComponentType<T>
     ObjectHandle<T> Scene::castComponentHandle(ObjectHandle<U> handle) {
         return static_handle_cast<T>(handle);
@@ -20,27 +13,12 @@ namespace cppengine {
         return nullptr;
     }
 
-    template <typename T, typename ...Args>
-    ObjectHandle<T> Scene::createHandle(allocator_map_type &allocators, Args &&... args) {
-      auto const *descriptor = getComponentDescriptor<T>();
-      auto allocator = allocators.find(descriptor);
-
-      if (allocator == allocators.end()) {
-        allocator = allocators.emplace(descriptor, ObjectHandle(new ComponentAllocatorImpl<T>())).first;
-      }
-
-      ObjectHandle<T> handle =
-          static_handle_cast<ComponentAllocatorImpl<T>>(allocator->second)->allocator.createHandle(std::forward<Args>(args)...);
-
-      return handle;
-    }
-
     template <typename T>  requires (ComponentType<T> || TransformType<T>)
     ObjectHandle<T> Scene::getComponent(const std::uint64_t ownerId) const {
         if constexpr (TransformType<T>) {
             return getTransformOfEntity(ownerId);
         } else {
-            ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
+            ComponentDescriptor const *descriptor = ComponentDescriptor::getComponentDescriptor<T>();
             if (ecs.contains(ownerId)) {
                 auto const &entityComponents = ecs.at(ownerId);
                 if (entityComponents.contains(descriptor)) {
@@ -64,14 +42,14 @@ namespace cppengine {
 
     template <typename T, typename ... Args> requires ComponentType<T>
     ObjectHandle<T> Scene::addComponent(const std::uint64_t ownerId, Args &&... args) {
-        ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
+        ComponentDescriptor const *descriptor = ComponentDescriptor::getComponentDescriptor<T>();
 
         if (ecs.contains(ownerId)) {
             if (ecs.at(ownerId).contains(descriptor)) {
                 return dynamic_handle_cast<T>(components.at(descriptor).at(ownerId));
             }
 
-            ObjectHandle<Component> handle = createHandle<T>(allocators, std::forward<Args>(args)...);
+            ObjectHandle<Component> handle = allocators->createHandle<T>(std::forward<Args>(args)...);
 
             handle->descriptor = descriptor;
             components[descriptor][ownerId] = handle;
@@ -84,7 +62,7 @@ namespace cppengine {
 
     template <typename T> requires ComponentType<T>
     void Scene::removeComponent(const std::uint64_t ownerId) {
-        ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
+        ComponentDescriptor const *descriptor = ComponentDescriptor::getComponentDescriptor<T>();
 
         if (ecs.contains(ownerId) && ecs.at(ownerId).contains(descriptor)) {
             auto &entityMap = components.at(descriptor);
@@ -121,7 +99,7 @@ namespace cppengine {
 
     template<typename T> requires ComponentType<T>
     std::vector<ObjectHandle<T>> Scene::getAllComponentsOfType(const std::uint64_t ownerId) const {
-        ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
+        ComponentDescriptor const *descriptor = ComponentDescriptor::getComponentDescriptor<T>();
         std::vector<ObjectHandle<T>> results;
         if (ecs.contains(ownerId)) {
             auto const &componentsOfEntity = ecs.at(ownerId);
@@ -137,7 +115,7 @@ namespace cppengine {
 
     template <typename T> requires ComponentType<T>
     std::vector<ObjectHandle<T>> Scene::getAllComponentsOfType() const {
-        ComponentDescriptor const *descriptor = getComponentDescriptor<T>();
+        ComponentDescriptor const *descriptor = ComponentDescriptor::getComponentDescriptor<T>();
 
         std::vector<ObjectHandle<T>> results;
 
@@ -171,7 +149,7 @@ namespace cppengine {
                 }
             }
         } else {
-            ComponentDescriptor const *anchoringType = getComponentDescriptor<T>();
+            ComponentDescriptor const *anchoringType = ComponentDescriptor::getComponentDescriptor<T>();
             for (auto const &[descriptor, entityMap] : components) {
                 if (anchoringType->isSuperType(descriptor)) {
                     for (auto const &[id, handle] : entityMap) {

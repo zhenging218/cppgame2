@@ -1,6 +1,9 @@
 #ifndef COMPONENT_ALLOCATOR_HPP
 #define COMPONENT_ALLOCATOR_HPP
 
+#include "memory/object_handle.hpp"
+#include "memory/object_allocator.hpp"
+
 namespace cppengine {
   struct ComponentAllocator {
     virtual ~ComponentAllocator() = 0;
