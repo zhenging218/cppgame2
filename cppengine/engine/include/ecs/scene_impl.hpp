@@ -20,6 +20,21 @@ namespace cppengine {
         return nullptr;
     }
 
+    template <typename T, typename ...Args>
+    ObjectHandle<T> Scene::createHandle(allocator_map_type &allocators, Args &&... args) {
+      auto const *descriptor = getComponentDescriptor<T>();
+      auto allocator = allocators.find(descriptor);
+
+      if (allocator == allocators.end()) {
+        allocator = allocators.emplace(descriptor, ObjectHandle(new ComponentAllocatorImpl<T>())).first;
+      }
+
+      ObjectHandle<T> handle =
+          static_handle_cast<ComponentAllocatorImpl<T>>(allocator->second)->allocator.createHandle(std::forward<Args>(args)...);
+
+      return handle;
+    }
+
     template <typename T>  requires (ComponentType<T> || TransformType<T>)
     ObjectHandle<T> Scene::getComponent(const std::uint64_t ownerId) const {
         if constexpr (TransformType<T>) {

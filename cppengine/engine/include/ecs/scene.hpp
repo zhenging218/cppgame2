@@ -41,19 +41,7 @@ namespace cppengine {
         component_map_type components;
 
         template <typename T, typename ...Args>
-        static ObjectHandle<T> createHandle(allocator_map_type &allocators, Args &&... args) {
-            auto const *descriptor = getComponentDescriptor<T>();
-            auto allocator = allocators.find(descriptor);
-
-            if (allocator == allocators.end()) {
-                allocator = allocators.emplace(descriptor, ObjectHandle(new ComponentAllocatorImpl<T>())).first;
-            }
-
-            ObjectHandle<T> handle =
-                static_handle_cast<ComponentAllocatorImpl<T>>(allocator->second)->allocator.createHandle(std::forward<Args>(args)...);
-
-            return handle;
-        }
+        static ObjectHandle<T> createHandle(allocator_map_type &allocators, Args &&... args);
 
         template <typename T, typename U> requires ComponentType<T>
         static ObjectHandle<T> castComponentHandle(ObjectHandle<U> handle);
