@@ -1,13 +1,16 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
+
 #include <algorithm>
 #include <cstdint>
 #include <unordered_map>
 #include <unordered_set>
 
+#include "scene_manager.hpp"
 #include "maths/transform.hpp"
 
 namespace cppengine {
+
     class Component;
     template <typename T>
     class ObjectHandle;
@@ -23,19 +26,7 @@ namespace cppengine {
         template <typename T>
         static ComponentDescriptor const *getComponentDescriptor();
 
-        struct ComponentAllocator {
-            virtual ~ComponentAllocator() = 0;
-        };
-
-        template <typename T>
-        struct ComponentAllocatorImpl : ComponentAllocator {
-            ObjectAllocator<T> allocator;
-
-            template <typename ... Args>
-            ObjectHandle<T> createHandle(Args &&...args);
-        };
-
-        using allocator_map_type = std::unordered_map<ComponentDescriptor const *, ObjectHandle<ComponentAllocator>>;
+        using allocator_map_type = SceneManager::allocator_map_type;
         using entity_map_type = std::unordered_map<std::uint64_t, std::string>;
         using transform_graph_type = std::unordered_map<std::uint64_t, ObjectHandle<Transform>>;
         using entity_component_map_type = std::unordered_map<uint64_t, std::unordered_set<ComponentDescriptor const *>>;
@@ -115,8 +106,6 @@ namespace cppengine {
         void update();
         void dispose();
     };
-
-    inline Scene::ComponentAllocator::~ComponentAllocator() = default;
 }
 
 #endif

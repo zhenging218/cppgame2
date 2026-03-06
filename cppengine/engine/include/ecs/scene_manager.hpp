@@ -5,13 +5,18 @@
 
 #include "enum_scene_state.hpp"
 #include "memory/object_handle.hpp"
-#include "scene.hpp"
+#include "maths/transform.hpp"
 #include "scene_setup.hpp"
 
 namespace cppengine {
+    class Scene;
+
     class SceneManager {
+    public:
+        using allocator_map_type = std::unordered_map<ComponentDescriptor const *, ObjectHandle<ComponentAllocator>>;
     private:
         SceneState state;
+        allocator_map_type allocators;
         ObjectHandle<SceneSetup> nextScene;
         ObjectHandle<Scene> scene;
     public:
@@ -41,25 +46,13 @@ namespace cppengine {
         void shutdown();
 
         template <typename T, typename ... Args>
-        ObjectHandle<T> addComponent(const std::uint64_t id, Args &&... args) {
-            auto component = scene->addComponent<T>(id, std::forward<Args>(args)...);
-            auto const *descriptor = static_handle_cast<Component>(component)->descriptor;
-            descriptor->init(component);
-            return component;
-        }
+        ObjectHandle<T> addComponent(const std::uint64_t id, Args &&... args);
 
         template <typename T>
-        void removeComponent(const std::uint64_t id) {
-            auto component = scene->getComponent<T>(id);
-            auto const *descriptor = static_handle_cast<Component>(component)->descriptor;
-            descriptor->dispose(component);
-            scene->removeComponent<T>(id);
-        }
+        void removeComponent(const std::uint64_t id);
 
         template <typename T>
-        ObjectHandle<T> getComponent(const std::uint64_t id) const {
-            return scene->getComponent<T>(id);
-        }
+        ObjectHandle<T> getComponent(const std::uint64_t id) const;
 
         std::uint64_t createEntity();
         void destroyEntity(const std::uint64_t id);
@@ -73,14 +66,10 @@ namespace cppengine {
         std::uint64_t getEntityOfTransform(ObjectHandle<Transform> transform) const;
 
         template <typename T>
-        std::vector<ObjectHandle<T>> getAllComponentsOfType() const {
-            return scene->getAllComponentsOfType<T>();
-        }
+        std::vector<ObjectHandle<T>> getAllComponentsOfType() const;
 
         template <typename T, typename ... Rest>
-        std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> getAllComponentSets() const {
-            return scene->getAllComponentSets<T, Rest...>();
-        }
+        std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> getAllComponentSets() const;
 
     };
 }

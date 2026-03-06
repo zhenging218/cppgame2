@@ -2,11 +2,6 @@
 #define SCENE_IMPL_HPP
 
 namespace cppengine {
-    template<typename T>
-    template<typename... Args>
-    ObjectHandle<T> Scene::ComponentAllocatorImpl<T>::createHandle(Args &&... args) {
-        return allocator.createHandle(std::forward<Args>(args)...);
-    }
 
     template <typename T>
     ComponentDescriptor const *Scene::getComponentDescriptor() {
