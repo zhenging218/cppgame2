@@ -22,6 +22,7 @@ namespace cppgame {
         triangle_go.getTransform()->setScale({100, 100, 1});
 
         auto box2d = scene->createEntity();
+        scene->addComponent<TestComponent2>(box2d);
         auto box2d_primitive = scene->addComponent<Box2DPrimitive>(box2d);
         auto box2d_material = scene->addComponent<Material>(box2d);
         box2d_material->setShader(DEFAULT_SHADER_NAME);

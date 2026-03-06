@@ -47,12 +47,12 @@ namespace cppgame {
             moved = true;
         }
 
-        if (Input::isKeyDown(KeyCode::UP_ARROW)) {
+        if (Input::isKeyDown(KeyCode::E)) {
             scale += Vector3(50.f * dt, 50.f * dt, 0);
             scaled = true;
         }
 
-        if (Input::isKeyDown(KeyCode::DOWN_ARROW)) {
+        if (Input::isKeyDown(KeyCode::Q)) {
             scale += Vector3(-50.f * dt, -50.f * dt, 0);
             scaled = true;
         }

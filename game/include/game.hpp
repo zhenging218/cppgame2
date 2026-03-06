@@ -3,6 +3,7 @@
 
 #include "engine.hpp"
 #include "test_component.hpp"
+#include "test_component_2.hpp"
 #include "test_level.hpp"
 
 #endif

@@ -11,6 +11,7 @@ set(GAME_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_library(${GAME_TARGET_NAME} OBJECT
         ${GAME_SRC_DIR}/test_component.cpp
+        ${GAME_SRC_DIR}/test_component_2.cpp
         ${GAME_SRC_DIR}/test_level.cpp
         ${GAME_SRC_DIR}/main.cpp
 )
