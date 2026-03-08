@@ -2,7 +2,7 @@
 #define SPRITE_HPP
 #include "renderable.hpp"
 #include "maths/rectangle_2d.hpp"
-#include "memory/type_descriptor.hpp"
+#include "../reflection/type_descriptor.hpp"
 
 namespace cppengine {
     class Sprite : public Renderable {

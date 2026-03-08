@@ -6,11 +6,15 @@ set(CMAKE_SXX_STANDARD REQUIRED True)
 set(ENGINE_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(ENGINE_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+set(ENGINE_REFLECTION_SRCS
+	${ENGINE_SRC_DIR}/reflection/type_descriptor.cpp
+)
+
 set(ENGINE_MEMORY_SRCS
 	${ENGINE_SRC_DIR}/memory/memory_deallocator.cpp
 	${ENGINE_SRC_DIR}/memory/memory_control_block.cpp
 	${ENGINE_SRC_DIR}/memory/reference_counter.cpp
-	${ENGINE_SRC_DIR}/memory/type_descriptor.cpp
+
 )
 
 set(ENGINE_MATH_SRCS
@@ -61,6 +65,7 @@ set(ENGINE_PLATFORM_SRCS
 )
 
 add_library(engine OBJECT
+	${ENGINE_REFLECTION_SRCS}
 	${ENGINE_MEMORY_SRCS}
 	${ENGINE_MATH_SRCS}
 	${ENGINE_ECS_SRCS}
