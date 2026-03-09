@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cppengine)
 
 get_property(ENGINE_LIB GLOBAL PROPERTY CPP_GAME_ENGINE_LIB)
+get_property(CPP_GAME_ASSET_FOLDER_NAME GLOBAL PROPERTY CPP_GAME_ASSET_FOLDER_NAME)
 
 if("${ENGINE_LIB}" STREQUAL "")
     message(FATAL_ERROR "essential libraries could not be linked, please check settings.")
