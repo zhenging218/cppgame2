@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
+message(STATUS "configuration main engine sources ${ENGINE_TARGET}")
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_SXX_STANDARD REQUIRED True)
 
@@ -64,7 +66,7 @@ set(ENGINE_PLATFORM_SRCS
 	${ENGINE_SRC_DIR}/platform/input.cpp
 )
 
-add_library(engine OBJECT
+add_library(${ENGINE_TARGET} OBJECT
 	${ENGINE_REFLECTION_SRCS}
 	${ENGINE_MEMORY_SRCS}
 	${ENGINE_MATH_SRCS}
@@ -74,8 +76,7 @@ add_library(engine OBJECT
 	${ENGINE_PLATFORM_SRCS}
 )
 
-target_include_directories(engine PUBLIC ${ENGINE_INC_DIR})
-target_precompile_headers(engine PUBLIC ${ENGINE_INC_DIR}/engine.hpp)
+target_include_directories(${ENGINE_TARGET} PUBLIC ${ENGINE_INC_DIR})
+target_precompile_headers(${ENGINE_TARGET} PUBLIC ${ENGINE_INC_DIR}/engine.hpp)
 
-set(CPP_GAME_ENGINE engine PARENT_SCOPE)
-set(CPP_GAME_ENGINE_NOT_LINKED 0 PARENT_SCOPE)
+set_property(GLOBAL PROPERTY ENGINE_LINKED 1)

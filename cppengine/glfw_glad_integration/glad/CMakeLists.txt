@@ -11,4 +11,4 @@ add_library(glad STATIC ${GLAD_SRC_DIR}/glad/gl.cpp)
 target_include_directories(glad PUBLIC ${GLAD_INC_DIR})
 target_link_libraries(glad PUBLIC OpenGL::GL)
 
-set(GLAD_LIB_NAME glad PARENT_SCOPE)
+set_property(GLOBAL PROPERTY GLAD_LIB_NAME glad)

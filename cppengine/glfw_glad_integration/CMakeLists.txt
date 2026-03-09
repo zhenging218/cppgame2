@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.24)
 
 # ─── glad and glfw ───────────────────────────────────────────────────────────
-if("${INTEGRATION_API}" STREQUAL "GLFW_GLAD")
+if(ENGINE_INTEGRATION_GLFW_GLAD)
 
-set(GLAD_LIB_NAME)
+message(STATUS "GLFW/GLAD integration library selected")
+
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/glad)
+
+get_property(GLAD_LIB_NAME GLOBAL PROPERTY GLAD_LIB_NAME)
 
 # GLFW
 include(FetchContent)
@@ -21,7 +25,7 @@ FetchContent_MakeAvailable(glfw)
 set(INTEGRATION_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INTEGRATION_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_library(gg_integration OBJECT
+add_library(${ENGINE_PLATFORM_INTEGRATION_TARGET} OBJECT
 	${INTEGRATION_SRC_DIR}/glad_texture_handle.cpp
 	${INTEGRATION_SRC_DIR}/glad_texture_context.cpp
 	${INTEGRATION_SRC_DIR}/glad_model_handle.cpp
@@ -39,13 +43,12 @@ add_library(gg_integration OBJECT
 	${INTEGRATION_SRC_DIR}/glfw_input.cpp
 )
 
-target_include_directories(gg_integration PUBLIC ${INTEGRATION_INC_DIR})
-target_precompile_headers(gg_integration PUBLIC ${INTEGRATION_INC_DIR}/gg_integration.hpp)
+target_include_directories(${ENGINE_PLATFORM_INTEGRATION_TARGET} PUBLIC ${INTEGRATION_INC_DIR})
+target_precompile_headers(${ENGINE_PLATFORM_INTEGRATION_TARGET} PUBLIC ${INTEGRATION_INC_DIR}/gg_integration.hpp)
 
-target_link_libraries(gg_integration PUBLIC ${GLAD_LIB_NAME} glfw engine)
-add_dependencies(gg_integration ${GLAD_LIB_NAME} glfw engine)
+target_link_libraries(${ENGINE_PLATFORM_INTEGRATION_TARGET} PUBLIC ${GLAD_LIB_NAME} glfw ${ENGINE_TARGET})
+add_dependencies(${ENGINE_PLATFORM_INTEGRATION_TARGET} ${GLAD_LIB_NAME} glfw ${ENGINE_TARGET})
 
-set(CPP_GAME_INTEGRATION gg_integration PARENT_SCOPE)
-set(CPP_GAME_INTEGRATION_NOT_LINKED 0 PARENT_SCOPE)
+set_property(GLOBAL PROPERTY ENGINE_PLATFORM_INTEGRATION_LINKED 1)
 
 endif()
