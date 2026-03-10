@@ -2,6 +2,7 @@
 #define ENGINE_HPP
 
 #include "reflection/reflection.hpp"
+#include "introspection/introspection.hpp"
 #include "maths/maths.hpp"
 #include "memory/objects.hpp"
 #include "events/events.hpp"
