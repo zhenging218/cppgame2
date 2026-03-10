@@ -14,6 +14,7 @@ namespace cppengine {
     };
 }
 
-DECL_POLY_TYPE(cppengine::Sprite, cppengine::Renderable)
+DECL_TYPE_DESCRIPTOR(cppengine::Sprite, cppengine::Renderable)
+
 
 #endif

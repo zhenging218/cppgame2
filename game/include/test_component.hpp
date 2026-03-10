@@ -13,6 +13,7 @@ namespace cppgame {
     };
 }
 
-DECL_POLY_TYPE(cppgame::TestComponent, cppengine::Component)
+DECL_TYPE_DESCRIPTOR(cppgame::TestComponent, cppengine::Component)
+
 
 #endif

@@ -13,6 +13,18 @@ namespace cppengine {
     std::string_view TypeDescriptorImpl<T>::getName() const {
         return TypeHierarchy<T>::getName();
     }
+
+    template<typename T>
+    TypeDescriptor const *TypeDescriptor::getTypeDescriptor() {
+        static TypeDescriptorImpl<T> type;
+        return &type;
+    }
+
+    template <typename T>
+    bool TypeDescriptor::isSuperType(TypeDescriptor const *subType) {
+        TypeDescriptor const *superType = TypeDescriptor::getTypeDescriptor<T>();
+        return isSuperType(superType, subType);
+    }
 }
 
 #endif

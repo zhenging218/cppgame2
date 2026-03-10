@@ -36,6 +36,6 @@ namespace cppengine {
     inline Camera::~Camera() = default;
 }
 
-DECL_POLY_TYPE(cppengine::Camera, cppengine::Component)
+DECL_TYPE_DESCRIPTOR(cppengine::Camera, cppengine::Component)
 
 #endif

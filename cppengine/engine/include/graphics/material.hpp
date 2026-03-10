@@ -19,10 +19,14 @@ namespace cppengine {
     concept UniformType = IsUniformType<T, Uniform>::value;
 
     class Material : public Component {
+
+
+    public:
         ShaderID shaderId;
+
+    private:
         std::unordered_map<std::string, Uniform> uniforms;
         std::unordered_map<std::string, Texture> textures;
-
     public:
         Material();
 
@@ -55,6 +59,6 @@ namespace cppengine {
     };
 }
 
-DECL_POLY_TYPE(cppengine::Material, cppengine::Component)
+DECL_TYPE_DESCRIPTOR(cppengine::Material, cppengine::Component)
 
 #endif

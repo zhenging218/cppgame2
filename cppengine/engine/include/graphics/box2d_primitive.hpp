@@ -14,6 +14,6 @@ namespace cppengine {
     };
 }
 
-DECL_POLY_TYPE(cppengine::Box2DPrimitive, cppengine::Renderable)
+DECL_TYPE_DESCRIPTOR(cppengine::Box2DPrimitive, cppengine::Renderable)
 
 #endif

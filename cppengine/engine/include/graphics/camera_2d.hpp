@@ -13,6 +13,6 @@ namespace cppengine {
     };
 }
 
-DECL_POLY_TYPE(cppengine::Camera2D, cppengine::Camera)
+DECL_TYPE_DESCRIPTOR(cppengine::Camera2D, cppengine::Camera)
 
 #endif
