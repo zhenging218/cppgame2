@@ -1,14 +1,14 @@
-#ifndef OBJECT_READER_IMPL_HPP
-#define OBJECT_READER_IMPL_HPP
+#ifndef SERIALIZER_IMPL_HPP
+#define SERIALIZER_IMPL_HPP
 
-#include "object_reader.hpp"
+#include "serialiser.hpp"
 
 namespace cppengine {
   template<typename T>
-  void ObjectReader::inspect(T const &src, ObjectReader &r) {
+  void Serialiser::serialise(T const &src, Serialiser &r) {
     if constexpr (InspectorReadableType<T>) {
       beginObject();
-      src.inspect(r);
+      src.serialise(r);
       endObject();
     } else {
       // read leaf node
