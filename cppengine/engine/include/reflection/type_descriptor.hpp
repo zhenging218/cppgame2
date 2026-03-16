@@ -12,7 +12,7 @@ namespace cppengine {
     class TypeDescriptor {
     private:
         template <typename T>
-        friend class TypeHierarchy;
+        friend struct TypeHierarchy;
 
         template <typename T, typename U>
         static TypeMemberDescriptor getTypeMemberDescriptor(char const *name, U T::* member);
@@ -32,37 +32,18 @@ namespace cppengine {
         static bool isSuperType(TypeDescriptor const *superType, TypeDescriptor const *subType);
     };
 
-    struct TypeMemberDescriptor {
-        char const *name;
-
-    private:
-
-        struct TypeMemberAccessor {
-            virtual void *get(void *instance) const = 0;
-            virtual void const *get(void const *instance) const = 0;
-            virtual ~TypeMemberAccessor() = 0;
-        };
-
-        template <typename T, typename U>
-        struct TypeMemberAccessorImpl : TypeMemberAccessor {
-            U T::*member;
-
-            explicit constexpr TypeMemberAccessorImpl(U T::*member_) : member(member_) {}
-            void *get(void *instance) const override;
-            void const *get(void const *instance) const override;
-        };
-
-    public:
-        template<typename T, typename U>
-        TypeMemberDescriptor(char const *name_, U T::*member_);
+    template <typename T, typename U, U T::* member, char const *name>
+    struct MemberDescriptor {
+        static constexpr char const * getName() { return name; }
+        static U &get(T &instance) { return instance.*member; }
+        static U const &get(T const &instance) { return instance.*member; }
     };
 
     template <typename T>
-        struct TypeHierarchy {
+    struct TypeHierarchy {
         using super_type = T;
         static constexpr std::size_t size = sizeof(T);
         static constexpr char const *getName() { return typeid(T).name(); }
-        static constexpr std::span<const TypeMemberDescriptor> getMembers() { return {}; }
     };
 
     template <typename T>
