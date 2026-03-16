@@ -4,18 +4,16 @@
 #include <span>
 #include <typeinfo>
 #include <string_view>
+#include "string_literal.hpp"
 
 namespace cppengine {
-
-    struct TypeMemberDescriptor;
-
     class TypeDescriptor {
     private:
         template <typename T>
-        friend struct TypeHierarchy;
+        friend struct TypeTraits;
 
-        template <typename T, typename U>
-        static TypeMemberDescriptor getTypeMemberDescriptor(char const *name, U T::* member);
+        template <typename T>
+        friend struct TypeMemberTraits;
 
     public:
 
@@ -32,18 +30,26 @@ namespace cppengine {
         static bool isSuperType(TypeDescriptor const *superType, TypeDescriptor const *subType);
     };
 
-    template <typename T, typename U, U T::* member, char const *name>
+    template <typename T, typename U, U T::* member, StringLiteral name>
     struct MemberDescriptor {
-        static constexpr char const * getName() { return name; }
+        static constexpr char const *getName() { return name; }
         static U &get(T &instance) { return instance.*member; }
         static U const &get(T const &instance) { return instance.*member; }
     };
 
+    template <typename ... Args>
+    struct ArgumentList {};
+
     template <typename T>
-    struct TypeHierarchy {
+    struct TypeTraits {
         using super_type = T;
         static constexpr std::size_t size = sizeof(T);
         static constexpr char const *getName() { return typeid(T).name(); }
+    };
+
+    template <typename T>
+    struct TypeMemberTraits {
+        using members = std::tuple<>;
     };
 
     template <typename T>
@@ -68,7 +74,7 @@ namespace cppengine {
 #define DECL_BASE_TYPE(NS_QUALIFIED_TYPE_NAME, ...) \
 namespace cppengine {\
     template<> \
-    struct TypeHierarchy<NS_QUALIFIED_TYPE_NAME> { \
+    struct TypeTraits<NS_QUALIFIED_TYPE_NAME> { \
         using type = NS_QUALIFIED_TYPE_NAME; \
         using super_type = NS_QUALIFIED_TYPE_NAME; \
         static constexpr char const * getName() { return #NS_QUALIFIED_TYPE_NAME; } \
@@ -78,7 +84,7 @@ namespace cppengine {\
 #define DECL_POLY_TYPE(NS_QUALIFIED_TYPE_NAME, NS_QUALIFIED_SUPER_TYPE_NAME, ...) \
 namespace cppengine {\
     template<> \
-    struct TypeHierarchy<NS_QUALIFIED_TYPE_NAME> { \
+    struct TypeTraits<NS_QUALIFIED_TYPE_NAME> { \
         using type = NS_QUALIFIED_TYPE_NAME; \
         using super_type = NS_QUALIFIED_SUPER_TYPE_NAME; \
         static constexpr char const * getName() { return #NS_QUALIFIED_TYPE_NAME; } \
@@ -87,5 +93,17 @@ namespace cppengine {\
 
 #define GET_DECL_TYPE_MACRO(_1, _2, MACRO, ...) MACRO
 #define DECL_TYPE_DESCRIPTOR(...) GET_DECL_TYPE_MACRO(__VA_ARGS__, DECL_POLY_TYPE, DECL_BASE_TYPE)(__VA_ARGS__)
+
+#define DECL_TYPE_MEMBERS(NS_QUALIFIED_TYPE_NAME) \
+namespace cppengine { \
+    template <> struct TypeMemberTraits<NS_QUALIFIED_TYPE_NAME> { \
+        using type = NS_QUALIFIED_TYPE_NAME; \
+        using members = std::tuple<
+
+#define DECL_TYPE_MEMBER(MEMBER) \
+    MemberDescriptor<type, decltype(type::MEMBER), &type::MEMBER, #MEMBER>
+
+
+#define END_DECL_TYPE_MEMBERS() >; }; }
 
 #endif

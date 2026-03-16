@@ -6,13 +6,7 @@
 namespace cppengine {
   template<typename T>
   void Serialiser::serialise(T const &src, Serialiser &r) {
-    if constexpr (InspectorReadableType<T>) {
-      beginObject();
-      src.serialise(r);
-      endObject();
-    } else {
-      // read leaf node
-    }
+
   }
 }
 
