@@ -12,7 +12,15 @@ namespace cppengine {
 
     class Serialiser {
     private:
+        template <typename ... Visitor>
+        struct Visitors : Visitor... {
+            using Visitor::operator()...;
+        };
 
+        template <typename Visitor, typename ... T>
+        void serialise(ArgumentList<T...> args, Visitor &&v) {
+            (v(T{}), ...);
+        }
 
     protected:
         virtual void beginObject() = 0;

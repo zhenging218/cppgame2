@@ -49,7 +49,7 @@ namespace cppengine {
 
     template <typename T>
     struct TypeMemberTraits {
-        using members = std::tuple<>;
+        using members = ArgumentList<>;
     };
 
     template <typename T>
@@ -98,7 +98,7 @@ namespace cppengine {\
 namespace cppengine { \
     template <> struct TypeMemberTraits<NS_QUALIFIED_TYPE_NAME> { \
         using type = NS_QUALIFIED_TYPE_NAME; \
-        using members = std::tuple<
+        using members = ArgumentList<
 
 #define DECL_TYPE_MEMBER(MEMBER) \
     MemberDescriptor<type, decltype(type::MEMBER), &type::MEMBER, #MEMBER>
