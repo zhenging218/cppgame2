@@ -24,6 +24,7 @@ namespace cppengine {
     DECL_POD_TYPE(unsigned long long);
     DECL_POD_TYPE(float);
     DECL_POD_TYPE(double);
+    DECL_POD_TYPE(bool);
 }
 
 #undef DECL_POD_TYPE
