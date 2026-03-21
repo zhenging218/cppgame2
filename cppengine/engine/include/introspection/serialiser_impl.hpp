@@ -1,8 +1,7 @@
 #ifndef SERIALIZER_IMPL_HPP
 #define SERIALIZER_IMPL_HPP
 
-#include <iostream>
-
+#include "introspection_traits.hpp"
 #include "serialiser.hpp"
 
 namespace cppengine {
@@ -12,12 +11,28 @@ namespace cppengine {
     using Visitor::operator()...;
   };
 
+  template <typename T> requires (KeyValuePairType<T>)
+  void Serialiser::serialiseKeyValuePair(std::string_view name, T const &value) {
+    beginObject(name);
+    serialiseValue(std::get<0>(value), std::get<1>(value));
+    endObject();
+  }
+
+  template <typename T> requires (KeyValuePairType<T>)
+  void Serialiser::serialiseKeyValuePair(T const &value) {
+    beginObject();
+    serialiseValue(std::get<0>(value), std::get<1>(value));
+    endObject();
+  }
+
   template<typename T>
   void Serialiser::serialiseValue(T const &value) {
     if constexpr (IterableSerialisableType<T>) {
       serialiseArray(value);
-    } else {
+    } else if constexpr (NonTriviallyIntrospectableType<T>) {
       serialiseObject(value);
+    } else if constexpr (KeyValuePairType<T>) {
+      serialiseKeyValuePair(value);
     }
   }
 
@@ -25,8 +40,10 @@ namespace cppengine {
   void Serialiser::serialiseValue(std::string_view name, T const &value) {
     if constexpr (IterableSerialisableType<T>) {
       serialiseArray(name, value);
-    } else {
+    } else if constexpr (NonTriviallyIntrospectableType<T>) {
       serialiseObject(name, value);
+    } else if constexpr (KeyValuePairType<T>) {
+      serialiseKeyValuePair(name, value);
     }
   }
 
@@ -92,7 +109,7 @@ namespace cppengine {
   template<typename T>
   void Serialiser::serialise(T const &src) {
 
-    if constexpr(NonTriviallySerialisableType<T> && !IterableSerialisableType<T> && !std::is_convertible_v<T, std::string_view>) {
+    if constexpr(NonTriviallyIntrospectableType<T> && !IterableSerialisableType<T> && !std::is_convertible_v<T, std::string_view>) {
       serialiseObject(src);
     } else if constexpr (IterableSerialisableType<T> && !std::is_convertible_v<T, std::string_view>) {
       serialiseArray(src);

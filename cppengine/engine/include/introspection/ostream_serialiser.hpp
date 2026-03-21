@@ -62,7 +62,7 @@ namespace cppengine {
     inline OStreamSerialiser::~OStreamSerialiser() = default;
 }
 
-template <typename T> requires (cppengine::NonTriviallySerialisableType<T> || cppengine::IterableSerialisableType<T>)
+template <typename T> requires (cppengine::NonTriviallyIntrospectableType<T> || cppengine::IterableSerialisableType<T>)
 std::ostream &operator<<(std::ostream &os, T const &value) {
     cppengine::OStreamSerialiser serialiser{os};
     serialiser.serialise(value);

@@ -4,21 +4,19 @@
 #include <string>
 
 #include "reflection/type_descriptor.hpp"
+#include "introspection/introspection_traits.hpp"
 
 namespace cppengine {
-    template <typename T>
-    concept NonTriviallySerialisableType = TypeTraits<T>::defined_trait_v;
 
-    template <typename T>
-    concept IterableSerialisableType =
-    !std::is_convertible_v<T, std::string_view> &&
-    (requires (T const &t) {
-        { std::begin(t) } -> std::forward_iterator;
-        { std::end(t) } -> std::forward_iterator;
-    } || std::is_array_v<T>);
 
     class Serialiser {
     private:
+
+        template <typename T> requires (KeyValuePairType<T>)
+        void serialiseKeyValuePair(std::string_view name, T const &value);
+
+        template <typename T> requires (KeyValuePairType<T>)
+        void serialiseKeyValuePair(T const &value);
 
         template <typename T>
         void serialiseValue(T const &value);
