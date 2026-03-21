@@ -46,6 +46,7 @@ namespace cppengine {
         static constexpr std::size_t size = sizeof(T);
         static constexpr char const *getName() { return typeid(T).name(); }
         static constexpr bool pod_type_v = false;
+        static constexpr bool defined_trait_v = false;
     };
 
     template <typename T>
@@ -78,6 +79,7 @@ namespace cppengine {\
     struct TypeTraits<NS_QUALIFIED_TYPE_NAME> { \
         using type = NS_QUALIFIED_TYPE_NAME; \
         using super_type = NS_QUALIFIED_TYPE_NAME; \
+        static constexpr bool defined_trait_v = true; \
         static constexpr char const * getName() { return #NS_QUALIFIED_TYPE_NAME; } \
     }; \
 }
@@ -88,6 +90,7 @@ namespace cppengine {\
     struct TypeTraits<NS_QUALIFIED_TYPE_NAME> { \
         using type = NS_QUALIFIED_TYPE_NAME; \
         using super_type = NS_QUALIFIED_SUPER_TYPE_NAME; \
+        static constexpr bool defined_trait_v = true; \
         static constexpr char const * getName() { return #NS_QUALIFIED_TYPE_NAME; } \
     }; \
 }

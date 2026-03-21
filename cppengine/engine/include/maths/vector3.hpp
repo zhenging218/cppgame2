@@ -56,12 +56,4 @@ namespace cppengine {
     std::ostream& operator<<(std::ostream& os, Vector3 const& v);
 }
 
-DECL_TYPE_DESCRIPTOR(cppengine::Vector3)
-
-DECL_TYPE_MEMBERS(cppengine::Vector3)
-    DECL_TYPE_MEMBER(x),
-    DECL_TYPE_MEMBER(y),
-    DECL_TYPE_MEMBER(z)
-END_DECL_TYPE_MEMBERS()
-
 #endif

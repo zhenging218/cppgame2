@@ -7,6 +7,7 @@
         using super_type = TYPE_NAME; \
         static constexpr std::size_t size = sizeof(TYPE_NAME); \
         static constexpr char const *getName() { return #TYPE_NAME; } \
+        static constexpr bool defined_trait_v = false; \
         static constexpr bool pod_type_v = true; \
     }
 

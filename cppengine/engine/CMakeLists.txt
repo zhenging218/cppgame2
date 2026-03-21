@@ -12,6 +12,10 @@ set(ENGINE_REFLECTION_SRCS
 	${ENGINE_SRC_DIR}/reflection/type_descriptor.cpp
 )
 
+set(ENGINE_INTROSPECTION_SRCS
+		${ENGINE_SRC_DIR}/introspection/ostream_serialiser.cpp
+)
+
 set(ENGINE_MEMORY_SRCS
 	${ENGINE_SRC_DIR}/memory/memory_deallocator.cpp
 	${ENGINE_SRC_DIR}/memory/memory_control_block.cpp
@@ -68,6 +72,7 @@ set(ENGINE_PLATFORM_SRCS
 
 add_library(${ENGINE_TARGET} OBJECT
 	${ENGINE_REFLECTION_SRCS}
+	${ENGINE_INTROSPECTION_SRCS}
 	${ENGINE_MEMORY_SRCS}
 	${ENGINE_MATH_SRCS}
 	${ENGINE_ECS_SRCS}
