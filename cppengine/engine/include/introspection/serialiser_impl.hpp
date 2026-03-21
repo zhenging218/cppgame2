@@ -34,7 +34,7 @@ namespace cppengine {
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(value);
     } else {
-      serialiseValue(std::string{TypeTraits<T>::getName()} + "@" + std::string{std::to_string(reinterpret_cast<std::ptrdiff_t>(&value))});
+      serialiseValue(std::string{TypeTraits<T>::getName()} + "@" + std::string{std::to_string(reinterpret_cast<std::uintptr_t>(&value))});
     }
   }
 
@@ -47,7 +47,7 @@ namespace cppengine {
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(name, value);
     }  else {
-      serialiseValue(name, std::string{TypeTraits<T>::getName()} + "@" + std::string{std::to_string(reinterpret_cast<std::ptrdiff_t>(&value))});
+      serialiseValue(name, std::string{TypeTraits<T>::getName()} + "@" + std::string{std::to_string(reinterpret_cast<std::uintptr_t>(&value))});
     }
   }
 
