@@ -34,7 +34,7 @@ namespace cppengine {
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(value);
     } else {
-      static_assert(std::is_same_v<T, void>, "Unhandled type in serialiseValue");
+      serialiseValue(std::string{TypeTraits<T>::getName()} + "@" + std::string{std::to_string(reinterpret_cast<std::ptrdiff_t>(&value))});
     }
   }
 
@@ -47,7 +47,7 @@ namespace cppengine {
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(name, value);
     }  else {
-      static_assert(std::is_same_v<T, void>, "Unhandled type in serialiseValue");
+      serialiseValue(name, std::string{TypeTraits<T>::getName()} + "@" + std::string{std::to_string(reinterpret_cast<std::ptrdiff_t>(&value))});
     }
   }
 
@@ -96,7 +96,7 @@ namespace cppengine {
   void Serialiser::serialiseObject(std::string_view name, T const &object) {
     beginObject(name);
     serialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && value) {
-        serialise(value.getName(), object.*value.getMember());
+        serialiseValue(value.getName(), object.*value.getMember());
     });
     endObject();
   }

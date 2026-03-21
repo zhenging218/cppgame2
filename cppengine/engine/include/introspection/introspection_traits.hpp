@@ -3,7 +3,7 @@
 
 namespace cppengine {
     template <typename T>
-    concept NonTriviallyIntrospectableType = TypeTraits<T>::defined_trait_v;
+    concept NonTriviallyIntrospectableType = TypeTraits<T>::defined_trait_v && TypeMemberTraits<T>::members_defined_v;
 
     template <typename T>
     concept IterableSerialisableType =

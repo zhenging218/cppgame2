@@ -51,6 +51,7 @@ namespace cppengine {
 
     template <typename T>
     struct TypeMemberTraits {
+        static constexpr bool members_defined_v = false;
         using members = ArgumentList<>;
     };
 
@@ -103,6 +104,7 @@ namespace cppengine { \
     template <> \
     struct TypeMemberTraits<NS_QUALIFIED_TYPE_NAME> { \
         using type = NS_QUALIFIED_TYPE_NAME; \
+        static constexpr bool members_defined_v = true; \
         using members = ArgumentList<
 
 #define DECL_TYPE_MEMBER(MEMBER) \
