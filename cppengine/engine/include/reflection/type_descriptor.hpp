@@ -33,8 +33,7 @@ namespace cppengine {
     template <typename T, typename U, U T::* member, StringLiteral name>
     struct MemberDescriptor {
         static constexpr char const *getName() { return name; }
-        static U &get(T &instance) { return instance.*member; }
-        static U const &get(T const &instance) { return instance.*member; }
+        static constexpr U T::* getMember() { return member; }
     };
 
     template <typename ... Args>
@@ -45,6 +44,7 @@ namespace cppengine {
         using super_type = T;
         static constexpr std::size_t size = sizeof(T);
         static constexpr char const *getName() { return typeid(T).name(); }
+        static constexpr bool pod_type_v = false;
     };
 
     template <typename T>

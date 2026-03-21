@@ -18,33 +18,37 @@ namespace cppengine {
         };
 
         template <typename Visitor, typename ... T>
-        void serialise(ArgumentList<T...> args, Visitor &&v) {
+        void serialiseObject(ArgumentList<T...> args, Visitor &&v) {
             (v(T{}), ...);
         }
 
-    protected:
-        virtual void beginObject() = 0;
+        template <typename T>
+        void serialise(std::string_view name, T const &object);
 
-        virtual void serialise(char const &value) = 0;
-        virtual void serialise(unsigned char const &value) = 0;
-        virtual void serialise(short const &value) = 0;
-        virtual void serialise(unsigned short const &value) = 0;
-        virtual void serialise(int const &value) = 0;
-        virtual void serialise(unsigned int const &value) = 0;
-        virtual void serialise(long const &value) = 0;
-        virtual void serialise(unsigned long const &value) = 0;
-        virtual void serialise(long long const &value) = 0;
-        virtual void serialise(unsigned long long const &value) = 0;
-        virtual void serialise(float const &value) = 0;
-        virtual void serialise(double const &value) = 0;
-        virtual void serialise(bool const &value) = 0;
+    protected:
+        virtual void beginObject(std::string_view name) = 0;
+
+        virtual void serialise(std::string_view name, char const &value) = 0;
+        virtual void serialise(std::string_view name, unsigned char const &value) = 0;
+        virtual void serialise(std::string_view name, short const &value) = 0;
+        virtual void serialise(std::string_view name, unsigned short const &value) = 0;
+        virtual void serialise(std::string_view name, int const &value) = 0;
+        virtual void serialise(std::string_view name, unsigned int const &value) = 0;
+        virtual void serialise(std::string_view name, long const &value) = 0;
+        virtual void serialise(std::string_view name, unsigned long const &value) = 0;
+        virtual void serialise(std::string_view name, long long const &value) = 0;
+        virtual void serialise(std::string_view name, unsigned long long const &value) = 0;
+        virtual void serialise(std::string_view name, float const &value) = 0;
+        virtual void serialise(std::string_view name, double const &value) = 0;
+        virtual void serialise(std::string_view name, bool const &value) = 0;
+        virtual void serialise(std::string_view name, std::string const &value) = 0;
 
         virtual void endObject() = 0;
 
     public:
 
         template <typename T>
-        void serialise(T const &src, Serialiser &r);
+        void serialise(T const &src);
 
         virtual ~Serialiser() = 0;
     };
