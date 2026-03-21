@@ -8,7 +8,7 @@
 namespace cppengine {
   template <typename T>
   concept isTriviallySerialisable = requires {
-    typename TypeTraits<T>::pod_type_v;
+    TypeTraits<T>::pod_type_v;
     std::is_same_v<T, std::string>;
   };
 
