@@ -1,7 +1,7 @@
 #ifndef SERIALISER_HPP
 #define SERIALISER_HPP
 
-#include <cstdint>
+#include <string>
 
 namespace cppengine {
 
