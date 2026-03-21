@@ -33,6 +33,8 @@ namespace cppengine {
       serialiseObject(value);
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(value);
+    } else {
+      static_assert(sizeof(T) == 0, "Unhandled type in serialiseValue");
     }
   }
 
@@ -44,6 +46,8 @@ namespace cppengine {
       serialiseObject(name, value);
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(name, value);
+    }  else {
+      static_assert(sizeof(T) == 0, "Unhandled type in serialiseValue");
     }
   }
 
