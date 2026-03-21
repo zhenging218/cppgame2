@@ -34,7 +34,7 @@ namespace cppengine {
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(value);
     } else {
-      static_assert(sizeof(T) == 0, "Unhandled type in serialiseValue");
+      static_assert(std::is_same_v<T, void>, "Unhandled type in serialiseValue");
     }
   }
 
@@ -47,7 +47,7 @@ namespace cppengine {
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(name, value);
     }  else {
-      static_assert(sizeof(T) == 0, "Unhandled type in serialiseValue");
+      static_assert(std::is_same_v<T, void>, "Unhandled type in serialiseValue");
     }
   }
 
