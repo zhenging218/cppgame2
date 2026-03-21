@@ -41,6 +41,7 @@ namespace cppengine {
 
     template <typename T>
     struct TypeTraits {
+        using type = T;
         using super_type = T;
         static constexpr std::size_t size = sizeof(T);
         static constexpr char const *getName() { return typeid(T).name(); }
@@ -96,7 +97,8 @@ namespace cppengine {\
 
 #define DECL_TYPE_MEMBERS(NS_QUALIFIED_TYPE_NAME) \
 namespace cppengine { \
-    template <> struct TypeMemberTraits<NS_QUALIFIED_TYPE_NAME> { \
+    template <> \
+    struct TypeMemberTraits<NS_QUALIFIED_TYPE_NAME> { \
         using type = NS_QUALIFIED_TYPE_NAME; \
         using members = ArgumentList<
 
@@ -104,6 +106,7 @@ namespace cppengine { \
     MemberDescriptor<type, decltype(type::MEMBER), &type::MEMBER, #MEMBER>
 
 
-#define END_DECL_TYPE_MEMBERS() >; }; }
+#define END_DECL_TYPE_MEMBERS() \
+    >; }; }
 
 #endif

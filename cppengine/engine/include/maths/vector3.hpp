@@ -1,7 +1,7 @@
 #ifndef VECTOR3_HPP
 #define VECTOR3_HPP
 
-#include <ostream>
+#include "reflection/type_descriptor.hpp"
 
 namespace cppengine {
     class Quaternion;
