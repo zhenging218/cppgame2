@@ -4,7 +4,7 @@
 #include <string>
 
 #include "reflection/type_descriptor.hpp"
-#include "introspection/introspection_traits.hpp"
+#include "introspection_traits.hpp"
 
 namespace cppengine {
 

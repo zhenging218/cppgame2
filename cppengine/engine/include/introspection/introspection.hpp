@@ -3,6 +3,7 @@
 
 #include "introspection_traits.hpp"
 #include "serialiser.hpp"
+#include "deserialiser.hpp"
 #include "serialiser_impl.hpp"
 #include "ostream_serialiser.hpp"
 
