@@ -18,11 +18,13 @@ namespace cppengine {
         using non_const_getter = void * (*)(void *);
 
         static constexpr non_const_getter getNonConstGetter() {
-            return [](void *owner)->void * { return &(static_cast<typename member_descriptor_type::owner_type *>(owner)->*member_descriptor_type::getMember()); };
-        }
 
-        static constexpr non_const_getter getNonConstGetterForConstMember() {
-            return [](void *owner)->void * { return nullptr; };
+            if constexpr (is_const_member) {
+                return [](void *owner)->void * { return nullptr; };
+            } else {
+                return [](void *owner)->void * { return &(static_cast<typename member_descriptor_type::owner_type *>(owner)->*member_descriptor_type::getMember()); };
+            }
+
         }
 
         static constexpr const_getter getConstGetter() {
@@ -31,19 +33,11 @@ namespace cppengine {
 
         static FieldDescriptor createFieldDescriptor() {
 
-            if constexpr(is_const_member) {
-                return FieldDescriptor(
-                member_descriptor_type::getName(),
-                TypeDescriptor::getTypeDescriptor<typename std::remove_cvref<typename member_descriptor_type::field_type>::type>()
-                    , getNonConstGetterForConstMember()
-                    , getConstGetter());
-            } else {
-                return FieldDescriptor(
+            return FieldDescriptor(
                 member_descriptor_type::getName(),
                 TypeDescriptor::getTypeDescriptor<typename std::remove_cvref<typename member_descriptor_type::field_type>::type>()
                     , getNonConstGetter()
                     , getConstGetter());
-            }
         }
     };
 
