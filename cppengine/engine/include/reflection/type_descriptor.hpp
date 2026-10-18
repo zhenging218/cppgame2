@@ -7,6 +7,9 @@
 #include "string_literal.hpp"
 
 namespace cppengine {
+
+    class FieldDescriptor;
+
     class TypeDescriptor {
     private:
         template <typename T>
@@ -22,7 +25,8 @@ namespace cppengine {
 
         virtual TypeDescriptor const *getSuperType() const = 0;
         virtual std::string_view getName() const = 0;
-        virtual ~TypeDescriptor() = default;
+        virtual std::span<const FieldDescriptor> getFields() const = 0;
+        virtual ~TypeDescriptor();
 
         template <typename T>
         static bool isSuperType(TypeDescriptor const *descriptor);
@@ -32,6 +36,9 @@ namespace cppengine {
 
     template <typename T, typename U, U T::* member, StringLiteral name>
     struct MemberDescriptor {
+        using owner_type = T;
+        using member_type = U;
+
         static constexpr char const *getName() { return name; }
         static constexpr U T::* getMember() { return member; }
     };
@@ -70,6 +77,9 @@ namespace cppengine {
 
         TypeDescriptor const * getSuperType() const override;
         std::string_view getName() const override;
+        std::span<const FieldDescriptor> getFields() const override;
+
+        ~TypeDescriptorImpl() override;
     };
 
 }

@@ -36,6 +36,7 @@ namespace {
         std::string vertSource;
         std::string fragSource;
 
+        /*
         {
             auto vertFile = Assets::openFile(vertPath);
             vertSource = {std::istreambuf_iterator<char>(vertFile), std::istreambuf_iterator<char>()};
@@ -44,6 +45,7 @@ namespace {
             auto fragFile = Assets::openFile(fragPath);
             fragSource = {std::istreambuf_iterator<char>(fragFile), std::istreambuf_iterator<char>()};
         }
+        */
 
         return GladShaderHelper::compileShader(vertPath, fragPath,
             vertSource.c_str(), fragSource.c_str());

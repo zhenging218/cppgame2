@@ -10,6 +10,7 @@ set(ENGINE_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(ENGINE_REFLECTION_SRCS
 	${ENGINE_SRC_DIR}/reflection/type_descriptor.cpp
+		src/reflection/field_descriptor.cpp
 )
 
 set(ENGINE_INTROSPECTION_SRCS
@@ -64,6 +65,7 @@ set(ENGINE_PLATFORM_SRCS
 	${ENGINE_SRC_DIR}/platform/time.cpp
 	${ENGINE_SRC_DIR}/platform/window.cpp
 	${ENGINE_SRC_DIR}/platform/input.cpp
+		src/reflection/field_descriptor.cpp
 )
 
 add_library(${ENGINE_TARGET} OBJECT
