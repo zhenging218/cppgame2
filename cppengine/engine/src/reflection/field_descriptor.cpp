@@ -5,8 +5,8 @@
 #include "engine.hpp"
 
 namespace cppengine {
-    FieldDescriptor::FieldDescriptor(char const *name_, TypeDescriptor const *descriptor_, getter_type getter_, const_getter_type const_getter_)
-            : name(name_), descriptor(descriptor_), getter(getter_), const_getter(const_getter_) {}
+    FieldDescriptor::FieldDescriptor(char const *name_, TypeDescriptor const *descriptor_, getter_type getter_, const_getter_type const_getter_, setter_type setter_)
+            : name(name_), descriptor(descriptor_), getter(getter_), const_getter(const_getter_), setter(setter_) {}
 
     char const *FieldDescriptor::getName() const { return name; }
 
@@ -18,5 +18,9 @@ namespace cppengine {
 
     void const *FieldDescriptor::get(void const *src) const {
         return const_getter(src);
+    }
+
+    void FieldDescriptor::set(void *dest, void const *src) const {
+        setter(dest, src);
     }
 }

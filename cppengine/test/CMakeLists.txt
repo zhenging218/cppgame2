@@ -8,7 +8,6 @@ set(TEST_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(TEST_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(TEST_TARGET_SRCS
-    ${TEST_SRC_DIR}/bootstrap_test.cpp
     ${TEST_SRC_DIR}/member_descriptor_test.cpp
 )
 

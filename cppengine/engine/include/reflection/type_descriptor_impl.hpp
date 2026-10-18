@@ -16,6 +16,9 @@ namespace cppengine {
         using member_descriptor_type = MemberDescriptor<T, U, member, name>;
         using const_getter = void const * (*)(void const *);
         using non_const_getter = void * (*)(void *);
+        using setter = void (*)(void *, void const *);
+
+        // todo: refactor to use concepts and static_assert on illegal calls to getNonConstGetter and getSetter when is_const_member is true
 
         static constexpr non_const_getter getNonConstGetter() {
 
@@ -31,13 +34,22 @@ namespace cppengine {
             return [](void const *owner)->void const * { return &(static_cast<typename member_descriptor_type::owner_type const *>(owner)->*member_descriptor_type::getMember()); };
         }
 
+        static constexpr setter getSetter() {
+            if constexpr (is_const_member) {
+                return [](void *owner, void const *data) {};
+            } else {
+                return [](void *owner, void const *data) { *(&(static_cast<typename member_descriptor_type::owner_type *>(owner)->*member_descriptor_type::getMember())) = *static_cast<U const *>(data); };
+            }
+        }
+
         static FieldDescriptor createFieldDescriptor() {
 
             return FieldDescriptor(
                 member_descriptor_type::getName(),
                 TypeDescriptor::getTypeDescriptor<typename std::remove_cvref<typename member_descriptor_type::field_type>::type>()
                     , getNonConstGetter()
-                    , getConstGetter());
+                    , getConstGetter()
+                    , getSetter());
         }
     };
 
