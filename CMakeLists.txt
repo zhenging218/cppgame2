@@ -21,14 +21,10 @@ get_property(CPP_GAME_ASSET_PHYS_LOCATION GLOBAL PROPERTY CPP_GAME_ASSET_PHYS_LO
 add_executable(${CMAKE_PROJECT_NAME} $<TARGET_OBJECTS:${CPP_GAME_TARGET_NAME}>)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${CPP_GAME_TARGET_NAME})
 
-add_custom_target(
-        link_assets
-        COMMAND ${CMAKE_COMMAND}
-        -DALWAYS_COPY=FALSE
-        -DASSET_SRC_LOCATION="${CPP_GAME_ASSET_PHYS_LOCATION}"
-        -DASSET_SYMLINK_LOCATION="${CMAKE_CURRENT_BINARY_DIR}/${CPP_GAME_ASSET_FOLDER_NAME}"
-        -P "${CMAKE_CURRENT_SOURCE_DIR}/postbuild.cmake"
-        COMMENT "creating assets folder for target"
-)
-add_dependencies(${CMAKE_PROJECT_NAME} ${CPP_GAME_TARGET_NAME} link_assets)
+add_custom_target(copy_assets ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+        "${CPP_GAME_ASSET_PHYS_LOCATION}"
+        "$<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>/${CPP_GAME_ASSET_FOLDER_NAME}"
+        COMMENT "Updating assets")
+add_dependencies(${CMAKE_PROJECT_NAME} copy_assets)
 endif()

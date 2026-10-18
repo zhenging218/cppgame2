@@ -9,6 +9,5 @@
 #include "ecs/ecs.hpp"
 #include "graphics/graphics.hpp"
 #include "platform/platform.hpp"
-#include "assets/assets_pch.hpp"
 
 #endif

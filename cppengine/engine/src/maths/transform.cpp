@@ -21,6 +21,15 @@ namespace cppengine {
         dirty = false;
     }
 
+    void Transform::markDirty() {
+        if (!dirty) {
+            dirty = true;
+            for (auto *child : children) {
+                child->markDirty();
+            }
+        }
+    }
+
     void Transform::updateMatrix() {
         // rebuild matrix from properties, then parent matrix * matrix (if parent exist)
         matrix = combineComponents(position, rotation, scale);
@@ -31,15 +40,14 @@ namespace cppengine {
     }
 
     Matrix4x4 const &Transform::getMatrix() {
-        if(parent != nullptr && parent->dirty) {
-            // if parents are dirty, propagate their changes to this depth
-            parent->propagateChanges();
-            updateMatrix();
-        } else if(dirty) {
-            updateMatrix();
-        }
 
-        dirty = false;
+        if (dirty) {
+            matrix = combineComponents(position, rotation, scale);
+            if (parent != nullptr) {
+                matrix = parent->getMatrix() * matrix;
+            }
+            dirty = false;
+        }
 
         return matrix;
     }
@@ -98,7 +106,7 @@ namespace cppengine {
 
     void Transform::setPosition(Vector3 const &p) {
         position = p;
-        dirty = true;
+        markDirty();
     }
 
     Quaternion const &Transform::getRotation() const {
@@ -107,7 +115,7 @@ namespace cppengine {
 
     void Transform::setRotation(Quaternion const &r) {
         rotation = r;
-        dirty = true;
+        markDirty();
     }
 
     Vector3 const &Transform::getScale() const {
@@ -116,6 +124,6 @@ namespace cppengine {
 
     void Transform::setScale(Vector3 const &s) {
         scale = s;
-        dirty = true;
+        markDirty();
     }
 }

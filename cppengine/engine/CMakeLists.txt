@@ -60,10 +60,6 @@ set(ENGINE_GRAPHICS_SRCS
 	${ENGINE_SRC_DIR}/graphics/renderer.cpp
 )
 
-set(ENGINE_ASSETS_SRCS
-	${ENGINE_SRC_DIR}/assets/assets.cpp
-)
-
 set(ENGINE_PLATFORM_SRCS
 	${ENGINE_SRC_DIR}/platform/time.cpp
 	${ENGINE_SRC_DIR}/platform/window.cpp
@@ -77,7 +73,6 @@ add_library(${ENGINE_TARGET} OBJECT
 	${ENGINE_MATH_SRCS}
 	${ENGINE_ECS_SRCS}
 	${ENGINE_GRAPHICS_SRCS}
-	${ENGINE_ASSETS_SRCS}
 	${ENGINE_PLATFORM_SRCS}
 )
 

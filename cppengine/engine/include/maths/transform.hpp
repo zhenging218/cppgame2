@@ -24,6 +24,7 @@ namespace cppengine {
 
         bool dirty;
 
+        void markDirty();
         void propagateChanges();
         void updateMatrix();
     public:
