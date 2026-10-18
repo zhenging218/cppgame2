@@ -5,6 +5,8 @@
 #include <type_traits>
 #include <vector>
 
+#include "illegal_field_operation.hpp"
+
 namespace cppengine {
 
     template <typename T>
@@ -18,12 +20,10 @@ namespace cppengine {
         using non_const_getter = void * (*)(void *);
         using setter = void (*)(void *, void const *);
 
-        // todo: refactor to use concepts and static_assert on illegal calls to getNonConstGetter and getSetter when is_const_member is true
-
         static constexpr non_const_getter getNonConstGetter() {
 
             if constexpr (is_const_member) {
-                return [](void *owner)->void * { return nullptr; };
+                return [](void *owner)->void * { throw IllegalFieldOperation(TypeDescriptor::getTypeDescriptor<T>(), TypeDescriptor::getTypeDescriptor<U>(), static_cast<char const *>(name)); };
             } else {
                 return [](void *owner)->void * { return &(static_cast<typename member_descriptor_type::owner_type *>(owner)->*member_descriptor_type::getMember()); };
             }
@@ -36,16 +36,17 @@ namespace cppengine {
 
         static constexpr setter getSetter() {
             if constexpr (is_const_member) {
-                return [](void *owner, void const *data) {};
+                return [](void *owner, void const *data) { throw IllegalFieldOperation(TypeDescriptor::getTypeDescriptor<T>(), TypeDescriptor::getTypeDescriptor<U>(), static_cast<char const *>(name)); };
             } else {
                 return [](void *owner, void const *data) { *(&(static_cast<typename member_descriptor_type::owner_type *>(owner)->*member_descriptor_type::getMember())) = *static_cast<U const *>(data); };
             }
         }
 
-        static FieldDescriptor createFieldDescriptor() {
+        static FieldDescriptor createFieldDescriptor(TypeDescriptor const *owner) {
 
             return FieldDescriptor(
                 member_descriptor_type::getName(),
+                owner,
                 TypeDescriptor::getTypeDescriptor<typename std::remove_cvref<typename member_descriptor_type::field_type>::type>()
                     , getNonConstGetter()
                     , getConstGetter()
@@ -54,11 +55,11 @@ namespace cppengine {
     };
 
     template <typename T>
-    std::vector<FieldDescriptor> createFieldList(T &&);
+    std::vector<FieldDescriptor> createFieldList(TypeDescriptor const * owner, T &&);
 
     template <typename ... MemberDescriptors>
-    std::vector<FieldDescriptor> createFieldList(ArgumentList<MemberDescriptors...> &&) {
-        return { FieldDescriptorCreator<MemberDescriptors>::createFieldDescriptor()... };
+    std::vector<FieldDescriptor> createFieldList(TypeDescriptor const * owner, ArgumentList<MemberDescriptors...> &&) {
+        return { FieldDescriptorCreator<MemberDescriptors>::createFieldDescriptor(owner)... };
     }
 
     template <typename T>
@@ -68,7 +69,7 @@ namespace cppengine {
 
     template<typename T>
     std::span<const FieldDescriptor> TypeDescriptorImpl<T>::getFields() const {
-        static const std::vector<FieldDescriptor> fields = createFieldList(typename TypeMemberTraits<T>::members());
+        static const std::vector<FieldDescriptor> fields = createFieldList(this, typename TypeMemberTraits<T>::members());
 
         return std::span{ fields };
     }

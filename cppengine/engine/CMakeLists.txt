@@ -11,6 +11,7 @@ set(ENGINE_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(ENGINE_REFLECTION_SRCS
 	${ENGINE_SRC_DIR}/reflection/type_descriptor.cpp
 	${ENGINE_SRC_DIR}/reflection/field_descriptor.cpp
+	${ENGINE_SRC_DIR}/reflection/illegal_field_operation.cpp
 )
 
 set(ENGINE_INTROSPECTION_SRCS

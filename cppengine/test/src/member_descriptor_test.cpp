@@ -159,10 +159,8 @@ SCENARIO("registered_type_with_const_registered_members_test") {
                         }
                     }
                     AND_WHEN("the field list is used to get the member values") {
-                        auto x = static_cast<int *>(fields[0].get(&registered));
-
                         THEN("The value cannot be retrieved") {
-                            REQUIRE(x == nullptr);
+                            REQUIRE_THROWS(static_cast<int *>(fields[0].get(&registered)));
                         }
                     }
                 }

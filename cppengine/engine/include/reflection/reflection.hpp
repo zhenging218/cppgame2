@@ -6,5 +6,6 @@
 #include "type_descriptor.hpp"
 #include "pod_descriptor.hpp"
 #include "type_descriptor_impl.hpp"
+#include "illegal_field_operation.hpp"
 
 #endif
