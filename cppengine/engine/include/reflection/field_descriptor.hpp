@@ -23,11 +23,8 @@ namespace cppengine {
         char const *getName() const;
         TypeDescriptor const *getTypeDescriptor() const;
 
-        template <typename T>
-        T const * get(void const *src) const;
-
-        template <typename T>
-        T * get(void *src) const;
+        void const * get(void const *src) const;
+        void * get(void *src) const;
     };
 }
 

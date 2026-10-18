@@ -11,4 +11,12 @@ namespace cppengine {
     char const *FieldDescriptor::getName() const { return name; }
 
     TypeDescriptor const *FieldDescriptor::getTypeDescriptor() const { return descriptor; }
+
+    void *FieldDescriptor::get(void *src) const {
+        return getter(src);
+    }
+
+    void const *FieldDescriptor::get(void const *src) const {
+        return const_getter(src);
+    }
 }
