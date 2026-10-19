@@ -84,14 +84,12 @@ namespace cppengine {
 
         auto transform = transforms.at(id);
 
-        if (transform->getParent() != nullptr) {
-            transform->getParent()->removeChild(*transform);
-        }
+        transform->setParent(nullptr);
 
         auto children = transform->getChildren();
 
-        std::ranges::for_each(children, [&transform](auto &child) {
-            transform->removeChild(*child);
+        std::ranges::for_each(children, [](auto &child) {
+            child->setParent(nullptr);
         });
 
         transforms.erase(id);

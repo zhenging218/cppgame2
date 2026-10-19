@@ -74,12 +74,8 @@ namespace cppengine {
                 parent->removeChild(*this);
             }
 
-            parent = newParent;
-
             if(newParent != nullptr) {
                 newParent->addChild(*this);
-            } else {
-                markDirty();
             }
         }
     }

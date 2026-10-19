@@ -27,6 +27,9 @@ namespace cppengine {
         void markDirty();
         void propagateChanges();
         void updateMatrix();
+
+        void addChild(Transform &newChild);
+        void removeChild(Transform &childToRemove);
     public:
         Transform();
         Transform(Transform const &other) = delete;
@@ -38,8 +41,6 @@ namespace cppengine {
         std::vector<Transform const *> getChildren() const;
 
         void setParent(Transform *newParent);
-        void addChild(Transform &newChild);
-        void removeChild(Transform &childToRemove);
 
         Vector3 const &getPosition() const;
         void setPosition(Vector3 const &p);
