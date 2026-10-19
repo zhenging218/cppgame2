@@ -6,6 +6,7 @@
 #include "enum_scene_state.hpp"
 #include "memory/object_handle.hpp"
 #include "maths/transform.hpp"
+#include "scene_helper.hpp"
 #include "scene_setup.hpp"
 
 namespace cppengine {
@@ -43,7 +44,7 @@ namespace cppengine {
         SceneState getState() const;
         void shutdown();
 
-        template <typename T, typename ... Args>
+        template <typename T, typename ... Args> requires ComponentType<T>
         ObjectHandle<T> addComponent(const std::uint64_t id, Args &&... args);
 
         template <typename T>

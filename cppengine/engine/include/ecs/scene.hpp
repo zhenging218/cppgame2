@@ -1,25 +1,19 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
-#include <algorithm>
 #include <cstdint>
 #include <unordered_map>
 #include <unordered_set>
 
-#include "scene_manager.hpp"
 #include "maths/transform.hpp"
+#include "scene_manager.hpp"
 
 namespace cppengine {
 
     class Component;
+
     template <typename T>
     class ObjectHandle;
-
-    template <typename T>
-    concept ComponentType = std::is_base_of_v<Component, T>;
-
-    template <typename T>
-    concept TransformType = std::is_same_v<Transform, T>;
 
     class Scene {
     private:
@@ -60,6 +54,7 @@ namespace cppengine {
         void setNameOfEntity(const std::uint64_t id, std::string &&name);
         std::uint64_t getEntityOfComponent(Component const *component) const;
         std::uint64_t getEntityOfTransform(ObjectHandle<Transform> transform) const;
+        std::vector<ObjectHandle<Component>> getComponentsOfEntity(const std::uint64_t id) const;
 
         std::vector<ObjectHandle<Component>> getAllComponents() const;
 

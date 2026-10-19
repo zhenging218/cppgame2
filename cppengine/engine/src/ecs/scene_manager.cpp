@@ -6,6 +6,8 @@ namespace cppengine {
     }
 
     void SceneManager::destroyEntity(const std::uint64_t id) {
+        auto components = scene->getComponentsOfEntity(id);
+        std::ranges::for_each(components, [](auto const &handle) { handle->descriptor->dispose(handle); });
         scene->destroyEntity(id);
     }
 

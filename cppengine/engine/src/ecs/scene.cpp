@@ -76,9 +76,17 @@ namespace cppengine {
     }
 
     void Scene::destroyEntity(std::uint64_t id) {
+        auto const componentsToDelete = ecs.at(id);
+        std::ranges::for_each(componentsToDelete, [this, &id](auto const &descriptor) {
+            auto &entityMap = components.at(descriptor);
+            entityMap.erase(id);
+        });
+
         auto transform = transforms.at(id);
 
-        transform->getParent()->removeChild(*transform);
+        if (transform->getParent() != nullptr) {
+            transform->getParent()->removeChild(*transform);
+        }
 
         auto children = transform->getChildren();
 
@@ -88,13 +96,6 @@ namespace cppengine {
 
         transforms.erase(id);
 
-        auto const &componentsToDelete = ecs.at(id);
-        std::ranges::for_each(componentsToDelete, [this, &id](auto const &descriptor) {
-            auto &entityMap = components.at(descriptor);
-            descriptor->dispose(entityMap.at(id));
-            entityMap.erase(id);
-        });
-
         ecs.erase(id);
 
         entities.erase(id);
@@ -102,6 +103,18 @@ namespace cppengine {
 
     ObjectHandle<Transform> Scene::getTransformOfEntity(std::uint64_t id) const {
         return transforms.at(id);
+    }
+
+    std::vector<ObjectHandle<Component>> Scene::getComponentsOfEntity(const std::uint64_t id) const {
+        auto const &componentsOfEntity = ecs.at(id);
+
+        std::vector<ObjectHandle<Component>> result;
+        result.reserve(componentsOfEntity.size());
+        std::ranges::transform(componentsOfEntity.begin(), componentsOfEntity.end(), std::back_inserter(result), [this, id](auto const *descriptor) {
+            return static_handle_cast<Component>(components.at(descriptor).at(id));
+        });
+
+        return result;
     }
 
     std::vector<ObjectHandle<Component>> Scene::getAllComponents() const {

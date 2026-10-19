@@ -46,7 +46,7 @@ namespace cppengine {
 
         if (ecs.contains(ownerId)) {
             if (ecs.at(ownerId).contains(descriptor)) {
-                return dynamic_handle_cast<T>(components.at(descriptor).at(ownerId));
+                return nullptr;
             }
 
             ObjectHandle<Component> handle = allocators->createHandle<T>(std::forward<Args>(args)...);

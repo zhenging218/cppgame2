@@ -7,6 +7,7 @@
 #include "component.hpp"
 #include "game_object.hpp"
 #include "scene_manager.hpp"
+#include "scene_helper.hpp"
 #include "scene.hpp"
 #include "enum_scene_state.hpp"
 #include "scene_setup.hpp"
