@@ -78,6 +78,8 @@ namespace cppengine {
 
             if(newParent != nullptr) {
                 newParent->addChild(*this);
+            } else {
+                markDirty();
             }
         }
     }
@@ -95,8 +97,8 @@ namespace cppengine {
 
         if(result != children.end()) {
             childToRemove.parent = nullptr;
-            childToRemove.markDirty();
             children.erase(result);
+            childToRemove.markDirty();
         }
     }
 
