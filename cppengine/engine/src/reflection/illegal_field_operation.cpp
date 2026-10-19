@@ -5,8 +5,8 @@
 #include "engine.hpp"
 
 namespace cppengine {
-    IllegalFieldOperation::IllegalFieldOperation(TypeDescriptor const *owner, TypeDescriptor const *field, std::string_view name)
-        : message(std::format("Illegal field operation performed on {2} {0}::{1}", owner->getName(), name, field->getName())){
+    IllegalFieldOperation::IllegalFieldOperation(TypeDescriptor const *owner, TypeDescriptor const *field, std::string_view fieldName)
+        : message(std::format("Illegal field operation performed on {2} {0}::{1}", owner->getName(), fieldName, field->getName())){
 
     }
 

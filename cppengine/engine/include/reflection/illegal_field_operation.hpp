@@ -14,7 +14,7 @@ namespace cppengine {
     private:
         std::string message;
     public:
-        IllegalFieldOperation(TypeDescriptor const *owner, TypeDescriptor const *field, std::string_view name);
+        IllegalFieldOperation(TypeDescriptor const *owner, TypeDescriptor const *field, std::string_view fieldName);
 
         [[nodiscard]] virtual char const * what() const throw() override;
         virtual ~IllegalFieldOperation() override;
