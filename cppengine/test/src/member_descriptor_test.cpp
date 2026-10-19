@@ -103,8 +103,8 @@ SCENARIO("registered_type_with_registered_members_test") {
                     Registered registered { .x = 1, .y = 2 };
 
                     WHEN("the field list is used to get the member values") {
-                        auto x = static_cast<int *>(fields[0].get(&registered));
-                        auto y = static_cast<float *>(fields[1].get(&registered));
+                        auto x = static_cast<int const *>(fields[0].get(&registered));
+                        auto y = static_cast<float const *>(fields[1].get(&registered));
 
                         THEN("The values can be retrieved successfully") {
                             REQUIRE(*x == 1);
@@ -118,6 +118,18 @@ SCENARIO("registered_type_with_registered_members_test") {
                         THEN("The values can be retrieved successfully") {
                             REQUIRE(*x == 1);
                             REQUIRE(std::abs(2 - *y) < epsilon);
+                        }
+                    }
+                    AND_WHEN("the field list is used to set member values") {
+                        int i = 3;
+                        float j = 4;
+
+                        THEN("The values can be set successfully") {
+                            REQUIRE_NOTHROW(fields[0].set(&registered, &i));
+                            REQUIRE_NOTHROW(fields[1].set(&registered, &j));
+
+                            REQUIRE(registered.x == i);
+                            REQUIRE(std::abs(j - registered.y) < epsilon);
                         }
                     }
                 }
@@ -150,7 +162,7 @@ SCENARIO("registered_type_with_const_registered_members_test") {
                 AND_GIVEN("an object of the registered type") {
                     RegisteredConst registered { .x = 1};
 
-                    WHEN("the field list is used to get the member values as from a const version of the object") {
+                    WHEN("the field list is used to get the member values from a const version of the object") {
                         auto x = static_cast<int const *>(fields[0].get(const_cast<RegisteredConst const *>(&registered)));
 
                         THEN("The values can be retrieved successfully") {
@@ -158,9 +170,18 @@ SCENARIO("registered_type_with_const_registered_members_test") {
                             REQUIRE(*x == 1);
                         }
                     }
-                    AND_WHEN("the field list is used to get the member values") {
-                        THEN("The value cannot be retrieved") {
-                            REQUIRE_THROWS(static_cast<int *>(fields[0].get(&registered)));
+                    AND_WHEN("the field list is used to get the member values from a non const version of the object") {
+                        auto x = static_cast<int const *>(fields[0].get(&registered));
+
+                        THEN("The values can be retrieved successfully") {
+                            REQUIRE(x != nullptr);
+                            REQUIRE(*x == 1);
+                        }
+                    }
+                    AND_WHEN("the field list is used to set the member values from a non const version of the object") {
+                        THEN("the value cannot be set") {
+                            int other = 2;
+                            REQUIRE_THROWS(fields[0].set(&registered, &other));
                         }
                     }
                 }

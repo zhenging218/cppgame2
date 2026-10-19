@@ -10,25 +10,22 @@ namespace cppengine {
 
     class FieldDescriptor {
     private:
-        using getter_type = void *(*)(void*);
-        using const_getter_type = void const *(*)(void const *);
+        using getter_type = void const *(*)(void const *);
         using setter_type = void (*)(void *, void const *);
 
         char const *name;
         TypeDescriptor const *owner;
         TypeDescriptor const *descriptor;
         getter_type getter;
-        const_getter_type const_getter;
         setter_type setter;
 
     public:
-        FieldDescriptor(char const *name_,TypeDescriptor const * owner_, TypeDescriptor const *descriptor_, getter_type getter_, const_getter_type const_getter_, setter_type setter_);
+        FieldDescriptor(char const *name_,TypeDescriptor const * owner_, TypeDescriptor const *descriptor_, getter_type getter_, setter_type setter_);
         char const *getName() const;
         TypeDescriptor const *getOwner() const;
         TypeDescriptor const *getTypeDescriptor() const;
 
         void const * get(void const *src) const;
-        void * get(void *src) const;
 
         void set(void *dest, void const *src) const;
     };

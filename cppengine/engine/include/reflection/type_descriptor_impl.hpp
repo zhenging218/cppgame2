@@ -20,16 +20,6 @@ namespace cppengine {
         using non_const_getter = void * (*)(void *);
         using setter = void (*)(void *, void const *);
 
-        static constexpr non_const_getter getNonConstGetter() {
-
-            if constexpr (is_const_member) {
-                return [](void *owner)->void * { throw IllegalFieldOperation(TypeDescriptor::getTypeDescriptor<T>(), TypeDescriptor::getTypeDescriptor<U>(), static_cast<char const *>(name)); };
-            } else {
-                return [](void *owner)->void * { return &(static_cast<typename member_descriptor_type::owner_type *>(owner)->*member_descriptor_type::getMember()); };
-            }
-
-        }
-
         static constexpr const_getter getConstGetter() {
             return [](void const *owner)->void const * { return &(static_cast<typename member_descriptor_type::owner_type const *>(owner)->*member_descriptor_type::getMember()); };
         }
@@ -48,7 +38,6 @@ namespace cppengine {
                 member_descriptor_type::getName(),
                 owner,
                 TypeDescriptor::getTypeDescriptor<typename std::remove_cvref<typename member_descriptor_type::field_type>::type>()
-                    , getNonConstGetter()
                     , getConstGetter()
                     , getSetter());
         }
