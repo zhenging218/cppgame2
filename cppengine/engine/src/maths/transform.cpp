@@ -72,14 +72,12 @@ namespace cppengine {
         if(parent != newParent && newParent != this) {
             if(parent != nullptr) {
                 parent->removeChild(*this);
-                dirty = true;
             }
 
             parent = newParent;
 
             if(newParent != nullptr) {
                 newParent->addChild(*this);
-                dirty = true;
             }
         }
     }
@@ -88,6 +86,7 @@ namespace cppengine {
         if(std::find_if(children.begin(), children.end(), [&newChild](Transform *child) { return &newChild == child; }) == children.end()) {
             newChild.parent = this;
             children.push_back(&newChild);
+            newChild.markDirty();
         }
     }
 
@@ -96,6 +95,7 @@ namespace cppengine {
 
         if(result != children.end()) {
             childToRemove.parent = nullptr;
+            childToRemove.markDirty();
             children.erase(result);
         }
     }
