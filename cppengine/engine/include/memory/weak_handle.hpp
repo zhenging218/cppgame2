@@ -18,6 +18,18 @@ namespace cppengine {
 
 		ReferenceCounter* counter;
 
+		static void cleanupHandle(ReferenceCounter *counter) {
+			counter->weakRelease();
+			if (counter->getCount() <= 0) {
+				auto deallocator = counter->getDeallocator();
+				deallocator(counter->getData());
+
+				if (counter->getWeakCount() <= 0) {
+					delete counter;
+				}
+			}
+		}
+
 		template <typename U>
 		static bool equals(WeakHandle const& lhs, WeakHandle<U> const& rhs) {
 			return lhs.counter == rhs.counter;
@@ -46,24 +58,24 @@ namespace cppengine {
 		}
 
 		WeakHandle& operator=(WeakHandle const& other) {
-			counter->weakRelease();
+			if (this != &other) {
+				other.counter->weakAcquire();
 
-			counter = other.counter;
-			counter->weakAcquire();
+				cleanupHandle(counter);
+
+				counter = other.counter;
+			}
+
 			return *this;
 		}
 
-		WeakHandle& operator=(WeakHandle&& other) {
+		WeakHandle& operator=(WeakHandle&& other) noexcept {
 			std::swap(counter, other.counter);
 			return *this;
 		}
 
 		~WeakHandle() {
-			counter->weakRelease();
-
-			if (counter->getCount() <= 0 && counter->getWeakCount() <= 0) {
-				delete counter;
-			}
+			cleanupHandle(counter);
 		}
 
 		template<typename U, typename = typename std::enable_if<std::is_assignable<T*&, U*>::value &&
@@ -75,9 +87,11 @@ namespace cppengine {
 		template<typename U, typename = typename std::enable_if<std::is_assignable<T*&, U*>::value &&
 			!std::is_same<T, U>::value&& std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value>::type>
 		WeakHandle& operator=(WeakHandle<U> const& other) {
-			counter->weakRelease();
-			counter = other.counter;
-			counter->weakAcquire();
+			if (counter != other.counter) {
+				other.counter->weakAcquire();
+				cleanupHandle(counter);
+				counter = other.counter;
+			}
 			return *this;
 		}
 

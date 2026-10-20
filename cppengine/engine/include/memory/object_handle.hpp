@@ -34,19 +34,16 @@ namespace cppengine {
         template <typename U>
         static bool equals(ObjectHandle const& lhs, WeakHandle<U> const& rhs);
 
-        static void cleanupHandle(ObjectHandle &handle) {
-            auto counter = handle.counter;
-            auto object = handle.object;
+        static void cleanupHandle(ReferenceCounter *counter) {
 
             counter->release();
             if (counter->getCount() <= 0) {
                 auto deallocator = counter->getDeallocator();
-                deallocator(reinterpret_cast<void*>(const_cast<typename std::remove_const<T>::type*>(object)));
-            }
+                deallocator(counter->getData());
 
-            if (counter->getCount() <= 0 && counter->getWeakCount() <= 0) {
-                delete counter;
-                handle.counter = nullptr;
+                if (counter->getWeakCount() <= 0) {
+                    delete counter;
+                }
             }
         }
 
@@ -80,7 +77,7 @@ namespace cppengine {
         ObjectHandle(std::nullptr_t) : ObjectHandle() {}
 
         ~ObjectHandle() {
-            cleanupHandle(*this);
+            cleanupHandle(counter);
         }
 
         ObjectHandle(ObjectHandle const &other) : counter(other.counter), object(other.object) {
@@ -93,17 +90,13 @@ namespace cppengine {
         }
 
         ObjectHandle &operator=(ObjectHandle const &other) {
-            if (counter != other.counter) {
-                auto other_object = other.object;
-                auto other_counter = other.counter;
+            if (this != &other) {
+                other.counter->acquire();
 
-                other_counter->acquire();
+                cleanupHandle(counter);
 
-                cleanupHandle(*this);
-
-                object = other_object;
-                counter = other_counter;
-
+                object = other.object;
+                counter = other.counter;
             }
 
             return *this;
@@ -117,13 +110,15 @@ namespace cppengine {
         }
 
         ObjectHandle& operator=(std::nullptr_t) {
-            auto new_counter = new EmptyReferenceCounter();
-            new_counter->acquire();
+            if (counter->getData() != nullptr) {
+                auto new_counter = new EmptyReferenceCounter();
+                new_counter->acquire();
 
-            cleanupHandle(*this);
+                cleanupHandle(counter);
 
-            counter = new_counter;
-            object = nullptr;
+                counter = new_counter;
+                object = nullptr;
+            }
 
             return *this;
         }
@@ -138,15 +133,11 @@ namespace cppengine {
             !std::is_same<T, U>::value && std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value>::type>
         ObjectHandle& operator=(ObjectHandle<U> const& other) {
             if (&other.getReferenceCounter() != counter) {
-                auto other_object = other.object;
-                auto other_counter = other.counter;
+                other.counter->acquire();
+                cleanupHandle(counter);
 
-                other_counter->acquire();
-
-                cleanupHandle(*this);
-
-                object = other_object;
-                counter = other_counter;
+                object = other.counter;
+                counter = other.object;
             }
 
             return *this;

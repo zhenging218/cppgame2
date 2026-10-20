@@ -131,7 +131,7 @@ namespace cppengine {
         }
 
         virtual void* getData() const override {
-            return reinterpret_cast<T*>(data);
+            return reinterpret_cast<void *>(data);
         }
 
         virtual std::size_t getCount() const override {
