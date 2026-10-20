@@ -121,7 +121,7 @@ namespace cppengine {
     }
 
     void Renderer::shutdown() {
-
+        context = nullptr;
     }
 
     void Renderer::draw() {

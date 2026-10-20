@@ -1,3 +1,6 @@
+#include <mutex>
+#include <shared_mutex>
+
 #include "engine.hpp"
 #include "gg_integration.hpp"
 
@@ -5,6 +8,13 @@ namespace {
     int width = 0;
     int height = 0;
 
+    std::shared_mutex mutex;
+
+    void safeSetWidthHeight(int width_, int height_) {
+        std::unique_lock<std::shared_mutex> lock(mutex);
+        width = width_;
+        height = height_;
+    }
 
     GLFWwindow *initGLFWAndSetWindowToNullptr() {
         if (!glfwInit()) {
@@ -15,8 +25,7 @@ namespace {
     }
 
     void onGLFWWindowSizeEvent(GLFWwindow *window, int width_, int height_) {
-        width = width_;
-        height = height_;
+        safeSetWidthHeight(width_, height_);
     }
 }
 
@@ -39,10 +48,12 @@ namespace cppengine {
     }
 
     int GLFWWindowContext::getHeight() const {
+        std::shared_lock<std::shared_mutex> lock(mutex);
         return height;
     }
 
     int GLFWWindowContext::getWidth() const {
+        std::shared_lock<std::shared_mutex> lock(mutex);
         return width;
     }
 
@@ -64,6 +75,7 @@ namespace cppengine {
 
             }
 
+            safeSetWidthHeight(width, height);
             glfwMakeContextCurrent(window);
             glfwSwapInterval(1);
             glfwSetWindowSizeCallback(window, &onGLFWWindowSizeEvent);
