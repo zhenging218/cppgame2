@@ -34,6 +34,22 @@ namespace cppengine {
         template <typename U>
         static bool equals(ObjectHandle const& lhs, WeakHandle<U> const& rhs);
 
+        static void cleanupHandle(ObjectHandle &handle) {
+            auto counter = handle.counter;
+            auto object = handle.object;
+
+            counter->release();
+            if (counter->getCount() <= 0) {
+                auto deallocator = counter->getDeallocator();
+                deallocator(reinterpret_cast<void*>(const_cast<typename std::remove_const<T>::type*>(object)));
+            }
+
+            if (counter->getCount() <= 0 && counter->getWeakCount() <= 0) {
+                delete counter;
+                handle.counter = nullptr;
+            }
+        }
+
     public:
         ObjectHandle(T *object_) : ObjectHandle(object_, new ImmediateReferenceCounter<T>(object_)) {}
 
@@ -64,15 +80,7 @@ namespace cppengine {
         ObjectHandle(std::nullptr_t) : ObjectHandle() {}
 
         ~ObjectHandle() {
-            counter->release();
-            if (counter->getCount() <= 0) {
-                auto deallocator = counter->getDeallocator();
-                deallocator(reinterpret_cast<void*>(const_cast<typename std::remove_const<T>::type*>(object)));
-            }
-
-            if (counter->getCount() <= 0 && counter->getWeakCount() <= 0) {
-                delete counter;
-            }
+            cleanupHandle(*this);
         }
 
         ObjectHandle(ObjectHandle const &other) : counter(other.counter), object(other.object) {
@@ -85,19 +93,18 @@ namespace cppengine {
         }
 
         ObjectHandle &operator=(ObjectHandle const &other) {
-            counter->release();
+            if (counter != other.counter) {
+                auto other_object = other.object;
+                auto other_counter = other.counter;
 
-            if (counter->getCount() <= 0) {
-                (counter->getDeallocator())(reinterpret_cast<void*>(const_cast<typename std::remove_const<T>::type*>(object)));
+                other_counter->acquire();
 
-                if (counter->getWeakCount() <= 0) {
-                    delete counter;
-                }
+                cleanupHandle(*this);
+
+                object = other_object;
+                counter = other_counter;
+
             }
-
-            object = other.object;
-            counter = other.counter;
-            counter->acquire();
 
             return *this;
         }
@@ -110,19 +117,13 @@ namespace cppengine {
         }
 
         ObjectHandle& operator=(std::nullptr_t) {
-            counter->release();
+            auto new_counter = new EmptyReferenceCounter();
+            new_counter->acquire();
 
-            if (counter->getCount() <= 0) {
-                (counter->getDeallocator())(reinterpret_cast<void*>(const_cast<typename std::remove_const<T>::type*>(object)));
+            cleanupHandle(*this);
 
-                if (counter->getWeakCount() <= 0) {
-                    delete counter;
-                }
-            }
-
-            counter = new EmptyReferenceCounter();
+            counter = new_counter;
             object = nullptr;
-            counter->acquire();
 
             return *this;
         }
@@ -136,16 +137,17 @@ namespace cppengine {
         template<typename U, typename = typename std::enable_if<std::is_assignable<T*&, U*>::value &&
             !std::is_same<T, U>::value && std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value>::type>
         ObjectHandle& operator=(ObjectHandle<U> const& other) {
-            counter->release();
+            if (&other.getReferenceCounter() != counter) {
+                auto other_object = other.object;
+                auto other_counter = other.counter;
 
-            if (counter->getCount() <= 0) {
-                (counter->getDeallocator())(reinterpret_cast<void*>(object));
-                delete counter;
+                other_counter->acquire();
+
+                cleanupHandle(*this);
+
+                object = other_object;
+                counter = other_counter;
             }
-
-            object = other.object;
-            counter = other.counter;
-            counter->acquire();
 
             return *this;
         }
