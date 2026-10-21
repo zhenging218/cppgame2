@@ -38,8 +38,11 @@ namespace cppengine {
 
             counter->release();
             if (counter->getCount() <= 0) {
+                counter->weakAcquire();
                 auto deallocator = counter->getDeallocator();
-                deallocator(counter->getData());
+                auto data = counter->getData();
+                deallocator(data);
+                counter->weakRelease();
 
                 if (counter->getWeakCount() <= 0) {
                     delete counter;
@@ -136,8 +139,8 @@ namespace cppengine {
                 other.counter->acquire();
                 cleanupHandle(counter);
 
-                object = other.counter;
-                counter = other.object;
+                counter = other.counter;
+                object = other.object;
             }
 
             return *this;

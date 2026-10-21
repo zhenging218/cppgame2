@@ -20,13 +20,8 @@ namespace cppengine {
 
 		static void cleanupHandle(ReferenceCounter *counter) {
 			counter->weakRelease();
-			if (counter->getCount() <= 0) {
-				auto deallocator = counter->getDeallocator();
-				deallocator(counter->getData());
-
-				if (counter->getWeakCount() <= 0) {
-					delete counter;
-				}
+			if (counter->getCount() <= 0 && counter->getWeakCount() <= 0) {
+				delete counter;
 			}
 		}
 
