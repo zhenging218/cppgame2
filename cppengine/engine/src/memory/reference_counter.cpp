@@ -1,7 +1,7 @@
 #include "memory/objects.hpp"
 
 namespace cppengine {
-    void dummyDeallocator(void*, void*) {}
+    void dummyDeallocator(void*, void*, MemoryControlBlock::DeallocationPhase) {}
 
     ReferenceCounter::ReferenceCounter() {}
     ReferenceCounter::~ReferenceCounter() {}

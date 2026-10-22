@@ -41,10 +41,11 @@ namespace cppengine {
                 counter->weakAcquire();
                 auto deallocator = counter->getDeallocator();
                 auto data = counter->getData();
-                deallocator(data);
+                deallocator(data, MemoryControlBlock::DeallocationPhase::DESTROY);
                 counter->weakRelease();
 
                 if (counter->getWeakCount() <= 0) {
+                    deallocator(data, MemoryControlBlock::DeallocationPhase::RELEASE);
                     delete counter;
                 }
             }

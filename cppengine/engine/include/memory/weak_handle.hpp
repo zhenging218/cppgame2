@@ -7,6 +7,8 @@ namespace cppengine {
 	template <typename T>
 	class WeakHandle {
 	private:
+		using deallocator_type = MemoryDeallocator;
+
 		template <typename U>
 		friend class WeakHandle;
 
@@ -15,12 +17,12 @@ namespace cppengine {
 
 		template <typename U, std::size_t PageSize>
 		friend class ObjectAllocator;
-
 		ReferenceCounter* counter;
 
 		static void cleanupHandle(ReferenceCounter *counter) {
 			counter->weakRelease();
 			if (counter->getCount() <= 0 && counter->getWeakCount() <= 0) {
+				counter->getDeallocator()(counter->getData(), MemoryControlBlock::DeallocationPhase::RELEASE);
 				delete counter;
 			}
 		}

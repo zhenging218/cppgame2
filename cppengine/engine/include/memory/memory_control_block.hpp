@@ -19,6 +19,11 @@ namespace cppengine {
         MemoryControlBlock(deallocator_type deallocator_);
 
     public:
+        enum class DeallocationPhase {
+            DESTROY,
+            RELEASE
+        };
+
         std::size_t getAcquireCount() const;
         std::size_t getWeakAcquireCount() const;
         deallocator_type getDeallocator() const;
