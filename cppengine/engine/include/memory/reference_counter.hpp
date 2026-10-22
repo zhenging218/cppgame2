@@ -56,7 +56,11 @@ namespace cppengine {
         std::size_t weakCount;
         deallocator_type deallocator;
 
-        static void defaultDeallocator(void *, void* object) { delete reinterpret_cast<T*>(object); }
+        static void defaultDeallocator(void *, void* object, DeallocationPhase phase) {
+            if (phase == DeallocationPhase::DESTROY) {
+                delete reinterpret_cast<T*>(object);
+            }
+        }
 
     public:
         ImmediateReferenceCounter(T* data_, deallocator_type deallocator_)

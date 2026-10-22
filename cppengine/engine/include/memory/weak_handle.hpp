@@ -4,6 +4,21 @@
 #include "memory/object_handle.hpp"
 
 namespace cppengine {
+
+	template <typename T, typename U>
+	concept ComparableWeakHandles = std::is_base_of<
+		typename std::remove_const<T>::type,
+		typename std::remove_const<U>::type
+		>::value ||
+		std::is_base_of<
+		typename std::remove_const<U>::type,
+		typename std::remove_const<T>::type
+		>::value;
+
+	template <typename T, typename U>
+	concept ConvertibleWeakHandles = std::is_assignable<T*&, U*>::value &&
+		!std::is_same<T, U>::value&& std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value;
+
 	template <typename T>
 	class WeakHandle {
 	private:
@@ -22,7 +37,7 @@ namespace cppengine {
 		static void cleanupHandle(ReferenceCounter *counter) {
 			counter->weakRelease();
 			if (counter->getCount() <= 0 && counter->getWeakCount() <= 0) {
-				counter->getDeallocator()(counter->getData(), MemoryControlBlock::DeallocationPhase::RELEASE);
+				counter->getDeallocator()(counter->getData(), DeallocationPhase::RELEASE);
 				delete counter;
 			}
 		}
@@ -75,14 +90,12 @@ namespace cppengine {
 			cleanupHandle(counter);
 		}
 
-		template<typename U, typename = typename std::enable_if<std::is_assignable<T*&, U*>::value &&
-			!std::is_same<T, U>::value&& std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value>::type>
+		template<typename U> requires ConvertibleWeakHandles<T, U>
 		WeakHandle(WeakHandle<U> const& other) : counter(other.counter) {
 			counter->weakAcquire();
 		}
 
-		template<typename U, typename = typename std::enable_if<std::is_assignable<T*&, U*>::value &&
-			!std::is_same<T, U>::value&& std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value>::type>
+		template<typename U> requires ConvertibleWeakHandles<T, U>
 		WeakHandle& operator=(WeakHandle<U> const& other) {
 			if (counter != other.counter) {
 				other.counter->weakAcquire();
@@ -92,8 +105,7 @@ namespace cppengine {
 			return *this;
 		}
 
-		template<typename U, typename = typename std::enable_if<std::is_assignable<T*&, U*>::value &&
-			!std::is_same<T, U>::value&& std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value>::type>
+		template<typename U> requires ConvertibleWeakHandles<T, U>
 		WeakHandle(ObjectHandle<U> const& other) : counter(other.counter) {
 			counter->weakAcquire();
 		}
@@ -113,16 +125,7 @@ namespace cppengine {
 			return rhs.counter->getCount() <= 0;
 		}
 
-		template <typename U, typename = typename std::enable_if<
-			std::is_base_of<
-			typename std::remove_const<T>::type,
-			typename std::remove_const<U>::type
-			>::value ||
-			std::is_base_of<
-			typename std::remove_const<U>::type,
-			typename std::remove_const<T>::type
-			>::value
-		>::type>
+		template <typename U> requires ComparableWeakHandles<T, U>
 		friend bool operator==(WeakHandle const& lhs, WeakHandle<U> const& rhs) {
 			return equals(lhs, rhs);
 		}

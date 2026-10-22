@@ -2,7 +2,7 @@
 
 namespace cppengine
 {
-    void MemoryDeallocator::operator()(void* object, MemoryControlBlock::DeallocationPhase phase) const
+    void MemoryDeallocator::operator()(void* object, DeallocationPhase phase) const
     {
         deallocator(context, object, phase);
     }

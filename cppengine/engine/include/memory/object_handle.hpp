@@ -7,6 +7,21 @@
 #include "reference_counter.hpp"
 
 namespace cppengine {
+    template <typename T, typename U>
+    concept ComparableObjectHandles =
+        std::is_base_of<
+        typename std::remove_const<T>::type,
+        typename std::remove_const<U>::type
+        >::value ||
+        std::is_base_of<
+        typename std::remove_const<U>::type,
+        typename std::remove_const<T>::type
+        >::value;
+
+    template <typename T, typename U>
+    concept ConvertibleObjectHandles = std::is_assignable<T*&, U*>::value &&
+        !std::is_same<T, U>::value && std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value;
+
     template <typename T>
     class WeakHandle;
 
@@ -41,11 +56,11 @@ namespace cppengine {
                 counter->weakAcquire();
                 auto deallocator = counter->getDeallocator();
                 auto data = counter->getData();
-                deallocator(data, MemoryControlBlock::DeallocationPhase::DESTROY);
+                deallocator(data, DeallocationPhase::DESTROY);
                 counter->weakRelease();
 
                 if (counter->getWeakCount() <= 0) {
-                    deallocator(data, MemoryControlBlock::DeallocationPhase::RELEASE);
+                    deallocator(data, DeallocationPhase::RELEASE);
                     delete counter;
                 }
             }
@@ -127,14 +142,12 @@ namespace cppengine {
             return *this;
         }
 
-        template<typename U, typename = typename std::enable_if<std::is_assignable<T*&, U*>::value &&
-            !std::is_same<T, U>::value && std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value>::type>
+        template<typename U> requires ConvertibleObjectHandles<T, U>
         ObjectHandle(ObjectHandle<U> const& other) : counter(other.counter), object(other.object) {
             counter->acquire();
         }
 
-        template<typename U, typename = typename std::enable_if<std::is_assignable<T*&, U*>::value &&
-            !std::is_same<T, U>::value && std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value>::type>
+        template<typename U> requires ConvertibleObjectHandles<T, U>
         ObjectHandle& operator=(ObjectHandle<U> const& other) {
             if (&other.getReferenceCounter() != counter) {
                 other.counter->acquire();
@@ -163,30 +176,12 @@ namespace cppengine {
             return nullptr == rhs.object;
         }
 
-        template <typename U, typename = typename std::enable_if<
-            std::is_base_of<
-            typename std::remove_const<T>::type,
-            typename std::remove_const<U>::type
-            >::value ||
-            std::is_base_of<
-            typename std::remove_const<U>::type,
-            typename std::remove_const<T>::type
-            >::value
-        >::type>
+            template <typename U> requires ComparableObjectHandles<T, U>
         friend bool operator==(ObjectHandle const& lhs, ObjectHandle<U> const& rhs) {
             return equals(lhs, rhs);
         }
 
-        template <typename U, typename = typename std::enable_if<
-            std::is_base_of<
-            typename std::remove_const<T>::type,
-            typename std::remove_const<U>::type
-            >::value ||
-            std::is_base_of<
-            typename std::remove_const<U>::type,
-            typename std::remove_const<T>::type
-            >::value
-        >::type>
+        template <typename U> requires ComparableObjectHandles<T, U>
         friend bool operator==(ObjectHandle const& lhs, WeakHandle<U> const& rhs) {
             return equals(lhs, rhs);
         }

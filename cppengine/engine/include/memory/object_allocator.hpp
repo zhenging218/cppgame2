@@ -71,15 +71,15 @@ namespace cppengine {
         PageInfo * pages;
         MemoryBlockInfo * freeList;
 
-        static void deallocatePolymorphicObject(void *allocator, void* data, MemoryControlBlock::DeallocationPhase phase) {
+        static void deallocatePolymorphicObject(void *allocator, void* data, DeallocationPhase phase) {
             auto* instance = reinterpret_cast<ObjectAllocator*>(allocator);
             MemoryBlockInfo* block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(data) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
             object_pointer target = reinterpret_cast<object_pointer>(data);
             switch (phase) {
-                case MemoryControlBlock::DeallocationPhase::DESTROY:
+                case DeallocationPhase::DESTROY:
                     target->~object_type();
                     break;
-                case MemoryControlBlock::DeallocationPhase::RELEASE:
+                case DeallocationPhase::RELEASE:
                     block->referenceCounter->active = false;
                     block->next = instance->freeList;
                     instance->freeList = block;
@@ -173,12 +173,6 @@ namespace cppengine {
                 destroyBlocks(toFree);
                 std::free(toFree);
             }
-        }
-
-        template <typename U, typename = typename std::enable_if<std::is_base_of<T, U>::value>::type>
-        void destroy(U *object) {
-            MemoryBlockInfo * block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(object) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
-            (block->referenceCounter->getDeallocator())(reinterpret_cast<void*>(object));
         }
 
         template <typename ... Args>
