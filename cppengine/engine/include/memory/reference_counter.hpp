@@ -158,8 +158,11 @@ namespace cppengine {
     class UnownedTypeReference : public ReferenceCounter {
     private:
         T *data;
+        std::size_t count;
+        std::size_t weakCount;
+
     public:
-        UnownedTypeReference(T &reference) : data(&reference) {
+        UnownedTypeReference(T &reference) : data(&reference), count(0), weakCount(0) {
         }
 
         virtual void *getData() const override {
@@ -167,27 +170,27 @@ namespace cppengine {
         }
 
         virtual void acquire() override {
-
+            ++count;
         }
 
         virtual void release() override {
-
+            --count;
         }
 
         virtual void weakAcquire() override {
-
+            ++weakCount;
         }
 
         virtual void weakRelease() override {
-
+            --weakCount;
         }
 
         virtual std::size_t getCount() const override {
-            return 0;
+            return count;
         }
 
         virtual std::size_t getWeakCount() const override {
-            return 0;
+            return weakCount;
         }
 
         virtual deallocator_type getDeallocator() const override {

@@ -22,6 +22,9 @@ namespace cppengine {
     concept ConvertibleObjectHandles = std::is_assignable<T*&, U*>::value &&
         !std::is_same<T, U>::value && std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value;
 
+    template <typename T, typename U>
+    concept NonSelfCopyConstructor = !(std::is_base_of_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>> && std::is_base_of_v<std::remove_cvref_t<U>, std::remove_cvref_t<T>>);
+
     template <typename T>
     class WeakHandle;
 
@@ -67,7 +70,7 @@ namespace cppengine {
         }
 
     public:
-        ObjectHandle(T *object_) : ObjectHandle(object_, new ImmediateReferenceCounter<T>(object_)) {}
+        explicit ObjectHandle(T *object_) : ObjectHandle(object_, new ImmediateReferenceCounter<T>(object_)) {}
 
         ObjectHandle(T* object_, MemoryControlBlock* counter_)
             : counter(new TypeReferenceCounter<T>(object_, counter_)), object(object_) {
@@ -139,6 +142,17 @@ namespace cppengine {
                 object = nullptr;
             }
 
+            return *this;
+        }
+
+        ObjectHandle& operator=(T *object_) {
+            operator=(ObjectHandle(object_));
+            return *this;
+        }
+
+        template <typename U> requires (std::is_base_of_v<T, U> && !std::is_same_v<T, U>)
+        ObjectHandle& operator=(U *object_) {
+            operator=(ObjectHandle<U>(object_));
             return *this;
         }
 
