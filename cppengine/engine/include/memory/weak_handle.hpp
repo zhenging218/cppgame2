@@ -36,9 +36,10 @@ namespace cppengine {
 
 		static void cleanupHandle(ReferenceCounter *counter) {
 			counter->weakRelease();
+			auto deallocator = counter->getDeallocator();
 			if (counter->getCount() <= 0 && counter->getWeakCount() <= 0) {
-				counter->getDeallocator()(counter->getData(), DeallocationPhase::RELEASE);
-				delete counter;
+				deallocator(counter->getData(), DeallocationPhase::RELEASE);
+				ReferenceCounter::destroyReferenceCounter(counter);
 			}
 		}
 
@@ -51,7 +52,7 @@ namespace cppengine {
 		static bool equals(WeakHandle const& lhs, ObjectHandle<U> const& rhs);
 
 	public:
-		WeakHandle() : counter(new EmptyReferenceCounter()) {
+		WeakHandle() : counter(EmptyReferenceCounter::getEmptyReferenceCounter()) {
 			counter->weakAcquire();
 		}
 

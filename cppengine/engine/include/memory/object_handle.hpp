@@ -61,7 +61,7 @@ namespace cppengine {
 
                 if (counter->getWeakCount() <= 0) {
                     deallocator(data, DeallocationPhase::RELEASE);
-                    delete counter;
+                    ReferenceCounter::destroyReferenceCounter(counter);
                 }
             }
         }
@@ -89,7 +89,7 @@ namespace cppengine {
             counter->acquire();
         }
 
-        ObjectHandle() : counter(new EmptyReferenceCounter()), object(nullptr) {
+        ObjectHandle() : counter(EmptyReferenceCounter::getEmptyReferenceCounter()), object(nullptr) {
             counter->acquire();
         }
 
@@ -130,7 +130,7 @@ namespace cppengine {
 
         ObjectHandle& operator=(std::nullptr_t) {
             if (counter->getData() != nullptr) {
-                auto new_counter = new EmptyReferenceCounter();
+                auto new_counter = EmptyReferenceCounter::getEmptyReferenceCounter();
                 new_counter->acquire();
 
                 cleanupHandle(counter);

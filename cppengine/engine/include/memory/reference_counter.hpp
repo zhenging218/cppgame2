@@ -27,6 +27,8 @@ namespace cppengine {
         virtual std::size_t getCount() const = 0;
         virtual std::size_t getWeakCount() const = 0;
         virtual deallocator_type getDeallocator() const = 0;
+
+        static void destroyReferenceCounter(ReferenceCounter *counter);
     };
 
     class EmptyReferenceCounter : public ReferenceCounter {
@@ -46,6 +48,8 @@ namespace cppengine {
         virtual std::size_t getCount() const override;
         virtual std::size_t getWeakCount() const override;
         virtual deallocator_type getDeallocator() const override;
+
+        static EmptyReferenceCounter *getEmptyReferenceCounter();
     };
 
     template<typename T>
@@ -64,7 +68,7 @@ namespace cppengine {
 
     public:
         ImmediateReferenceCounter(T* data_, deallocator_type deallocator_)
-            : ReferenceCounter(), data(data_), count(0), weakCount(0), deallocator(deallocator_)
+            : data(data_), count(0), weakCount(0), deallocator(deallocator_)
         {
 
         }
@@ -115,8 +119,7 @@ namespace cppengine {
         MemoryControlBlock* counter;
     public:
         TypeReferenceCounter(T* data_, MemoryControlBlock*counter_)
-            : ReferenceCounter(), data(data_),
-            counter(counter_) {}
+            : data(data_), counter(counter_) {}
 
         virtual void acquire() override {
             counter->acquire();
@@ -152,7 +155,7 @@ namespace cppengine {
     };
 
     template <typename T>
-    class UnownedTypeReference : public EmptyReferenceCounter {
+    class UnownedTypeReference : public ReferenceCounter {
     private:
         T *data;
     public:
@@ -161,6 +164,34 @@ namespace cppengine {
 
         virtual void *getData() const override {
             return reinterpret_cast<T*>(data);
+        }
+
+        virtual void acquire() override {
+
+        }
+
+        virtual void release() override {
+
+        }
+
+        virtual void weakAcquire() override {
+
+        }
+
+        virtual void weakRelease() override {
+
+        }
+
+        virtual std::size_t getCount() const override {
+            return 0;
+        }
+
+        virtual std::size_t getWeakCount() const override {
+            return 0;
+        }
+
+        virtual deallocator_type getDeallocator() const override {
+            return { [](void *, void *, DeallocationPhase) {} };
         }
     };
 }
