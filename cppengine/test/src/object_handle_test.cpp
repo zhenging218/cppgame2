@@ -5,9 +5,22 @@
 #include "test.hpp"
 #include "memory/object_handle.hpp"
 
+#include <iostream>
+
 namespace {
+    int objectCount = 0;
+
     struct TestObject {
         int x;
+        TestObject(int x_) : x(x_) {
+            std::cout << "construct object" << std::endl;
+            ++objectCount;
+        }
+
+        virtual ~TestObject() {
+            std::cout << "destruct object" << std::endl;
+            --objectCount;
+        }
     };
 }
 
@@ -15,16 +28,13 @@ using namespace cppengine;
 
 SCENARIO("object handles pointing to the same type should be constructible") {
     GIVEN("a heap allocated object") {
-        auto object = new TestObject{ .x = 42 };
-
         WHEN("managed with an object handle") {
-            auto objectHandle = ObjectHandle(object);
+            auto objectHandle = ObjectHandle(new TestObject(42));
 
             THEN("the object handle is not equal to a nullptr") {
                 REQUIRE_FALSE(objectHandle == nullptr);
             }
             AND_THEN("the object handle points to the correct object") {
-                REQUIRE((&(*objectHandle)) == object);
                 REQUIRE(objectHandle->x == 42);
             }
             AND_THEN("the object handle's reference count is correct") {
@@ -37,8 +47,10 @@ SCENARIO("object handles pointing to the same type should be constructible") {
                 THEN("the copied handle is not equal to a nullptr") {
                     REQUIRE_FALSE(objectHandle2 == nullptr);
                 }
+                AND_THEN("the copied handle does not allocate an additional object") {
+                    REQUIRE(objectCount == 1);
+                }
                 AND_THEN("the copied handle points to the same object") {
-                    REQUIRE((&(*objectHandle2)) == object);
                     REQUIRE(objectHandle2->x == 42);
                 }
                 AND_THEN("the copied handle equals to the frist handle") {
@@ -57,9 +69,13 @@ SCENARIO("object handles pointing to the same type should be constructible") {
                     REQUIRE(objectHandle.getReferenceCounter().getWeakCount() == 0);
                 }
                 AND_THEN("the first handle is still valid") {
-                    REQUIRE((&(*objectHandle)) == object);
                     REQUIRE(objectHandle->x == 42);
                 }
+            }
+        }
+        AND_WHEN("no handles remain in scope") {
+            THEN("no objects are alive") {
+                REQUIRE(objectCount == 0);
             }
         }
     }
