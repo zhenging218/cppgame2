@@ -124,10 +124,13 @@ namespace cppengine {
             return *this;
         }
 
-        ObjectHandle &operator=(ObjectHandle &&other) noexcept {
-            std::swap(object, other.object);
-            std::swap(counter, other.counter);
+        ObjectHandle &operator=(ObjectHandle &&other) {
+            if(this != &other) {
+                std::swap(object, other.object);
+                std::swap(counter, other.counter);
 
+                other = nullptr;
+            }
             return *this;
         }
 
@@ -232,12 +235,7 @@ namespace cppengine {
     template <typename T>
     template <typename U>
     bool ObjectHandle<T>::equals(ObjectHandle<T> const& lhs, ObjectHandle<U> const& rhs) {
-        return lhs.counter == rhs.counter;
-    }
-
-    template <typename T>
-    ObjectHandle<T> wrapWithHandle(T &obj) {
-        return ObjectHandle<T>(&obj, new UnownedTypeReference<T>(obj));
+        return lhs.counter != nullptr && lhs.counter->equals(rhs.counter);
     }
 }
 

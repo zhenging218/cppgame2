@@ -44,7 +44,7 @@ namespace cppengine {
     }
 
     void SceneManager::load() {
-        scene = new Scene(wrapWithHandle(allocators));
+        scene = new Scene(std::reference_wrapper(allocators));
         nextScene->setup(scene);
         nextScene = nullptr;
         ++state;

@@ -55,4 +55,8 @@ namespace cppengine {
     ReferenceCounter::deallocator_type EmptyReferenceCounter::getDeallocator() const {
         return {&dummyDeallocator};
     }
+
+    bool ReferenceCounter::equals(ReferenceCounter const *other) const {
+        return this == other;
+    }
 }

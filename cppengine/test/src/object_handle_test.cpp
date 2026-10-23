@@ -5,20 +5,16 @@
 #include "test.hpp"
 #include "memory/object_handle.hpp"
 
-#include <iostream>
-
 namespace {
     int objectCount = 0;
 
     struct TestObject {
         int x;
         TestObject(int x_) : x(x_) {
-            std::cout << "construct object" << std::endl;
             ++objectCount;
         }
 
         virtual ~TestObject() {
-            std::cout << "destruct object" << std::endl;
             --objectCount;
         }
     };
@@ -70,6 +66,40 @@ SCENARIO("object handles pointing to the same type should be constructible") {
                 }
                 AND_THEN("the first handle is still valid") {
                     REQUIRE(objectHandle->x == 42);
+                }
+            }
+            AND_GIVEN("a second heap allocated object") {
+                WHEN("also managed with an object handle") {
+                    auto objectHandle2 = ObjectHandle(new TestObject(70));
+
+                    THEN("the handles are not equal") {
+                        REQUIRE_FALSE(objectHandle == objectHandle2);
+                    }
+                    AND_WHEN("the first handle is assigned the second handle") {
+                        REQUIRE_NOTHROW(objectHandle = objectHandle2);
+
+                        THEN("the handles are now the same") {
+                            REQUIRE(objectHandle == objectHandle2);
+                            REQUIRE(objectHandle->x == 70);
+                            REQUIRE(objectHandle->x == 70);
+                        }
+                        AND_THEN("the first object is deallocated") {
+                            REQUIRE(objectCount == 1);
+                        }
+                    }
+                    AND_WHEN("the second handle is move assigned to the first handle") {
+                        REQUIRE_NOTHROW(objectHandle = std::move(objectHandle2));
+
+                        THEN("the first object is deallocated") {
+                            REQUIRE(objectCount == 1);
+                        }
+                        AND_THEN("the second handle is now empty") {
+                            REQUIRE(objectHandle2 == nullptr);
+                        }
+                        AND_THEN("the first handle now manages the second object") {
+                            REQUIRE(objectHandle->x == 70);
+                        }
+                    }
                 }
             }
         }

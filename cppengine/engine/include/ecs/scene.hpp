@@ -25,7 +25,7 @@ namespace cppengine {
         using component_map_type = std::unordered_map<ComponentDescriptor const *, component_entity_map_type>;
 
         std::uint64_t nextId;
-        ObjectHandle<ObjectAllocatorContext> allocators;
+        std::reference_wrapper<ObjectAllocatorContext> allocators;
         entity_map_type entities;
         transform_graph_type transforms;
         entity_component_map_type ecs;
@@ -38,7 +38,7 @@ namespace cppengine {
         static ObjectHandle<T> castComponentHandle(ObjectHandle<U> handle);
 
     public:
-        Scene(ObjectHandle<ObjectAllocatorContext> allocators_);
+        Scene(std::reference_wrapper<ObjectAllocatorContext> allocators_);
         Scene(const Scene &other) = delete;
         Scene & operator=(const Scene &other) = delete;
 
