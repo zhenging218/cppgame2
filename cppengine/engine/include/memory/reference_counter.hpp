@@ -28,8 +28,6 @@ namespace cppengine {
         virtual std::size_t getWeakCount() const = 0;
         virtual deallocator_type getDeallocator() const = 0;
 
-        bool equals(ReferenceCounter const *other) const;
-
         static void destroyReferenceCounter(ReferenceCounter *counter);
     };
 

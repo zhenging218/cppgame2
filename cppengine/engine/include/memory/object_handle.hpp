@@ -235,7 +235,7 @@ namespace cppengine {
     template <typename T>
     template <typename U>
     bool ObjectHandle<T>::equals(ObjectHandle<T> const& lhs, ObjectHandle<U> const& rhs) {
-        return lhs.counter != nullptr && lhs.counter->equals(rhs.counter);
+        return lhs.counter == rhs.counter;
     }
 }
 
