@@ -9,17 +9,20 @@ namespace cppengine {
         }
     }
 
+    bool Transform::isCycle(Transform const *target, Transform const *start) {
+        while (start != nullptr) {
+            if (start == target) {
+                return true;
+            }
+            start = start->parent;
+        }
+        return false;
+    }
+
     Transform::Transform() :
     position(0, 0, 0),
     rotation(Quaternion::identity),
     scale(1, 1, 1), matrix(Matrix4x4::identity), parent(nullptr), children(), dirty(false) {}
-
-    void Transform::propagateChanges() {
-        std::for_each(children.begin(), children.end(), [](Transform *child) {
-            child->dirty = true;
-        });
-        dirty = false;
-    }
 
     void Transform::markDirty() {
         if (!dirty) {
@@ -31,21 +34,16 @@ namespace cppengine {
     }
 
     void Transform::updateMatrix() {
-        // rebuild matrix from properties, then parent matrix * matrix (if parent exist)
         matrix = combineComponents(position, rotation, scale);
-
-        if(parent != nullptr) {
-            matrix = parent->matrix * matrix;
+        if (parent != nullptr) {
+            matrix = parent->getMatrix() * matrix;
         }
     }
 
     Matrix4x4 const &Transform::getMatrix() {
 
         if (dirty) {
-            matrix = combineComponents(position, rotation, scale);
-            if (parent != nullptr) {
-                matrix = parent->getMatrix() * matrix;
-            }
+            updateMatrix();
             dirty = false;
         }
 
@@ -69,7 +67,7 @@ namespace cppengine {
     }
 
     void Transform::setParent(Transform *newParent) {
-        if(parent != newParent && newParent != this) {
+        if(parent != newParent && newParent != this && !isCycle(this, newParent)) {
             if(parent != nullptr) {
                 parent->removeChild(*this);
             }
@@ -123,5 +121,13 @@ namespace cppengine {
     void Transform::setScale(Vector3 const &s) {
         scale = s;
         markDirty();
+    }
+
+    Transform::~Transform() {
+        setParent(nullptr);
+        for (auto *child : children) {
+            child->parent = nullptr;
+            child->markDirty();
+        }
     }
 }
