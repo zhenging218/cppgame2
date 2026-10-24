@@ -3,10 +3,11 @@
 #include "engine.hpp"
 
 namespace cppengine {
-    Scene::Scene(ObjectHandle<ObjectAllocatorContext> allocators_) : allocators(allocators_), nextId(1) {}
+    Scene::Scene(std::reference_wrapper<ObjectAllocatorContext> allocators_) : allocators(allocators_), nextId(1) {}
 
     Scene::Scene(Scene &&other) noexcept
             : nextId(other.nextId),
+              allocators(other.allocators),
               entities(std::move(other.entities)),
               transforms(std::move(other.transforms)),
               ecs(std::move(other.ecs)),
@@ -15,6 +16,7 @@ namespace cppengine {
 
     Scene & Scene::operator=(Scene &&other) noexcept {
         std::swap(nextId, other.nextId);
+        std::swap(allocators, other.allocators);
         std::swap(entities, other.entities);
         std::swap(transforms, other.transforms);
         std::swap(ecs, other.ecs);
@@ -70,7 +72,7 @@ namespace cppengine {
     std::uint64_t Scene::createEntity() {
         auto id = nextId++;
         entities[id] = "entity";
-        transforms[id] = allocators->createHandle<Transform>();
+        transforms[id] = allocators.get().createHandle<Transform>();
         ecs[id] = {};
         return id;
     }

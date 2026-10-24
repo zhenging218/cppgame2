@@ -27,6 +27,8 @@ namespace cppengine {
         virtual std::size_t getCount() const = 0;
         virtual std::size_t getWeakCount() const = 0;
         virtual deallocator_type getDeallocator() const = 0;
+
+        static void destroyReferenceCounter(ReferenceCounter *counter);
     };
 
     class EmptyReferenceCounter : public ReferenceCounter {
@@ -46,6 +48,8 @@ namespace cppengine {
         virtual std::size_t getCount() const override;
         virtual std::size_t getWeakCount() const override;
         virtual deallocator_type getDeallocator() const override;
+
+        static EmptyReferenceCounter *getEmptyReferenceCounter();
     };
 
     template<typename T>
@@ -56,11 +60,15 @@ namespace cppengine {
         std::size_t weakCount;
         deallocator_type deallocator;
 
-        static void defaultDeallocator(void *, void* object) { delete reinterpret_cast<T*>(object); }
+        static void defaultDeallocator(void *, void* object, DeallocationPhase phase) {
+            if (phase == DeallocationPhase::DESTROY) {
+                delete reinterpret_cast<T*>(object);
+            }
+        }
 
     public:
         ImmediateReferenceCounter(T* data_, deallocator_type deallocator_)
-            : ReferenceCounter(), data(data_), count(0), weakCount(0), deallocator(deallocator_)
+            : data(data_), count(0), weakCount(0), deallocator(deallocator_)
         {
 
         }
@@ -111,8 +119,7 @@ namespace cppengine {
         MemoryControlBlock* counter;
     public:
         TypeReferenceCounter(T* data_, MemoryControlBlock*counter_)
-            : ReferenceCounter(), data(data_),
-            counter(counter_) {}
+            : data(data_), counter(counter_) {}
 
         virtual void acquire() override {
             counter->acquire();
@@ -148,15 +155,46 @@ namespace cppengine {
     };
 
     template <typename T>
-    class UnownedTypeReference : public EmptyReferenceCounter {
+    class UnownedTypeReference : public ReferenceCounter {
     private:
         T *data;
+        std::size_t count;
+        std::size_t weakCount;
+
     public:
-        UnownedTypeReference(T &reference) : data(&reference) {
+        UnownedTypeReference(T &reference) : data(&reference), count(0), weakCount(0) {
         }
 
         virtual void *getData() const override {
             return reinterpret_cast<T*>(data);
+        }
+
+        virtual void acquire() override {
+            ++count;
+        }
+
+        virtual void release() override {
+            --count;
+        }
+
+        virtual void weakAcquire() override {
+            ++weakCount;
+        }
+
+        virtual void weakRelease() override {
+            --weakCount;
+        }
+
+        virtual std::size_t getCount() const override {
+            return count;
+        }
+
+        virtual std::size_t getWeakCount() const override {
+            return weakCount;
+        }
+
+        virtual deallocator_type getDeallocator() const override {
+            return { [](void *, void *, DeallocationPhase) {} };
         }
     };
 }

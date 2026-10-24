@@ -3,6 +3,7 @@
 //
 
 #include "test.hpp"
+#include "reflection/reflection.hpp"
 
 using namespace cppengine;
 

@@ -7,6 +7,24 @@
 #include "reference_counter.hpp"
 
 namespace cppengine {
+    template <typename T, typename U>
+    concept ComparableObjectHandles =
+        std::is_base_of<
+        typename std::remove_const<T>::type,
+        typename std::remove_const<U>::type
+        >::value ||
+        std::is_base_of<
+        typename std::remove_const<U>::type,
+        typename std::remove_const<T>::type
+        >::value;
+
+    template <typename T, typename U>
+    concept ConvertibleObjectHandles = std::is_assignable<T*&, U*>::value &&
+        !std::is_same<T, U>::value && std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value;
+
+    template <typename T, typename U>
+    concept NonSelfCopyConstructor = !(std::is_base_of_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>> && std::is_base_of_v<std::remove_cvref_t<U>, std::remove_cvref_t<T>>);
+
     template <typename T>
     class WeakHandle;
 
@@ -38,17 +56,21 @@ namespace cppengine {
 
             counter->release();
             if (counter->getCount() <= 0) {
+                counter->weakAcquire();
                 auto deallocator = counter->getDeallocator();
-                deallocator(counter->getData());
+                auto data = counter->getData();
+                deallocator(data, DeallocationPhase::DESTROY);
+                counter->weakRelease();
 
                 if (counter->getWeakCount() <= 0) {
-                    delete counter;
+                    deallocator(data, DeallocationPhase::RELEASE);
+                    ReferenceCounter::destroyReferenceCounter(counter);
                 }
             }
         }
 
     public:
-        ObjectHandle(T *object_) : ObjectHandle(object_, new ImmediateReferenceCounter<T>(object_)) {}
+        explicit ObjectHandle(T *object_) : ObjectHandle(object_, new ImmediateReferenceCounter<T>(object_)) {}
 
         ObjectHandle(T* object_, MemoryControlBlock* counter_)
             : counter(new TypeReferenceCounter<T>(object_, counter_)), object(object_) {
@@ -70,7 +92,7 @@ namespace cppengine {
             counter->acquire();
         }
 
-        ObjectHandle() : counter(new EmptyReferenceCounter()), object(nullptr) {
+        ObjectHandle() : counter(EmptyReferenceCounter::getEmptyReferenceCounter()), object(nullptr) {
             counter->acquire();
         }
 
@@ -102,16 +124,19 @@ namespace cppengine {
             return *this;
         }
 
-        ObjectHandle &operator=(ObjectHandle &&other) noexcept {
-            std::swap(object, other.object);
-            std::swap(counter, other.counter);
+        ObjectHandle &operator=(ObjectHandle &&other) {
+            if(this != &other) {
+                std::swap(object, other.object);
+                std::swap(counter, other.counter);
 
+                other = nullptr;
+            }
             return *this;
         }
 
         ObjectHandle& operator=(std::nullptr_t) {
             if (counter->getData() != nullptr) {
-                auto new_counter = new EmptyReferenceCounter();
+                auto new_counter = EmptyReferenceCounter::getEmptyReferenceCounter();
                 new_counter->acquire();
 
                 cleanupHandle(counter);
@@ -123,21 +148,30 @@ namespace cppengine {
             return *this;
         }
 
-        template<typename U, typename = typename std::enable_if<std::is_assignable<T*&, U*>::value &&
-            !std::is_same<T, U>::value && std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value>::type>
+        ObjectHandle& operator=(T *object_) {
+            operator=(ObjectHandle(object_));
+            return *this;
+        }
+
+        template <typename U> requires (std::is_base_of_v<T, U> && !std::is_same_v<T, U>)
+        ObjectHandle& operator=(U *object_) {
+            operator=(ObjectHandle<U>(object_));
+            return *this;
+        }
+
+        template<typename U> requires ConvertibleObjectHandles<T, U>
         ObjectHandle(ObjectHandle<U> const& other) : counter(other.counter), object(other.object) {
             counter->acquire();
         }
 
-        template<typename U, typename = typename std::enable_if<std::is_assignable<T*&, U*>::value &&
-            !std::is_same<T, U>::value && std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value>::type>
+        template<typename U> requires ConvertibleObjectHandles<T, U>
         ObjectHandle& operator=(ObjectHandle<U> const& other) {
             if (&other.getReferenceCounter() != counter) {
                 other.counter->acquire();
                 cleanupHandle(counter);
 
-                object = other.counter;
-                counter = other.object;
+                counter = other.counter;
+                object = other.object;
             }
 
             return *this;
@@ -159,30 +193,12 @@ namespace cppengine {
             return nullptr == rhs.object;
         }
 
-        template <typename U, typename = typename std::enable_if<
-            std::is_base_of<
-            typename std::remove_const<T>::type,
-            typename std::remove_const<U>::type
-            >::value ||
-            std::is_base_of<
-            typename std::remove_const<U>::type,
-            typename std::remove_const<T>::type
-            >::value
-        >::type>
+            template <typename U> requires ComparableObjectHandles<T, U>
         friend bool operator==(ObjectHandle const& lhs, ObjectHandle<U> const& rhs) {
             return equals(lhs, rhs);
         }
 
-        template <typename U, typename = typename std::enable_if<
-            std::is_base_of<
-            typename std::remove_const<T>::type,
-            typename std::remove_const<U>::type
-            >::value ||
-            std::is_base_of<
-            typename std::remove_const<U>::type,
-            typename std::remove_const<T>::type
-            >::value
-        >::type>
+        template <typename U> requires ComparableObjectHandles<T, U>
         friend bool operator==(ObjectHandle const& lhs, WeakHandle<U> const& rhs) {
             return equals(lhs, rhs);
         }
@@ -214,6 +230,9 @@ namespace cppengine {
         ReferenceCounter const& getReferenceCounter() const {
             return *counter;
         }
+
+        template <typename ... Args>
+        friend ObjectHandle createHandle(Args &&... args);
     };
 
     template <typename T>
@@ -222,10 +241,11 @@ namespace cppengine {
         return lhs.counter == rhs.counter;
     }
 
-    template <typename T>
-    ObjectHandle<T> wrapWithHandle(T &obj) {
-        return ObjectHandle<T>(&obj, new UnownedTypeReference<T>(obj));
+    template<typename T, typename ... Args>
+    ObjectHandle<T> createHandle(Args && ...args) {
+        return ObjectHandle(new T(std::forward<Args>(args)...));
     }
+
 }
 
 #endif

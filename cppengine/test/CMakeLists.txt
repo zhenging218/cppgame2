@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.24)
 
-message(STATUS "configuring engine test suite ${PROJECT_NAME}")
+get_property(ENGINE_LIB GLOBAL PROPERTY CPP_GAME_ENGINE_LIB)
+
+message(STATUS "configuring engine test suite ${ENGINE_LIB}")
 
 set(TEST_TARGET_NAME ${PROJECT_NAME}_test)
 
@@ -9,9 +11,11 @@ set(TEST_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 set(TEST_TARGET_SRCS
     ${TEST_SRC_DIR}/member_descriptor_test.cpp
+    ${TEST_SRC_DIR}/object_handle_test.cpp
 )
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/catch2)
+
 
 get_property(TEST_SUITE_LINKED GLOBAL PROPERTY TEST_SUITE_LINKED)
 
@@ -21,6 +25,6 @@ else()
 get_property(TEST_SUITE_NAME GLOBAL PROPERTY TEST_SUITE_NAME)
 add_executable(${TEST_TARGET_NAME} ${TEST_TARGET_SRCS})
 target_include_directories(${TEST_TARGET_NAME} PRIVATE ${TEST_INC_DIR})
-target_link_libraries(${TEST_TARGET_NAME} PRIVATE ${PROJECT_NAME} ${TEST_SUITE_NAME})
-add_dependencies(${TEST_TARGET_NAME} ${PROJECT_NAME} ${TEST_SUITE_NAME})
+target_link_libraries(${TEST_TARGET_NAME} PRIVATE ${ENGINE_LIB} ${TEST_SUITE_NAME})
+add_dependencies(${TEST_TARGET_NAME} ${ENGINE_LIB} ${TEST_SUITE_NAME})
 endif()

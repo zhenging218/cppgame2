@@ -49,7 +49,7 @@ namespace cppengine {
                 return nullptr;
             }
 
-            ObjectHandle<Component> handle = allocators->createHandle<T>(std::forward<Args>(args)...);
+            ObjectHandle<Component> handle = allocators.get().createHandle<T>(std::forward<Args>(args)...);
 
             handle->descriptor = descriptor;
             components[descriptor][ownerId] = handle;

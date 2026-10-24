@@ -1,10 +1,23 @@
 #include "memory/objects.hpp"
 
 namespace cppengine {
-    void dummyDeallocator(void*, void*) {}
+    void dummyDeallocator(void*, void*, DeallocationPhase) {}
 
     ReferenceCounter::ReferenceCounter() {}
     ReferenceCounter::~ReferenceCounter() {}
+
+    EmptyReferenceCounter *EmptyReferenceCounter::getEmptyReferenceCounter() {
+        static EmptyReferenceCounter emptyReferenceCounter;
+        return &emptyReferenceCounter;
+    }
+
+    void ReferenceCounter::destroyReferenceCounter(ReferenceCounter *counter) {
+        if (counter != EmptyReferenceCounter::getEmptyReferenceCounter() && counter != nullptr) {
+            delete counter;
+        }
+    }
+
+
 
     EmptyReferenceCounter::EmptyReferenceCounter()
         : count(0), weakCount(0) {
@@ -12,19 +25,19 @@ namespace cppengine {
     }
 
     void EmptyReferenceCounter::acquire() {
-        ++count;
+
     }
 
     void EmptyReferenceCounter::release() {
-        --count;
+
     }
 
     void EmptyReferenceCounter::weakAcquire() {
-        ++weakCount;
+
     }
 
     void EmptyReferenceCounter::weakRelease() {
-        --weakCount;
+
     }
 
     void* EmptyReferenceCounter::getData() const {

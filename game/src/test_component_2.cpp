@@ -1,5 +1,7 @@
 #include "game.hpp"
 
+#include <numbers>
+
 namespace cppgame {
     void TestComponent2::init() {
         transform = getGameObject().getTransform();

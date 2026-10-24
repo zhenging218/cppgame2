@@ -71,16 +71,24 @@ namespace cppengine {
         PageInfo * pages;
         MemoryBlockInfo * freeList;
 
-        static void deallocatePolymorphicObject(void *allocator, void* data) {
+        static void deallocatePolymorphicObject(void *allocator, void* data, DeallocationPhase phase) {
             auto* instance = reinterpret_cast<ObjectAllocator*>(allocator);
             MemoryBlockInfo* block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(data) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
-            block->referenceCounter->active = false;
             object_pointer target = reinterpret_cast<object_pointer>(data);
-            target->~object_type();
-            block->next = instance->freeList;
-            instance->freeList = block;
-            instance->allocated--;
-            instance->available++;
+            switch (phase) {
+                case DeallocationPhase::DESTROY:
+                    target->~object_type();
+                    break;
+                case DeallocationPhase::RELEASE:
+                    block->referenceCounter->active = false;
+                    block->next = instance->freeList;
+                    instance->freeList = block;
+                    instance->allocated--;
+                    instance->available++;
+                    break;
+                default:
+                    break;
+            }
         }
 
         void initialiseBlocks(PageInfo* page) {
@@ -165,12 +173,6 @@ namespace cppengine {
                 destroyBlocks(toFree);
                 std::free(toFree);
             }
-        }
-
-        template <typename U, typename = typename std::enable_if<std::is_base_of<T, U>::value>::type>
-        void destroy(U *object) {
-            MemoryBlockInfo * block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(object) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
-            (block->referenceCounter->getDeallocator())(reinterpret_cast<void*>(object));
         }
 
         template <typename ... Args>
