@@ -25,11 +25,12 @@ namespace cppengine {
         bool dirty;
 
         void markDirty();
-        void propagateChanges();
         void updateMatrix();
 
         void addChild(Transform &newChild);
         void removeChild(Transform &childToRemove);
+
+        static bool isCycle(Transform const *target, Transform const *start);
     public:
         Transform();
         Transform(Transform const &other) = delete;
@@ -52,6 +53,8 @@ namespace cppengine {
         void setScale(Vector3 const &s);
 
         Matrix4x4 const &getMatrix();
+
+        ~Transform();
     };
 }
 
