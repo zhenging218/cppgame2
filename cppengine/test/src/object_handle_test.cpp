@@ -7,6 +7,8 @@
 
 namespace {
     int objectCount = 0;
+    int allocations = 0;
+    int deallocations = 0;
 
     struct TestObject {
         int x;
@@ -14,15 +16,32 @@ namespace {
             ++objectCount;
         }
 
+        TestObject(TestObject const &) = delete;
+        TestObject(TestObject &&) noexcept = delete;
+
+        TestObject &operator=(TestObject const &) = delete;
+        TestObject &operator=(TestObject &&) noexcept = delete;
+
         virtual ~TestObject() {
             --objectCount;
+        }
+
+        static void * operator new(std::size_t size) {
+            void *result = std::malloc(size);
+            allocations++;
+            return result;
+        }
+
+        static void operator delete(void *ptr) noexcept {
+            std::free(ptr);
+            deallocations++;
         }
     };
 }
 
 using namespace cppengine;
 
-SCENARIO("object handles pointing to the same type should be constructible") {
+SCENARIO("object handles work for non polymorphic types") {
     GIVEN("a heap allocated object") {
         WHEN("managed with an object handle") {
             auto objectHandle = ObjectHandle(new TestObject(42));
@@ -70,7 +89,7 @@ SCENARIO("object handles pointing to the same type should be constructible") {
             }
             AND_GIVEN("a second heap allocated object") {
                 WHEN("also managed with an object handle") {
-                    auto objectHandle2 = ObjectHandle(new TestObject(70));
+                    auto objectHandle2 = createHandle<TestObject>(70);
 
                     THEN("the handles are not equal") {
                         REQUIRE_FALSE(objectHandle == objectHandle2);
@@ -106,6 +125,9 @@ SCENARIO("object handles pointing to the same type should be constructible") {
         AND_WHEN("no handles remain in scope") {
             THEN("no objects are alive") {
                 REQUIRE(objectCount == 0);
+            }
+            AND_THEN("no memory is leaked") {
+                REQUIRE(allocations == deallocations);
             }
         }
     }
@@ -159,6 +181,79 @@ SCENARIO("object handles should support nullptr") {
             THEN("the reference counter do not decrement") {
                 REQUIRE(defaultHandle.getReferenceCounter().getCount() == 0);
                 REQUIRE(defaultHandle.getReferenceCounter().getWeakCount() == 0);
+            }
+        }
+    }
+}
+
+SCENARIO("weak handles work for non polymorphic types") {
+    GIVEN("an object handle with a valid object") {
+        auto objectHandle = createHandle<TestObject>(43);
+
+        WHEN("a weak handle is acquired") {
+            WeakHandle weakHandle = objectHandle;
+
+            THEN("the handles are equal") {
+                REQUIRE(objectHandle == weakHandle);
+            }
+            AND_THEN("the strong count is not incremented") {
+                REQUIRE(objectHandle.getReferenceCounter().getCount() == 1);
+            }
+            AND_THEN("the weak count is incremented") {
+                REQUIRE(objectHandle.getReferenceCounter().getWeakCount() == 1);
+            }
+            AND_WHEN("the weak handle is locked") {
+                auto objectHandle2 = weakHandle.lock();
+
+                THEN("the acquired object handle is valid") {
+                    REQUIRE(objectHandle2 != nullptr);
+                    REQUIRE(objectHandle2->x == 43);
+                }
+                AND_THEN("the reference count is updated accordingly") {
+                    REQUIRE(objectHandle.getReferenceCounter().getCount() == 2);
+                    REQUIRE(objectHandle.getReferenceCounter().getWeakCount() == 1);
+
+                    REQUIRE(weakHandle.getReferenceCounter().getCount() == 2);
+                    REQUIRE(weakHandle.getReferenceCounter().getWeakCount() == 1);
+                }
+            }
+            AND_WHEN("the object handle acquired from lock is out of scope") {
+                THEN("the reference count is updated again accordingly") {
+                    REQUIRE(objectHandle.getReferenceCounter().getCount() == 1);
+                    REQUIRE(objectHandle.getReferenceCounter().getWeakCount() == 1);
+                }
+            }
+        }
+        AND_WHEN("the weak handle is out of scope") {
+            THEN("the reference count is updated accordingly") {
+                REQUIRE(objectHandle.getReferenceCounter().getCount() == 1);
+                REQUIRE(objectHandle.getReferenceCounter().getWeakCount() == 0);
+            }
+        }
+    }
+    AND_GIVEN("an object handle") {
+        WHEN("a weak handle is acquired and then the object handle is out of scope") {
+            WeakHandle<TestObject> weakHandle;
+
+            {
+                auto objectHandle = createHandle<TestObject>(69);
+                weakHandle = objectHandle;
+            }
+
+            THEN("the weak handle's counter continues the track correctly") {
+                REQUIRE(weakHandle.getReferenceCounter().getCount() == 0);
+                REQUIRE(weakHandle.getReferenceCounter().getWeakCount() == 1);
+            }
+            AND_THEN("the weak handle can be locked and return an empty handle") {
+                ObjectHandle<TestObject> objectHandle;
+
+                REQUIRE_NOTHROW([&weakHandle, &objectHandle]() { objectHandle = weakHandle.lock(); }());
+                REQUIRE(objectHandle == nullptr);
+            }
+        }
+        AND_WHEN("the weak handle is out of scope") {
+            THEN("the object does not get deallocated again") {
+                REQUIRE(allocations == deallocations);
             }
         }
     }

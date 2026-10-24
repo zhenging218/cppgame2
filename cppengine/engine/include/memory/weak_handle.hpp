@@ -32,6 +32,7 @@ namespace cppengine {
 
 		template <typename U, std::size_t PageSize>
 		friend class ObjectAllocator;
+
 		ReferenceCounter* counter;
 
 		static void cleanupHandle(ReferenceCounter *counter) {
@@ -129,6 +130,10 @@ namespace cppengine {
 		template <typename U> requires ComparableWeakHandles<T, U>
 		friend bool operator==(WeakHandle const& lhs, WeakHandle<U> const& rhs) {
 			return equals(lhs, rhs);
+		}
+
+		ReferenceCounter const& getReferenceCounter() const {
+			return *counter;
 		}
 	};
 
