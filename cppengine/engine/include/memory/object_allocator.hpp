@@ -12,6 +12,47 @@
 namespace cppengine {
     template <typename T>
     class ObjectHandle;
+    /*
+    
+    Do the following to allocate a page:
+    1. Move to next address at multiple of max(alignof(pointer type), alignof(T), alignof(page header), alignof(block header)) from the top
+    2. Place the page header
+    3. Move to next address at multiple of max(alignof(block header), alignof(T)) from the page header
+    4. Place the block header
+    5. Move to next address at multiple of alignof(T) and place the object
+    6. move to next address at multiple of max(alignof(block header), alignof(T)) Repeat 4,5 and 6 until no. of blocks has been built
+    
+    I will allocate total page size + max(alignof(pointer type), alignof(page header), alignof(block header), alignof(T)) of memory for a given page.
+
+    The next address is computed as such:
+    A = max(alignof(set of sub objects the header controls inclusive of  descents of the sub objects))
+    next address = current address + ( (A  - current address % A) % A).
+
+    The 4 roundups I think I need are:
+    Ar - to get to the page from the raw top of the memory
+    Ap - to get to the block area from the end of the page header
+    Ab - to get to the object area from the end of the block header
+    At - to get to the end of the block
+
+    The alignment portions of the roundup are as follows:
+    For Ar = max(alignof(pointer type), alignof(T), alignof(page header), alignof(block header))
+    For Ap = max(alignof(block header), alignof(T))
+    For Ab = alignof(T)
+    For At = max(alignof(block header), alignof(T))
+
+    Once allocated, for any given block, to reach the object area I do block header address + sizeof(block header) + Ab. To reach the block area of the page, I do page header address + sizeof(page header) + Ap, to reach the end of the block, I do object area address + sizeof(T) + At, to reach the page itself I do raw address + Ar. Ar is a runtime computation, while Ap, Ab and At are compile time.
+
+    When computing the amount of blocks per page, perform the following:
+
+    Compute the block size (with tail padding) i.e. block header + Ab + sizeof(T) + At
+    1. Get the size of the top area (sizeof(page header) + Ap)
+    2. Subtract (2) from the configured page size
+    3. Divide (3) by (1)
+
+    Block size is compile time computation, since it is not influenced by the address of the top of the entire memory area at runtime.
+        
+    */
+
 
     struct PageInfo {
         PageInfo * next;
