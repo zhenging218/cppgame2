@@ -33,7 +33,7 @@ namespace cppengine {
         inclusive of descents of the sub objects))
 
     no. of bytes to pad, rounded up (roundup function) - R
-    R = ((A  - current address % A) % A)
+    R = ((A - current address % A) % A)
 
     next address = current address + R.
 
@@ -115,7 +115,6 @@ namespace cppengine {
     template <typename T, std::size_t SuggestedPageSize = 4096>
     class ObjectAllocator {
     private:
-
         using byte_type = std::uint8_t;
         using byte_pointer_type = byte_type *;
 
@@ -126,33 +125,29 @@ namespace cppengine {
         using object_pointer = object_type *;
         using const_object_pointer = const_object_type *;
 
-        static constexpr std::size_t getAdjustedPageSize(std::size_t minimumBlocks, std::size_t blockSize, std::size_t pageSize) {
-            while (blockSize > pageSize >> minimumBlocks) {
-                pageSize = pageSize << 1;
-            }
-
-            return pageSize;
-        }
-
-        static constexpr std::size_t MIN_BLOCK_COUNT_LOG_BASE_2 = 4;
-
-        static constexpr std::size_t OBJECT_SIZE = sizeof(object_type);
-
-        static constexpr std::size_t ALIGNMENT_SIZE = alignof(object_type);
-
         static constexpr std::size_t PAGE_HEADER_SIZE = sizeof(PageInfo);
         static constexpr std::size_t BLOCK_HEADER_SIZE = sizeof(MemoryBlockInfo);
+        static constexpr std::size_t OBJECT_SIZE = sizeof(T);
 
-        static constexpr std::size_t BLOCK_AREA_OFFSET = (ALIGNMENT_SIZE - (PAGE_HEADER_SIZE % ALIGNMENT_SIZE)) % ALIGNMENT_SIZE;
-        static constexpr std::size_t DATA_AREA_OFFSET = (ALIGNMENT_SIZE - (BLOCK_HEADER_SIZE % ALIGNMENT_SIZE)) % ALIGNMENT_SIZE;
+        static constexpr std::size_t MEMORY_ALIGN = std::max(std::initializer_list{
+            alignof(PageInfo), alignof(MemoryBlockInfo), alignof(object_type)
+        });
+        static constexpr std::size_t PAGE_ALIGN = std::max(
+            alignof(MemoryBlockInfo), alignof(object_type));
+        static constexpr std::size_t BLOCK_ALIGN = alignof(T);
+        static constexpr std::size_t BLOCK_TAIL_ALIGN = std::max(
+            alignof(MemoryBlockInfo), alignof(object_type));
 
-        static constexpr std::size_t BLOCK_SIZE = BLOCK_HEADER_SIZE + DATA_AREA_OFFSET + OBJECT_SIZE;
+        static constexpr std::size_t PAGE_PADDING
+            = (PAGE_ALIGN - PAGE_HEADER_SIZE % PAGE_ALIGN) % PAGE_ALIGN;
+        static constexpr std::size_t BLOCK_PADDING
+            = (BLOCK_ALIGN - BLOCK_HEADER_SIZE % BLOCK_ALIGN) % BLOCK_ALIGN;
+        static constexpr std::size_t BLOCK_TAIL_PADDING
+            = (BLOCK_TAIL_ALIGN - (BLOCK_HEADER_SIZE + BLOCK_PADDING + OBJECT_SIZE)
+                % BLOCK_TAIL_ALIGN) % BLOCK_TAIL_ALIGN;
 
-        static constexpr std::size_t PAGE_SIZE = getAdjustedPageSize(MIN_BLOCK_COUNT_LOG_BASE_2, BLOCK_SIZE, SuggestedPageSize);
-
-        static constexpr std::size_t PAGE_BLOCK_COUNT = (PAGE_SIZE - PAGE_HEADER_SIZE - BLOCK_AREA_OFFSET) / BLOCK_SIZE;
-
-        static_assert(PAGE_BLOCK_COUNT > 0, "page size is too small to hold any objects");
+        static constexpr std::size_t TOTAL_TO_ALLOCATE = SuggestedPageSize + MEMORY_ALIGN;
+        static constexpr std::size_t TOTAL_BLOCK_COUNT = TOTAL_TO_ALLOCATE -
 
         std::size_t totalPages;
         std::size_t allocated;
@@ -163,7 +158,8 @@ namespace cppengine {
 
         static void deallocatePolymorphicObject(void *allocator, void* data, DeallocationPhase phase) {
             auto* instance = reinterpret_cast<ObjectAllocator*>(allocator);
-            MemoryBlockInfo* block = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(data) - DATA_AREA_OFFSET - BLOCK_HEADER_SIZE);
+            MemoryBlockInfo* block = reinterpret_cast<MemoryBlockInfo*>(
+                reinterpret_cast<byte_pointer_type>(data) - BLOCK_PADDING - BLOCK_HEADER_SIZE);
             object_pointer target = reinterpret_cast<object_pointer>(data);
             switch (phase) {
                 case DeallocationPhase::DESTROY:
