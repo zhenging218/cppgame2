@@ -17,40 +17,89 @@ namespace cppengine {
     Do the following to allocate a page:
     1. Move to next address at multiple of max(alignof(pointer type), alignof(T), alignof(page header), alignof(block header)) from the top
     2. Place the page header
-    3. Move to next address at multiple of max(alignof(block header), alignof(T)) from the page header
+    3. Move to next address at multiple of max(alignof(block header), alignof(T)) from the end of the page header
     4. Place the block header
     5. Move to next address at multiple of alignof(T) and place the object
-    6. move to next address at multiple of max(alignof(block header), alignof(T)) Repeat 4,5 and 6 until no. of blocks has been built
+    6. move to next address at multiple of max(alignof(block header), alignof(T))
+    7. Repeat 4, 5 and 6 until no. of blocks has been built
     
-    I will allocate total page size + max(alignof(pointer type), alignof(page header), alignof(block header), alignof(T)) of memory for a given page.
+    I will allocate total page size +
+        max(alignof(pointer type), alignof(page header),
+        alignof(block header), alignof(T)) of memory for a given page.
 
     The next address is computed as such:
-    A = max(alignof(set of sub objects the header controls inclusive of  descents of the sub objects))
-    next address = current address + ( (A  - current address % A) % A).
+    alignment of the current section of the memory - A
+    A = max(alignof(set of sub objects the header controls
+        inclusive of descents of the sub objects))
+
+    no. of bytes to pad, rounded up (roundup function) - R
+    R = ((A  - current address % A) % A)
+
+    next address = current address + R.
 
     The 4 roundups I think I need are:
-    Ar - to get to the page from the raw top of the memory
-    Ap - to get to the block area from the end of the page header
-    Ab - to get to the object area from the end of the block header
-    At - to get to the end of the block
+    Rr - to get to the page from the raw top of the memory
+    Rp - to get to the block area from the end of the page header
+    Rb - to get to the object area from the end of the block header
+    Rt - to get to the end of the block
 
     The alignment portions of the roundup are as follows:
-    For Ar = max(alignof(pointer type), alignof(T), alignof(page header), alignof(block header))
+    For Ar = max(alignof(pointer),
+        alignof(T), alignof(page header), alignof(block header))
     For Ap = max(alignof(block header), alignof(T))
     For Ab = alignof(T)
     For At = max(alignof(block header), alignof(T))
 
-    Once allocated, for any given block, to reach the object area I do block header address + sizeof(block header) + Ab. To reach the block area of the page, I do page header address + sizeof(page header) + Ap, to reach the end of the block, I do object area address + sizeof(T) + At, to reach the page itself I do raw address + Ar. Ar is a runtime computation, while Ap, Ab and At are compile time.
+    Once allocated, for any given block, to reach the object area
+        I do block header address + sizeof(block header) + Rb.
+    To reach the block area of the page,
+        I do page header address + sizeof(page header) + Rp,
+    to reach the end of the block,
+        I do object area address + sizeof(T) + Rt,
+    to reach the page itself,
+        I do raw address + Rr.
+
+    Ar, Ap, Ab and At are all compile time computations
+        Rr is a runtime computation, while Rp, Rb and Rt are compile time.
+
+    actual page boundary (start of page header) is aligned correctly
+        after offsetting by Rr, making (address of page header) % Ar == 0,
+        which makes Rp, Rb and Rt always valid even when computed at
+        compile time, so intra page alignment is always assuming
+        entire memory starts at correct alignment
+
+    The padding portions computed by the roundup is as follows:
+    Rr = (Ar - top of the entire memory area % Ar) % Ar
+    Rp = (Ap - page header size % Ap) % Ap
+    Rb = (Ab - block header size % Ab) % Ab
+    Rt = (At - (block header size + Rb + object size) % At) % At
 
     When computing the amount of blocks per page, perform the following:
 
-    Compute the block size (with tail padding) i.e. block header + Ab + sizeof(T) + At
-    1. Get the size of the top area (sizeof(page header) + Ap)
-    2. Subtract (2) from the configured page size
-    3. Divide (3) by (1)
+    1. Compute the block size (with tail padding)
+       i.e. block header + Rb + sizeof(T) + Rt
+    2. Get the size of the top area (sizeof(page header) + Rp)
+    3. Subtract (2) from the configured page size
+    4. Divide (3) by (1)
 
-    Block size is compile time computation, since it is not influenced by the address of the top of the entire memory area at runtime.
-        
+    block size is compile time computation, it is not influenced by Rr,
+        which is the only runtime computed padding.
+
+    i.e. page allocation steps are as follows for page size S, object size T:
+
+    page header size is HP
+    block header size is HB
+    object size is T
+    block size B is HB + Rb + T + Rt
+
+    Allocate S + Ar bytes, address of top of page at M0
+    populate page header at M0 + Rr = M1
+    for each block Bi, i in [0, n) from B0 = M1 + HP + Rp,
+        up to Bn-1, n = (S - (HP + Rp)) / B
+            populate block header at Bi
+            object Ti to be placed at Bi + HB + Rb
+            Bi+1 to be computed as Bi + B
+            advance to Bi+1
     */
 
 
