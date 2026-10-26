@@ -10,9 +10,6 @@ namespace cppengine
         void *context;
         void (*deallocator)(void *, void *, DeallocationPhase);
 
-        constexpr MemoryDeallocator(void *context_, void (*deallocator_)(void *, void *, DeallocationPhase)) : context(context_), deallocator(deallocator_) {}
-        constexpr MemoryDeallocator(void (*deallocator_)(void *, void *, DeallocationPhase)) : context(nullptr), deallocator(deallocator_) {}
-
         void operator()(void * object, DeallocationPhase phase) const;
     };
 }

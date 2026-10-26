@@ -102,21 +102,21 @@ namespace cppengine {
             advance to Bi+1
     */
 
+    struct MemoryBlockInfo {
+        MemoryControlBlock referenceCounter;
+        MemoryBlockInfo *next;
+    };
 
     struct PageInfo {
         void * top;
         PageInfo * next;
-    };
-
-    struct MemoryBlockInfo {
-        MemoryControlBlock* referenceCounter;
-        MemoryBlockInfo *next;
+        MemoryBlockInfo *blocks;
     };
 
     template <typename T, std::size_t SuggestedPageSize = 4096>
     class ObjectAllocator {
     private:
-        using byte_type = std::uint8_t;
+        using byte_type = std::byte;
         using byte_pointer_type = byte_type *;
 
         using object_type = T;
@@ -180,7 +180,7 @@ namespace cppengine {
                     target->~object_type();
                     break;
                 case DeallocationPhase::RELEASE:
-                    block->referenceCounter->active = false;
+                    block->referenceCounter.active = false;
                     block->next = instance->freeList;
                     instance->freeList = block;
                     instance->allocated--;
@@ -191,17 +191,44 @@ namespace cppengine {
             }
         }
 
-        void initialiseBlocks(PageInfo* page) {
-
-        }
-
         void destroyBlocks(PageInfo* page) {
 
         }
 
-        void createPage() {
+        PageInfo *createPage() {
+            void *memory = std::malloc(TOTAL_TO_ALLOCATE);
 
+            if (memory == nullptr) {
+                throw std::bad_alloc();
+            }
+
+            auto memoryPadding = getMemoryPadding(memory);
+
+            auto page = reinterpret_cast<PageInfo*>(reinterpret_cast<byte_pointer_type>(memory) + memoryPadding);
+
+            if (reinterpret_cast<std::uintptr_t>(page) % MEMORY_ALIGN != 0
+                || reinterpret_cast<byte_pointer_type>(page) + SuggestedPageSize > reinterpret_cast<byte_pointer_type>(memory) + TOTAL_TO_ALLOCATE) {
+                std::free(memory);
+                throw std::bad_alloc();
+            }
+
+            new (page) PageInfo{ .top = memory, .next = nullptr, .blocks = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(page) + PAGE_HEADER_SIZE + PAGE_PADDING) };
+
+            auto block = page->blocks;
+
+            for (std::size_t i = 0; i < TOTAL_BLOCK_COUNT; ++i) {
+                new (block) MemoryBlockInfo{ .referenceCounter = MemoryControlBlock(MemoryDeallocator{ .context = this, .deallocator = &deallocatePolymorphicObject}), .next = nullptr };
+
+                if (i + 1 < TOTAL_BLOCK_COUNT) {
+                    auto next = reinterpret_cast<MemoryBlockInfo*>(reinterpret_cast<byte_pointer_type>(block) + BLOCK_SIZE);
+                    block->next = next;
+                    block = next;
+                }
+            }
+
+            return page;
         }
+
     public:
         ObjectAllocator() : totalPages(0), allocated(0), available(0), pages(nullptr), freeList(nullptr)
         {}
