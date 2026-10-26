@@ -1,13 +1,12 @@
 #ifndef OBJECT_ALLOCATOR_HPP
 #define OBJECT_ALLOCATOR_HPP
 
-#include <cstdint>
+#include <new>
 #include <utility>
 #include <initializer_list>
 #include <algorithm>
 
 #include "memory/memory_control_block.hpp"
-#include "memory/object_handle.hpp"
 
 namespace cppengine {
     template <typename T>
@@ -171,10 +170,10 @@ namespace cppengine {
         MemoryBlockInfo * freeList;
 
         static void deallocatePolymorphicObject(void *allocator, void* data, DeallocationPhase phase) {
-            auto* instance = reinterpret_cast<ObjectAllocator*>(allocator);
-            MemoryBlockInfo* block = reinterpret_cast<MemoryBlockInfo*>(
-                reinterpret_cast<byte_pointer_type>(data) - BLOCK_PADDING - BLOCK_HEADER_SIZE);
-            object_pointer target = reinterpret_cast<object_pointer>(data);
+            auto* instance = static_cast<ObjectAllocator*>(allocator);
+            auto* block = reinterpret_cast<MemoryBlockInfo*>(
+                static_cast<byte_pointer_type>(data) - BLOCK_PADDING - BLOCK_HEADER_SIZE);
+            auto target = static_cast<object_pointer>(data);
             switch (phase) {
                 case DeallocationPhase::DESTROY:
                     target->~object_type();
@@ -183,19 +182,31 @@ namespace cppengine {
                     block->referenceCounter.active = false;
                     block->next = instance->freeList;
                     instance->freeList = block;
-                    instance->allocated--;
-                    instance->available++;
+                    --instance->allocated;
+                    ++instance->available;
                     break;
                 default:
                     break;
             }
         }
 
-        void destroyBlocks(PageInfo* page) {
+        static void destroyPage(PageInfo* page) {
+            auto memory = page->top;
+            auto block = page->blocks;
 
+            for (std::size_t i = 0; i < TOTAL_BLOCK_COUNT; ++i) {
+                if (block->referenceCounter.active) {
+                    reinterpret_cast<T *>(reinterpret_cast<byte_pointer_type>(block) + BLOCK_HEADER_SIZE + BLOCK_PADDING)->~object_type();
+                }
+                auto next = reinterpret_cast<MemoryBlockInfo *>(reinterpret_cast<byte_pointer_type>(block) + BLOCK_SIZE);
+                block->~MemoryBlockInfo();
+                block = next;
+            }
+            page->~PageInfo();
+            std::free(memory);
         }
 
-        PageInfo *createPage() {
+        void createPage() {
             void *memory = std::malloc(TOTAL_TO_ALLOCATE);
 
             if (memory == nullptr) {
@@ -226,7 +237,13 @@ namespace cppengine {
                 }
             }
 
-            return page;
+            block->next = freeList;
+            page->next = pages;
+
+            pages = page;
+            freeList = page->blocks;
+            totalPages++;
+            available += TOTAL_BLOCK_COUNT;
         }
 
     public:
@@ -237,12 +254,30 @@ namespace cppengine {
         ObjectAllocator &operator=(ObjectAllocator const &) = delete;
 
         ~ObjectAllocator() {
-
+            while (pages != nullptr) {
+                auto next = pages->next;
+                auto page = pages;
+                destroyPage(page);
+                pages = next;
+            }
         }
 
         template <typename ... Args>
         ObjectHandle<object_type> createHandle(Args &&... args) {
+            if (freeList == nullptr) {
+                createPage();
+            }
 
+            auto result = freeList;
+            result->referenceCounter.active = true;
+            auto object = new (std::launder(reinterpret_cast<object_pointer>(reinterpret_cast<byte_pointer_type>(result) + BLOCK_HEADER_SIZE + BLOCK_PADDING))) object_type(std::forward<Args>(args)...);
+            freeList = freeList->next;
+
+            auto handle = ObjectHandle(object, &result->referenceCounter);
+            ++allocated;
+            --available;
+
+            return handle;
         }
 
         std::size_t getTotalPages() const {
