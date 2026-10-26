@@ -74,7 +74,7 @@ namespace cppengine {
         }
 
         ImmediateReferenceCounter(T* data_) :
-            ImmediateReferenceCounter(data_, {&defaultDeallocator})
+            ImmediateReferenceCounter(data_, deallocator_type{ .context = nullptr, .deallocator = &defaultDeallocator})
         {
 
         }
@@ -194,7 +194,7 @@ namespace cppengine {
         }
 
         virtual deallocator_type getDeallocator() const override {
-            return { [](void *, void *, DeallocationPhase) {} };
+            return { .context = nullptr, .deallocator = [](void *, void *, DeallocationPhase) {} };
         }
     };
 }

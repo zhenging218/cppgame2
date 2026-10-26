@@ -53,6 +53,6 @@ namespace cppengine {
     }
 
     ReferenceCounter::deallocator_type EmptyReferenceCounter::getDeallocator() const {
-        return {&dummyDeallocator};
+        return {.context = nullptr, .deallocator = &dummyDeallocator};
     }
 }

@@ -10,17 +10,17 @@ namespace cppengine {
     template <typename T, typename U>
     concept ComparableObjectHandles =
         std::is_base_of<
-        typename std::remove_const<T>::type,
-        typename std::remove_const<U>::type
+        std::remove_cvref_t<T>,
+        std::remove_cvref_t<U>
         >::value ||
-        std::is_base_of<
-        typename std::remove_const<U>::type,
-        typename std::remove_const<T>::type
-        >::value;
+        std::is_base_of_v<
+        std::remove_cvref_t<U>,
+        std::remove_cvref_t<T>
+        >;
 
     template <typename T, typename U>
     concept ConvertibleObjectHandles = std::is_assignable<T*&, U*>::value &&
-        !std::is_same<T, U>::value && std::is_base_of<typename std::remove_const<T>::type, typename std::remove_const<U>::type>::value;
+        !std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>> && std::is_base_of_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>>;
 
     template <typename T, typename U>
     concept NonSelfCopyConstructor = !(std::is_base_of_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>> && std::is_base_of_v<std::remove_cvref_t<U>, std::remove_cvref_t<T>>);
