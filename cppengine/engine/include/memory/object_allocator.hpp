@@ -196,7 +196,7 @@ namespace cppengine {
 
             for (std::size_t i = 0; i < TOTAL_BLOCK_COUNT; ++i) {
                 if (block->referenceCounter.active) {
-                    reinterpret_cast<object_pointer_type *>(reinterpret_cast<byte_pointer_type>(block) + BLOCK_HEADER_SIZE + BLOCK_PADDING)->~object_type();
+                    reinterpret_cast<object_pointer_type>(reinterpret_cast<byte_pointer_type>(block) + BLOCK_HEADER_SIZE + BLOCK_PADDING)->~object_type();
                 }
                 auto next = reinterpret_cast<MemoryBlockInfo *>(reinterpret_cast<byte_pointer_type>(block) + BLOCK_SIZE);
                 block->~MemoryBlockInfo();
