@@ -120,10 +120,10 @@ namespace cppengine {
 
         using object_type = T;
         using const_object_type = const T;
-        using object_reference = object_type &;
-        using const_object_reference = const_object_type &;
-        using object_pointer = object_type *;
-        using const_object_pointer = const_object_type *;
+        using object_reference_type = object_type &;
+        using const_object_reference_type = const_object_type &;
+        using object_pointer_type = object_type *;
+        using const_object_pointer_type = const_object_type *;
 
         static constexpr std::size_t PAGE_HEADER_SIZE = sizeof(PageInfo);
         static constexpr std::size_t BLOCK_HEADER_SIZE = sizeof(MemoryBlockInfo);
@@ -173,13 +173,13 @@ namespace cppengine {
             auto* instance = static_cast<ObjectAllocator*>(allocator);
             auto* block = reinterpret_cast<MemoryBlockInfo*>(
                 static_cast<byte_pointer_type>(data) - BLOCK_PADDING - BLOCK_HEADER_SIZE);
-            auto target = static_cast<object_pointer>(data);
+            auto target = static_cast<object_pointer_type>(data);
             switch (phase) {
                 case DeallocationPhase::DESTROY:
                     target->~object_type();
+                    block->referenceCounter.active = false;
                     break;
                 case DeallocationPhase::RELEASE:
-                    block->referenceCounter.active = false;
                     block->next = instance->freeList;
                     instance->freeList = block;
                     --instance->allocated;
@@ -196,7 +196,7 @@ namespace cppengine {
 
             for (std::size_t i = 0; i < TOTAL_BLOCK_COUNT; ++i) {
                 if (block->referenceCounter.active) {
-                    reinterpret_cast<T *>(reinterpret_cast<byte_pointer_type>(block) + BLOCK_HEADER_SIZE + BLOCK_PADDING)->~object_type();
+                    reinterpret_cast<object_pointer_type *>(reinterpret_cast<byte_pointer_type>(block) + BLOCK_HEADER_SIZE + BLOCK_PADDING)->~object_type();
                 }
                 auto next = reinterpret_cast<MemoryBlockInfo *>(reinterpret_cast<byte_pointer_type>(block) + BLOCK_SIZE);
                 block->~MemoryBlockInfo();
@@ -269,11 +269,11 @@ namespace cppengine {
             }
 
             auto result = freeList;
-            result->referenceCounter.active = true;
-            auto object = new (std::launder(reinterpret_cast<object_pointer>(reinterpret_cast<byte_pointer_type>(result) + BLOCK_HEADER_SIZE + BLOCK_PADDING))) object_type(std::forward<Args>(args)...);
-            freeList = freeList->next;
-
+            auto object = new (reinterpret_cast<object_pointer_type>(reinterpret_cast<byte_pointer_type>(result) + BLOCK_HEADER_SIZE + BLOCK_PADDING)) object_type(std::forward<Args>(args)...);
             auto handle = ObjectHandle(object, &result->referenceCounter);
+            result->referenceCounter.active = true;
+
+            freeList = freeList->next;
             ++allocated;
             --available;
 
