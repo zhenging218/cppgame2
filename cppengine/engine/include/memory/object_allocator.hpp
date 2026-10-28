@@ -5,6 +5,7 @@
 #include <utility>
 #include <initializer_list>
 #include <algorithm>
+#include <functional>
 
 #include "memory/memory_control_block.hpp"
 
@@ -112,6 +113,9 @@ namespace cppengine {
         MemoryBlockInfo *blocks;
     };
 
+    template <typename T, typename U>
+    concept CallableType = requires(U && u, T & t) { { std::invoke(u, t) } -> std::same_as<void>; };
+
     template <typename T, std::size_t SuggestedPageSize = 4096>
     class ObjectAllocator {
     private:
@@ -215,10 +219,10 @@ namespace cppengine {
 
             auto memoryPadding = getMemoryPadding(memory);
 
-            auto page = reinterpret_cast<PageInfo*>(reinterpret_cast<byte_pointer_type>(memory) + memoryPadding);
+            auto page = reinterpret_cast<PageInfo*>(static_cast<byte_pointer_type>(memory) + memoryPadding);
 
             if (reinterpret_cast<std::uintptr_t>(page) % MEMORY_ALIGN != 0
-                || reinterpret_cast<byte_pointer_type>(page) + SuggestedPageSize > reinterpret_cast<byte_pointer_type>(memory) + TOTAL_TO_ALLOCATE) {
+                || reinterpret_cast<byte_pointer_type>(page) + SuggestedPageSize > static_cast<byte_pointer_type>(memory) + TOTAL_TO_ALLOCATE) {
                 std::free(memory);
                 throw std::bad_alloc();
             }
@@ -291,6 +295,26 @@ namespace cppengine {
         std::size_t getAllocatedBlockCount() const {
             return allocated;
         }
+
+        template <typename U> requires CallableType<T, U>
+        void visit(U &&visitor) {
+            auto page = pages;
+
+            while (page != nullptr) {
+                auto block = reinterpret_cast<byte_pointer_type>(page) + PAGE_HEADER_SIZE + PAGE_PADDING;
+
+                for (std::size_t i = 0; i < TOTAL_BLOCK_COUNT; ++i) {
+                    if (reinterpret_cast<MemoryBlockInfo*>(block)->referenceCounter.active) {
+                        auto object = reinterpret_cast<object_pointer_type>(block + BLOCK_HEADER_SIZE + BLOCK_PADDING);
+                        std::invoke(visitor, *object);
+                    }
+
+                    block = block + BLOCK_SIZE;
+                }
+                page = page->next;
+            }
+        }
+
     };
 
     template <typename T, std::size_t PageSize>
