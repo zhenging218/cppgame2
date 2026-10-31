@@ -1,38 +1,23 @@
-#ifndef COMPONENT_HPP
-#define COMPONENT_HPP
-#include "scene_manager.hpp"
-#include "events/event_dispatcher.hpp"
+//
+// Created by Admin on 31/10/2026.
+//
+
+#ifndef CPPGAME_COMPONENT_HPP
+#define CPPGAME_COMPONENT_HPP
+#include "enum_component_state.hpp"
 
 namespace cppengine {
-    struct ComponentDescriptor;
     class Scene;
-    class GameObject;
-    class TypeDescriptor;
 
     class Component {
     private:
         friend class Scene;
-        friend class SceneManager;
-        ComponentDescriptor const *descriptor;
-    protected:
-        Component() = default;
 
-        GameObject createGameObject() const;
-
-        template <typename T, typename U>
-        void addEventListener(void (T::*handler)(U const &));
-
-        template <typename T, typename U>
-        void removeEventListener(void (T::*handler)(U const &));
+        void setState(ComponentState newState);
     public:
-
-        GameObject getGameObject() const;
-        void destroyGameObject(GameObject const &gameObject) const;
 
         virtual ~Component() = 0;
     };
-
-    inline Component::~Component() = default;
 }
 
-#endif
+#endif //CPPGAME_COMPONENT_HPP

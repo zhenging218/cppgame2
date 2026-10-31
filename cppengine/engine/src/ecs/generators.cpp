@@ -1,0 +1,10 @@
+//
+// Created by Admin on 31/10/2026.
+//
+
+#include "ecs/generators.hpp"
+
+namespace cppengine {
+    IdGenerator::~IdGenerator() = default;
+    CycleGenerator::~CycleGenerator() = default;
+}

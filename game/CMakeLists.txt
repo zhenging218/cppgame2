@@ -19,7 +19,7 @@ add_library(${GAME_TARGET_NAME} OBJECT
 target_link_libraries(${GAME_TARGET_NAME} PRIVATE ${ENGINE_LIB})
 
 target_include_directories(${GAME_TARGET_NAME} PUBLIC ${GAME_INC_DIR})
-target_precompile_headers(${GAME_TARGET_NAME} PUBLIC ${GAME_INC_DIR}/game.hpp)
+#target_precompile_headers(${GAME_TARGET_NAME} PUBLIC ${GAME_INC_DIR}/game.hpp)
 
 add_dependencies(${GAME_TARGET_NAME} ${ENGINE_LIB})
 

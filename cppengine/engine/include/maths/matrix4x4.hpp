@@ -4,6 +4,7 @@
 #include <ostream>
 
 namespace cppengine {
+    class Vector3;
     class Vector4;
     class Quaternion;
 

@@ -1,19 +1,9 @@
-#include "engine.hpp"
+//
+// Created by Admin on 31/10/2026.
+//
+
+#include "ecs/ecs.hpp"
 
 namespace cppengine {
-    GameObject Component::getGameObject() const {
-        auto id = SceneManager::getInstance().getEntityOfComponent(this);
-        auto result = GameObject(id);
-        return result;
-    }
-
-    void Component::destroyGameObject(GameObject const &gameObject) const {
-        SceneManager::getInstance().destroyEntity(gameObject.id);
-    }
-
-    GameObject Component::createGameObject() const {
-        auto id = SceneManager::getInstance().createEntity();
-        auto result = GameObject(id);
-        return result;
-    }
+    Component::~Component() = default;
 }

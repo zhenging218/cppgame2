@@ -1,6 +1,7 @@
 #ifndef OBJECT_ALLOCATOR_HPP
 #define OBJECT_ALLOCATOR_HPP
 
+#include <cstdint>
 #include <new>
 #include <utility>
 #include <initializer_list>

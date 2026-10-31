@@ -15,7 +15,7 @@ set(ENGINE_REFLECTION_SRCS
 )
 
 set(ENGINE_INTROSPECTION_SRCS
-		${ENGINE_SRC_DIR}/introspection/ostream_serialiser.cpp
+	${ENGINE_SRC_DIR}/introspection/ostream_serialiser.cpp
 )
 
 set(ENGINE_MEMORY_SRCS
@@ -41,11 +41,14 @@ set(ENGINE_MATH_SRCS
 )
 
 set(ENGINE_ECS_SRCS
+	${ENGINE_SRC_DIR}/ecs/generators.cpp
+	${ENGINE_SRC_DIR}/ecs/enum_component_state.cpp
 	${ENGINE_SRC_DIR}/ecs/enum_scene_state.cpp
 	${ENGINE_SRC_DIR}/ecs/component.cpp
-	${ENGINE_SRC_DIR}/ecs/game_object.cpp
+	${ENGINE_SRC_DIR}/ecs/component_pool.cpp
+	${ENGINE_SRC_DIR}/ecs/transform_manager.cpp
+	${ENGINE_SRC_DIR}/ecs/component_manager.cpp
 	${ENGINE_SRC_DIR}/ecs/scene.cpp
-	${ENGINE_SRC_DIR}/ecs/scene_manager.cpp
 )
 
 set(ENGINE_GRAPHICS_SRCS
@@ -66,7 +69,6 @@ set(ENGINE_PLATFORM_SRCS
 	${ENGINE_SRC_DIR}/platform/time.cpp
 	${ENGINE_SRC_DIR}/platform/window.cpp
 	${ENGINE_SRC_DIR}/platform/input.cpp
-		src/reflection/field_descriptor.cpp
 )
 
 add_library(${ENGINE_TARGET} OBJECT
@@ -80,6 +82,6 @@ add_library(${ENGINE_TARGET} OBJECT
 )
 
 target_include_directories(${ENGINE_TARGET} PUBLIC ${ENGINE_INC_DIR})
-target_precompile_headers(${ENGINE_TARGET} PUBLIC ${ENGINE_INC_DIR}/engine.hpp)
+#target_precompile_headers(${ENGINE_TARGET} PUBLIC ${ENGINE_INC_DIR}/engine.hpp)
 
 set_property(GLOBAL PROPERTY ENGINE_LINKED 1)

@@ -1,88 +1,81 @@
+//
+// Created by Admin on 31/10/2026.
+//
+
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
-#include <cstdint>
-#include <unordered_map>
-#include <unordered_set>
+#include <string>
+#include <queue>
 
-#include "maths/transform.hpp"
-#include "scene_manager.hpp"
+#include "memory/object_handle.hpp"
+#include "ecs/ecs_concepts.hpp"
 
 namespace cppengine {
-
+    class TypeDescriptor;
+    class Transform;
     class Component;
-
-    template <typename T>
-    class ObjectHandle;
+    class TransformManager;
+    class ComponentManager;
+    class SceneSetup;
 
     class Scene {
     private:
+        friend class SceneSetup;
 
-        using entity_map_type = std::unordered_map<std::uint64_t, std::string>;
-        using transform_graph_type = std::unordered_map<std::uint64_t, ObjectHandle<Transform>>;
-        using entity_component_map_type = std::unordered_map<uint64_t, std::unordered_set<ComponentDescriptor const *>>;
-        using component_entity_map_type = std::unordered_map<std::uint64_t, ObjectHandle<Component>>;
-        using component_map_type = std::unordered_map<ComponentDescriptor const *, component_entity_map_type>;
+        std::uint64_t cycle = 0;
+        ObjectHandle<CycleGenerator> cycleGenerator;
+        ObjectHandle<IdGenerator> idGenerator;
+        ObjectHandle<TransformManager> transformManager;
+        ObjectHandle<ComponentManager> componentManager;
 
-        std::uint64_t nextId;
-        std::reference_wrapper<ObjectAllocatorContext> allocators;
-        entity_map_type entities;
-        transform_graph_type transforms;
-        entity_component_map_type ecs;
-        component_map_type components;
+        std::unordered_map<std::uint64_t, std::string> entities;
+        std::unordered_map<std::uint64_t, ObjectHandle<Transform>> transforms;
+        std::unordered_map<TypeDescriptor const *, std::unordered_map<std::uint64_t, ObjectHandle<Component>>> components;
 
-        template <typename T, typename U> requires ComponentType<T>
-        static ObjectHandle<T> castComponentHandle(ObjectHandle<U> handle);
+        std::queue<std::function<void()>> disposalQueue;
 
-        template <typename T, typename U> requires TransformType<T>
-        static ObjectHandle<T> castComponentHandle(ObjectHandle<U> handle);
+        template <typename T, typename ... Args>
+        ObjectHandle<T> setupComponent(std::uint64_t entityId, Args && ... args);
+
+        template <typename T> requires ComponentType<T>
+        ObjectHandle<T> getComponentExact(std::uint64_t entityId) const;
+
+        template <typename T> requires ComponentType<T>
+        ObjectHandle<T> getComponent(std::uint64_t entityId, std::unordered_map<std::uint64_t, ObjectHandle<Component>> const &candidates) const;
 
     public:
-        Scene(std::reference_wrapper<ObjectAllocatorContext> allocators_);
-        Scene(const Scene &other) = delete;
-        Scene & operator=(const Scene &other) = delete;
 
+        Scene(ObjectHandle<TransformManager> transformManager_, ObjectHandle<ComponentManager> componentManager_,
+            ObjectHandle<IdGenerator> idGenerator_,
+            ObjectHandle<CycleGenerator> cycleGenerator_);
+
+        Scene(Scene const &) = delete;
         Scene(Scene &&other) noexcept;
-        Scene & operator=(Scene &&other) noexcept;
-
-        std::uint64_t createEntity();
-        void destroyEntity(const std::uint64_t id);
-        ObjectHandle<Transform> getTransformOfEntity(const std::uint64_t id) const;
-
-        std::string const &getNameOfEntity(uint64_t id) const;
-        void setNameOfEntity(const std::uint64_t id, std::string const &name);
-        void setNameOfEntity(const std::uint64_t id, std::string &&name);
-        std::uint64_t getEntityOfComponent(Component const *component) const;
-        std::uint64_t getEntityOfTransform(ObjectHandle<Transform> transform) const;
-        std::vector<ObjectHandle<Component>> getComponentsOfEntity(const std::uint64_t id) const;
-
-        std::vector<ObjectHandle<Component>> getAllComponents() const;
-
-        template <typename T> requires (ComponentType<T> || TransformType<T>)
-        ObjectHandle<T> getComponent(const std::uint64_t ownerId) const;
+        Scene &operator=(Scene const &) = delete;
+        Scene &operator=(Scene &&other) noexcept;
 
         template <typename T, typename ... Args> requires ComponentType<T>
-        ObjectHandle<T> addComponent(const std::uint64_t ownerId, Args &&... args);
+        ObjectHandle<T> addComponent(std::uint64_t entityId, Args &&... args);
+
+        template <typename T> requires TransformType<T> || ComponentType<T>
+        ObjectHandle<T> getComponent(std::uint64_t entityId) const;
 
         template <typename T> requires ComponentType<T>
-        void removeComponent(const std::uint64_t ownerId);
-
-        template <typename T> requires ComponentType<T>
-        std::uint64_t getEntityOfComponent(ObjectHandle<T> component) const;
-
-        template<typename T> requires ComponentType<T>
-        std::vector<ObjectHandle<T>> getAllComponentsOfType(const std::uint64_t ownerId) const;
-
-        template <typename T> requires ComponentType<T>
-        std::vector<ObjectHandle<T>> getAllComponentsOfType() const;
+        void removeComponent(std::uint64_t entityId);
 
         template <typename T, typename ... Rest>
         std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> getAllComponentSets() const;
 
+        std::pair<std::uint64_t, std::string_view> createEntity();
+        std::pair<std::uint64_t, std::string_view> createEntity(std::string_view name);
+        std::pair<std::uint64_t, std::string_view> getEntity(std::uint64_t id) const;
+
         void init();
         void update();
         void dispose();
+
     };
 }
 
-#endif
+#endif //SCENE_HPP
