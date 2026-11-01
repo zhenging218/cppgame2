@@ -13,6 +13,14 @@ namespace cppengine {
         return state;
     }
 
+    std::uint64_t Component::getOwner() const {
+        return owner;
+    }
+
+    void Component::setOwner(std::uint64_t newOwner) {
+        owner = newOwner;
+    }
+
     void Component::setStamp(std::uint64_t newStamp) {
         stamp = newStamp;
     }

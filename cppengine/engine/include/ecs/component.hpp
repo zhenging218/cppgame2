@@ -19,15 +19,19 @@ namespace cppengine {
         template <typename T> requires ComponentType<T>
         friend class ComponentPoolImpl;
 
+        std::uint64_t owner = 0;
         std::uint64_t stamp = 0;
         ComponentState state = ComponentState::INITIALISING;
 
+        void setOwner(std::uint64_t newOwner);
         void setStamp(std::uint64_t newStamp);
         void setState(ComponentState newState);
     public:
 
         [[nodiscard]] ComponentState getState() const;
         [[nodiscard]] std::uint64_t getStamp() const;
+        [[nodiscard]] std::uint64_t getOwner() const;
+
         virtual ~Component() = 0;
     };
 }

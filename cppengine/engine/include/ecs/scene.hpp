@@ -43,7 +43,7 @@ namespace cppengine {
 
         std::queue<std::function<void()>> disposalQueue;
 
-        template <typename T, typename ... Args>
+        template <typename T, typename ... Args> requires ComponentType<T>
         ObjectHandle<T> setupComponent(std::uint64_t entityId, Args && ... args);
 
         template <typename T> requires ComponentType<T>
@@ -53,6 +53,8 @@ namespace cppengine {
         ObjectHandle<T> getComponent(std::uint64_t entityId, std::unordered_map<std::uint64_t, ObjectHandle<Component>> const &candidates) const;
 
         void removeComponent(std::uint64_t entityId, TypeDescriptor const *descriptor);
+
+        void commitDisposals();
     public:
 
         Scene(ObjectHandle<TransformManager> transformManager_, ObjectHandle<ComponentManager> componentManager_,

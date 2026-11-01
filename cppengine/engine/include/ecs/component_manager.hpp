@@ -7,6 +7,10 @@
 
 #include "memory/object_handle.hpp"
 
+#include <unordered_map>
+#include <functional>
+#include <cstdint>
+
 namespace cppengine {
     class Component;
     class ComponentPool;

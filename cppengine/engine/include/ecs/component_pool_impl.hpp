@@ -43,7 +43,10 @@ namespace cppengine {
                 if constexpr (InitialisableComponentType<T>) {
                     static_cast<T&>(component).init();
                 }
-                component.setState(ComponentState::ACTIVE);
+
+                if (component.getState() == ComponentState::INITIALISING) {
+                    component.setState(ComponentState::ACTIVE);
+                }
             }
         };
     }
@@ -58,7 +61,10 @@ namespace cppengine {
                 if constexpr (DisposableComponentType<T>) {
                     static_cast<T&>(component).dispose();
                 }
-                component.setState(ComponentState::DISPOSED);
+
+                if (component.getState() == ComponentState::DISPOSING) {
+                    component.setState(ComponentState::DISPOSED);
+                }
             }
         };
     }

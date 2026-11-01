@@ -15,7 +15,7 @@ namespace cppengine {
         removeComponent(entityId, descriptor);
     }
 
-    template<typename T, typename... Args>
+    template<typename T, typename... Args> requires ComponentType<T>
     ObjectHandle<T> Scene::setupComponent(std::uint64_t entityId, Args &&... args) {
         const auto descriptor = TypeDescriptor::getTypeDescriptor<T>();
 
@@ -35,6 +35,8 @@ namespace cppengine {
                 auto component = static_handle_cast<Component>(componentManager->createComponent<T>(std::forward<Args>(args)...));
                 component->setState(ComponentState::INITIALISING);
                 component->setStamp(cycleGenerator->curr());
+                component->setOwner(entityId);
+
                 const auto [it, emplaced] = entityMap.emplace(std::make_pair(entityId, component));
 
                 if (!emplaced) {
@@ -62,7 +64,9 @@ namespace cppengine {
             if constexpr(InitialisableComponentType<T>) {
                 component->init();
             }
-            static_handle_cast<Component>(component)->setState(ComponentState::ACTIVE);
+            if (component->getState() == ComponentState::INITIALISING) {
+                static_handle_cast<Component>(component)->setState(ComponentState::ACTIVE);
+            }
         } else {
             // get component but match exactly the type
             component = getComponentExact<T>(entityId);
@@ -156,7 +160,7 @@ namespace cppengine {
             const auto descriptor = TypeDescriptor::getTypeDescriptor<T>();
 
             auto c = std::ranges::find_if(components, [descriptor](auto const &list) {
-                return list.first == descriptor || TypeDescriptor::isSuperType(list->first, descriptor);
+                return list.first == descriptor || TypeDescriptor::isSuperType(descriptor, list.first);
             });
 
             if (c != components.end()) {
