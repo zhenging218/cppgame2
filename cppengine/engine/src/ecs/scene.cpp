@@ -32,9 +32,7 @@ namespace cppengine {
     }
 
     std::pair<std::uint64_t, std::string_view> Scene::getEntity(std::uint64_t id) const {
-        auto entity = std::ranges::find_if(entities, [id](auto const &e) { return e.first == id; });
-
-        if (entity != entities.end()) {
+        if (const auto entity = entities.find(id); entity != entities.end()) {
             return { entity->first, entity->second };
         }
 
@@ -44,17 +42,14 @@ namespace cppengine {
     void Scene::removeComponent(std::uint64_t entityId, TypeDescriptor const *descriptor) {
         auto &componentMap = components[descriptor];
 
-        auto it = std::ranges::find_if(componentMap, [entityId](auto const &component) { return component.first == entityId; });
-
-
-        if (it != componentMap.end()) {
+        if (auto it = componentMap.find(entityId); it != componentMap.end()) {
 
             auto handle = it->second;
 
             switch (handle->getState()) {
                 case ComponentState::INITIALISING: {
                         handle->setState(ComponentState::DISPOSED);
-                        disposalQueue.emplace([handle] {
+                        disposalQueue.emplace([h = std::move(handle)] {
 
                         });
 
@@ -64,9 +59,9 @@ namespace cppengine {
                     break;
                 case ComponentState::ACTIVE: {
                         handle->setState(ComponentState::DISPOSING);
-                        disposalQueue.emplace([this, descriptor, handle] {
+                        disposalQueue.emplace([this, descriptor, h = std::move(handle)] {
                             const auto disposer = componentManager->getDisposer(descriptor);
-                            disposer(*handle);
+                            disposer(*h);
                         });
 
                         componentsOfEntities[entityId].erase(descriptor);
@@ -95,7 +90,7 @@ namespace cppengine {
         const auto [id, name] = getEntity(entityId);
 
         if (id != idGenerator->unidentified()) {
-            if (auto const & componentsOfEntity = std::ranges::find_if(componentsOfEntities, [entityId](auto const &ce) { return ce.first == entityId; }); componentsOfEntity != componentsOfEntities.end()) {
+            if (auto const & componentsOfEntity = componentsOfEntities.find(entityId); componentsOfEntity != componentsOfEntities.end()) {
                 const auto componentsToRemove = componentsOfEntity->second;
 
                 std::ranges::for_each(componentsToRemove, [this, entityId](auto const &descriptor) {
@@ -110,7 +105,7 @@ namespace cppengine {
 
                 if (idCheck != idGenerator->unidentified()) {
                     // last mile component removal
-                    if (auto const & leftoverComponentsOfEntity = std::ranges::find_if(componentsOfEntities, [entityId](auto const &ce) { return ce.first == entityId; }); leftoverComponentsOfEntity != componentsOfEntities.end()) {
+                    if (auto const & leftoverComponentsOfEntity = componentsOfEntities.find(entityId); leftoverComponentsOfEntity != componentsOfEntities.end()) {
                         auto &componentsOfEntity = leftoverComponentsOfEntity->second;
                         while (!componentsOfEntity.empty()) {
                             const auto leftoverComponentsToRemove = componentsOfEntity;

@@ -18,14 +18,14 @@ namespace cppengine {
     }
 
     template <typename T> requires ComponentType<T>
-    void ComponentPoolImpl<T>::update(std::uint64_t cycle) {
-        allocator.visit([cycle](T &component) {
-            if (component.getStamp() < cycle && component.getState() == ComponentState::ACTIVE) {
-                if constexpr (UpdatableComponentType<T>) {
+    void ComponentPoolImpl<T>::update([[maybe_unused]] std::uint64_t cycle) {
+        if constexpr (UpdatableComponentType<T>) {
+            allocator.visit([cycle](T &component) {
+                if (component.getStamp() < cycle && component.getState() == ComponentState::ACTIVE) {
                     component.update();
                 }
-            }
-        });
+            });
+        }
     }
 
     template <typename T> requires ComponentType<T>
@@ -37,7 +37,7 @@ namespace cppengine {
     }
 
     template<typename T> requires ComponentType<T>
-    std::function<void(Component &)> ComponentPoolImpl<T>::getInitialiser() const {
+    ComponentPool::delegate_type ComponentPoolImpl<T>::getInitialiser() const {
         return [](Component &component) {
             if (component.getState() == ComponentState::INITIALISING) {
                 if constexpr (InitialisableComponentType<T>) {
@@ -52,7 +52,7 @@ namespace cppengine {
     }
 
     template<typename T> requires ComponentType<T>
-    std::function<void(Component &)> ComponentPoolImpl<T>::getDisposer() const {
+    ComponentPool::delegate_type ComponentPoolImpl<T>::getDisposer() const {
         return [](Component &component) {
             if (component.getState() == ComponentState::INITIALISING) {
                 component.setState(ComponentState::DISPOSED);

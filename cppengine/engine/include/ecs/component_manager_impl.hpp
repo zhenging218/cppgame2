@@ -12,13 +12,12 @@ namespace cppengine {
     ObjectHandle<T> ComponentManager::createComponent(Args &&... args) {
         const auto descriptor = TypeDescriptor::getTypeDescriptor<T>();
 
-        auto it = std::ranges::find_if(componentPools, [descriptor](auto const &pool) {
-            return pool.first == descriptor;
-        });
+        auto it = componentPoolMap.find(descriptor);
 
-        if (it == componentPools.end()) {
-            auto [new_it, _] = componentPools.emplace(descriptor, createHandle<ComponentPoolImpl<T>>());
+        if (it == componentPoolMap.end()) {
+            auto [new_it, _] = componentPoolMap.emplace(descriptor, createHandle<ComponentPoolImpl<T>>());
             it = new_it;
+            componentPools.push_back(it->second);
         }
 
         auto componentPool = static_handle_cast<ComponentPoolImpl<T>>(it->second);

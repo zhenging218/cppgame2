@@ -17,12 +17,14 @@ namespace cppengine {
     private:
 
     public:
+        using delegate_type = void (*)(Component &);
+
         virtual void init() = 0;
         virtual void update(std::uint64_t cycle) = 0;
         virtual void dispose() = 0;
 
-        [[nodiscard]] virtual std::function<void(Component &)> getInitialiser() const = 0;
-        [[nodiscard]] virtual std::function<void(Component &)> getDisposer() const = 0;
+        [[nodiscard]] virtual delegate_type getInitialiser() const = 0;
+        [[nodiscard]] virtual delegate_type getDisposer() const = 0;
 
         virtual ~ComponentPool() = 0;
     };
@@ -41,11 +43,11 @@ namespace cppengine {
         ComponentPoolImpl &operator=(ComponentPoolImpl &&) noexcept = delete;
 
         void init() override;
-        void update(std::uint64_t cycle) override;
+        void update([[maybe_unused]] std::uint64_t cycle) override;
         void dispose() override;
 
-        [[nodiscard]] std::function<void(Component &)> getInitialiser() const override;
-        [[nodiscard]] std::function<void(Component &)> getDisposer() const override;
+        [[nodiscard]] delegate_type getInitialiser() const override;
+        [[nodiscard]] delegate_type getDisposer() const override;
 
         template <typename ... Args>
         ObjectHandle<T> createComponent(Args &&... args);

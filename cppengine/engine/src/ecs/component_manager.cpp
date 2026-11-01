@@ -6,9 +6,9 @@
 
 namespace cppengine {
     ObjectHandle<ComponentPool> ComponentManager::getComponentPool(TypeDescriptor const *descriptor) {
-        auto pool = std::ranges::find_if(componentPools, [descriptor](auto const &pool) { return pool.first == descriptor; });
+        auto pool = componentPoolMap.find(descriptor);
 
-        if (pool != componentPools.end()) {
+        if (pool != componentPoolMap.end()) {
             return pool->second;
         }
 
@@ -17,25 +17,22 @@ namespace cppengine {
 
     ObjectHandle<const ComponentPool> ComponentManager::
     getComponentPool(TypeDescriptor const *descriptor) const {
-        auto pool = std::ranges::find_if(componentPools, [descriptor](auto const &pool) { return pool.first == descriptor; });
-
-        if (pool != componentPools.end()) {
+        if (const auto pool = componentPoolMap.find(descriptor); pool != componentPoolMap.end()) {
             return const_handle_cast<const ComponentPool>(pool->second);
         }
 
         return nullptr;
     }
 
-    std::function<void(Component &)> ComponentManager::getInitialiser(TypeDescriptor const *descriptor) const {
-        auto pool = getComponentPool(descriptor);
-        if (pool != nullptr) {
+    ComponentManager::delegate_type ComponentManager::getInitialiser(TypeDescriptor const *descriptor) const {
+        if (const auto pool = getComponentPool(descriptor); pool != nullptr) {
             return pool->getInitialiser();
         }
 
         return [](Component &) {};
     }
 
-    std::function<void(Component &)> ComponentManager::getDisposer(TypeDescriptor const *descriptor) const {
+    ComponentManager::delegate_type ComponentManager::getDisposer(TypeDescriptor const *descriptor) const {
         auto pool = getComponentPool(descriptor);
         if (pool != nullptr) {
             return pool->getDisposer();
@@ -45,17 +42,20 @@ namespace cppengine {
     }
 
     void ComponentManager::init() {
-        auto const snapshot = componentPools;
-        std::ranges::for_each(snapshot, [](auto const &pool) { pool.second->init(); });
+        for (std::size_t i = 0; i < componentPools.size(); ++i) {
+            componentPools[i]->init();
+        }
     }
 
     void ComponentManager::update(std::uint64_t cycle) {
-        auto const snapshot = componentPools;
-        std::ranges::for_each(snapshot, [cycle](auto const &pool) { pool.second->update(cycle); });
+        for (std::size_t i = 0; i < componentPools.size(); ++i) {
+            componentPools[i]->update(cycle);
+        }
     }
 
     void ComponentManager::dispose() {
-        auto const snapshot = componentPools;
-        std::ranges::for_each(snapshot, [](auto const &pool) { pool.second->dispose(); });
+        for (std::size_t i = 0; i < componentPools.size(); ++i) {
+            componentPools[i]->dispose();
+        }
     }
 }

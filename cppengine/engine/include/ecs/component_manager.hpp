@@ -7,8 +7,8 @@
 
 #include "memory/object_handle.hpp"
 
+#include <vector>
 #include <unordered_map>
-#include <functional>
 #include <cstdint>
 
 namespace cppengine {
@@ -19,9 +19,11 @@ namespace cppengine {
     class ComponentManager {
     private:
 
-        std::unordered_map<TypeDescriptor const *, ObjectHandle<ComponentPool>> componentPools;
+        std::vector<ObjectHandle<ComponentPool>> componentPools;
+        std::unordered_map<TypeDescriptor const *, ObjectHandle<ComponentPool>> componentPoolMap;
 
     public:
+        using delegate_type = void(*)(Component &);
 
         template <typename T, typename ... Args>
         ObjectHandle<T> createComponent(Args &&... args);
@@ -29,8 +31,8 @@ namespace cppengine {
         ObjectHandle<ComponentPool> getComponentPool(TypeDescriptor const *descriptor);
         ObjectHandle<const ComponentPool> getComponentPool(TypeDescriptor const *descriptor) const;
 
-        std::function<void(Component&)> getInitialiser(TypeDescriptor const *descriptor) const;
-        std::function<void(Component&)> getDisposer(TypeDescriptor const *descriptor) const;
+        delegate_type getInitialiser(TypeDescriptor const *descriptor) const;
+        delegate_type getDisposer(TypeDescriptor const *descriptor) const;
 
         void init();
         void update(std::uint64_t cycle);
