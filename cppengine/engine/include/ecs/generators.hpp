@@ -3,6 +3,7 @@
 //
 
 #ifndef CPPGAME_GENERATORS_HPP
+#define CPPGAME_GENERATORS_HPP
 #include <cstdint>
 
 namespace cppengine {
@@ -27,7 +28,5 @@ namespace cppengine {
         virtual ~CycleGenerator() = 0;
     };
 }
-
-#define CPPGAME_GENERATORS_HPP
 
 #endif //CPPGAME_GENERATORS_HPP

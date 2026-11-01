@@ -7,9 +7,16 @@
 
 #include <string>
 #include <queue>
+#include <unordered_set>
+#include <unordered_map>
+#include <tuple>
+#include <functional>
+#include <string_view>
+#include <vector>
 
 #include "memory/object_handle.hpp"
 #include "ecs/ecs_concepts.hpp"
+#include "ecs/generators.hpp"
 
 namespace cppengine {
     class TypeDescriptor;
@@ -31,6 +38,7 @@ namespace cppengine {
 
         std::unordered_map<std::uint64_t, std::string> entities;
         std::unordered_map<std::uint64_t, ObjectHandle<Transform>> transforms;
+        std::unordered_map<std::uint64_t, std::unordered_set<TypeDescriptor const *>> componentsOfEntities;
         std::unordered_map<TypeDescriptor const *, std::unordered_map<std::uint64_t, ObjectHandle<Component>>> components;
 
         std::queue<std::function<void()>> disposalQueue;
@@ -44,6 +52,7 @@ namespace cppengine {
         template <typename T> requires ComponentType<T>
         ObjectHandle<T> getComponent(std::uint64_t entityId, std::unordered_map<std::uint64_t, ObjectHandle<Component>> const &candidates) const;
 
+        void removeComponent(std::uint64_t entityId, TypeDescriptor const *descriptor);
     public:
 
         Scene(ObjectHandle<TransformManager> transformManager_, ObjectHandle<ComponentManager> componentManager_,
@@ -51,9 +60,9 @@ namespace cppengine {
             ObjectHandle<CycleGenerator> cycleGenerator_);
 
         Scene(Scene const &) = delete;
-        Scene(Scene &&other) noexcept;
+        Scene(Scene &&other) noexcept = delete;
         Scene &operator=(Scene const &) = delete;
-        Scene &operator=(Scene &&other) noexcept;
+        Scene &operator=(Scene &&other) noexcept = delete;
 
         template <typename T, typename ... Args> requires ComponentType<T>
         ObjectHandle<T> addComponent(std::uint64_t entityId, Args &&... args);
@@ -70,6 +79,7 @@ namespace cppengine {
         std::pair<std::uint64_t, std::string_view> createEntity();
         std::pair<std::uint64_t, std::string_view> createEntity(std::string_view name);
         std::pair<std::uint64_t, std::string_view> getEntity(std::uint64_t id) const;
+        void removeEntity(std::uint64_t);
 
         void init();
         void update();

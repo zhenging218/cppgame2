@@ -5,5 +5,7 @@
 #include "ecs/ecs.hpp"
 
 namespace cppengine {
-
+    ObjectHandle<Transform> TransformManager::createTransform() {
+        return allocator.createHandle();
+    }
 }

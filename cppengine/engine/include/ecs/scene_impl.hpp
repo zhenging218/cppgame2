@@ -11,48 +11,44 @@
 namespace cppengine {
     template<typename T> requires ComponentType<T>
     void Scene::removeComponent(std::uint64_t entityId) {
-
         const auto descriptor = TypeDescriptor::getTypeDescriptor<T>();
-        auto &entityMap = components[descriptor];
-
-        auto entity = std::ranges::find_if(entityMap, [entityId](auto const &handle) {
-            return handle.first == entityId;
-        });
-
-        if (entity != entityMap.end()) {
-            // register component for disposal
-            // then remove from component list
-            auto component = entity->second;
-            static_handle_cast<Component>(component)->setState(ComponentState::DISPOSING);
-
-            disposalQueue.emplace([component]() {
-                if constexpr(DisposableComponentType<T>) {
-                    component->dispose();
-                }
-                component->setState(ComponentState::DISPOSED);
-            });
-
-            entityMap.erase(entity);
-        }
+        removeComponent(entityId, descriptor);
     }
 
     template<typename T, typename... Args>
     ObjectHandle<T> Scene::setupComponent(std::uint64_t entityId, Args &&... args) {
         const auto descriptor = TypeDescriptor::getTypeDescriptor<T>();
-        auto &entityMap = components[descriptor];
 
-        auto entity = std::ranges::find_if(entityMap, [entityId](auto const &list) {
-            return list.first == entityId;
-        });
-
-        if (entity == entityMap.end()) {
-            const auto [it, emplaced] = entityMap.emplace(std::make_pair(entityId, componentManager->createComponent<T>(std::forward<Args>(args)...)));
-
-            if (emplaced) {
-                throw R"(somehow created a new component even though a component of the type already exists)";
+        if (entities.contains(entityId)) {
+            auto &componentMap = componentsOfEntities[entityId];
+            if (componentMap.contains(descriptor)) {
+                return nullptr;
             }
 
-            return it->second;
+            auto &entityMap = components[descriptor];
+
+            auto entity = std::ranges::find_if(entityMap, [entityId](auto const &list) {
+                return list.first == entityId;
+            });
+
+            if (entity == entityMap.end()) {
+                auto component = static_handle_cast<Component>(componentManager->createComponent<T>(std::forward<Args>(args)...));
+                component->setState(ComponentState::INITIALISING);
+                component->setStamp(cycleGenerator->curr());
+                const auto [it, emplaced] = entityMap.emplace(std::make_pair(entityId, component));
+
+                if (!emplaced) {
+                    throw R"(somehow created a new component even though a component of the type already exists)";
+                }
+
+                auto [descriptorIt, descriptorEmplaced] = componentMap.emplace(descriptor);
+
+                if (!descriptorEmplaced) {
+                    throw R"(somehow created a new component even though a component of the type already exists)";
+                }
+
+                return static_handle_cast<T>(component);
+            }
         }
 
         return nullptr;
@@ -66,6 +62,7 @@ namespace cppengine {
             if constexpr(InitialisableComponentType<T>) {
                 component->init();
             }
+            static_handle_cast<Component>(component)->setState(ComponentState::ACTIVE);
         } else {
             // get component but match exactly the type
             component = getComponentExact<T>(entityId);
@@ -78,24 +75,28 @@ namespace cppengine {
     ObjectHandle<T> Scene::getComponent(std::uint64_t entityId,
         std::unordered_map<std::uint64_t, ObjectHandle<Component>> const &candidates) const {
         auto result = std::ranges::find_if(candidates, [entityId](auto const &component) {
-            return entityId == component.first;
+            auto state = component.second->getState();
+            return entityId == component.first && state != ComponentState::DISPOSING && state != ComponentState::DISPOSED;
         });
 
-        return result != candidates.end() ? result->second : nullptr;
+        return result != candidates.end() ? static_handle_cast<T>(result->second) : nullptr;
     }
 
     template<typename T> requires ComponentType<T>
     ObjectHandle<T> Scene::getComponentExact(std::uint64_t entityId) const {
         const auto target = TypeDescriptor::getTypeDescriptor<T>();
 
-        const auto candidates = std::ranges::find_if(components, [target, entityId](auto const &list) {
-            const auto descriptor = list.first;
-            return descriptor == target;
-        });
+        const auto & componentMap = std::ranges::find_if(componentsOfEntities, [entityId](auto const &coe) { return coe.first == entityId; });
 
-        if (candidates != components.end()) {
-            if (candidates != components.end()) {
-                return getComponent<T>(entityId, candidates->second);
+        if (componentMap != componentsOfEntities.end()) {
+            if (componentMap->second.contains(target)) {
+                const auto candidates = std::ranges::find_if(components, [target](auto const &list) {
+                    return list.first == target;
+                });
+
+                if (candidates != components.end()) {
+                    return getComponent<T>(entityId, candidates->second);
+                }
             }
         }
 
@@ -109,15 +110,28 @@ namespace cppengine {
 
             return t != transforms.end() ? t->second : nullptr;
         } else {
-            const auto target = TypeDescriptor::getTypeDescriptor<T>();
+            auto target = TypeDescriptor::getTypeDescriptor<T>();
 
-            const auto candidates = std::ranges::find_if(components, [target, entityId](auto const &list) {
-                const auto descriptor = list.first;
-                return TypeDescriptor::isSuperType(target, descriptor);
+            const auto & componentMap = std::ranges::find_if(componentsOfEntities, [entityId](auto const &coe) {
+                return coe.first == entityId;
             });
 
-            if (candidates != components.end()) {
-                return getComponent<T>(entityId, candidates->second);
+            if (componentMap != componentsOfEntities.end()) {
+                auto firstMatch = std::ranges::find_if(componentMap->second, [target](auto const &descriptor) {
+                    return TypeDescriptor::isSuperType(target, descriptor);
+                });
+
+                if (firstMatch != componentMap->second.end()) {
+                    target = *firstMatch;
+
+                    const auto candidates = std::ranges::find_if(components, [target](auto const &list) {
+                        return list.first == target;
+                    });
+
+                    if (candidates != components.end()) {
+                        return getComponent<T>(entityId, candidates->second);
+                    }
+                }
             }
 
             return nullptr;
@@ -133,7 +147,7 @@ namespace cppengine {
             for (auto const& [id, transform] : transforms) {
                 auto set = std::make_tuple(transform, getComponent<Rest>(id)...);
 
-                if (((std::get<Rest>(set) != nullptr) && ...)) {
+                if (((std::get<ObjectHandle<Rest>>(set) != nullptr) && ...)) {
                     result.emplace_back(std::move(set));
                 }
             }
@@ -142,14 +156,14 @@ namespace cppengine {
             const auto descriptor = TypeDescriptor::getTypeDescriptor<T>();
 
             auto c = std::ranges::find_if(components, [descriptor](auto const &list) {
-                return list.first = descriptor || TypeDescriptor::isSuperType(list->first, descriptor);
+                return list.first == descriptor || TypeDescriptor::isSuperType(list->first, descriptor);
             });
 
             if (c != components.end()) {
                 for (auto const &[id, component] : c->second) {
                     auto set = std::make_tuple(static_handle_cast<T>(component), getComponent<Rest>(id)...);
 
-                    if (((std::get<Rest>(set) != nullptr) && ...)) {
+                    if (((std::get<ObjectHandle<Rest>>(set) != nullptr) && ...)) {
                         result.emplace_back(std::move(set));
                     }
                 }

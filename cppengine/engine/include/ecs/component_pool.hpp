@@ -6,30 +6,23 @@
 #define COMPONENT_POOL_HPP
 
 #include <cstdint>
+#include <functional>
 
 #include "memory/object_allocator.hpp"
 #include "ecs/ecs_concepts.hpp"
 
 namespace cppengine {
 
-    class ComponentPoolDelegate {
-    private:
-        void *delegate;
-        void (*invoker)(void*, Component &);
-    public:
-        template <typename T> requires std::invocable<T, Component &>
-        ComponentPoolDelegate(T &delegate_);
-
-        void operator()(Component &component) const;
-    };
-
     class ComponentPool {
     private:
 
     public:
-        virtual void init(ComponentPoolDelegate delegate) = 0;
-        virtual void update(ComponentPoolDelegate delegate) = 0;
-        virtual void dispose(ComponentPoolDelegate delegate) = 0;
+        virtual void init() = 0;
+        virtual void update(std::uint64_t cycle) = 0;
+        virtual void dispose() = 0;
+
+        [[nodiscard]] virtual std::function<void(Component &)> getInitialiser() const = 0;
+        [[nodiscard]] virtual std::function<void(Component &)> getDisposer() const = 0;
 
         virtual ~ComponentPool() = 0;
     };
@@ -41,16 +34,23 @@ namespace cppengine {
         ObjectAllocator<T> allocator;
     public:
 
+        ComponentPoolImpl() = default;
         ComponentPoolImpl(ComponentPoolImpl const &) = delete;
         ComponentPoolImpl(ComponentPoolImpl &&) noexcept = delete;
         ComponentPoolImpl &operator=(ComponentPoolImpl const &) = delete;
         ComponentPoolImpl &operator=(ComponentPoolImpl &&) noexcept = delete;
 
-        virtual void init(ComponentPoolDelegate delegate) override;
-        virtual void update(ComponentPoolDelegate delegate) override;
-        virtual void dispose(ComponentPoolDelegate delegate) override;
+        void init() override;
+        void update(std::uint64_t cycle) override;
+        void dispose() override;
 
-        virtual ~ComponentPoolImpl() override = default;
+        [[nodiscard]] std::function<void(Component &)> getInitialiser() const override;
+        [[nodiscard]] std::function<void(Component &)> getDisposer() const override;
+
+        template <typename ... Args>
+        ObjectHandle<T> createComponent(Args &&... args);
+
+        ~ComponentPoolImpl() override = default;
     };
 
 }

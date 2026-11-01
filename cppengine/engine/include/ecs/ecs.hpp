@@ -11,6 +11,7 @@
 #include "enum_scene_state.hpp"
 
 #include "component_pool_impl.hpp"
+#include "component_manager_impl.hpp"
 #include "scene_impl.hpp"
 
 #endif

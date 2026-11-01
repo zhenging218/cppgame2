@@ -5,9 +5,5 @@
 #include "ecs/component_pool.hpp"
 
 namespace cppengine {
-    void ComponentPoolDelegate::operator()(Component &component) const {
-        invoker(delegate, component);
-    }
-
     ComponentPool::~ComponentPool() = default;
 }
