@@ -59,7 +59,9 @@ namespace cppengine {
                 component->init();
             }
             if (component->getState() == ComponentState::INITIALISING) {
+                static_handle_cast<Component>(component)->setScene(this);
                 static_handle_cast<Component>(component)->setState(ComponentState::ACTIVE);
+                static_handle_cast<Component>(component)->setOwner(entityId);
             }
         } else {
             // get component but match exactly the type

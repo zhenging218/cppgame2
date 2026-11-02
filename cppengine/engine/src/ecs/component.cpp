@@ -29,5 +29,27 @@ namespace cppengine {
         state = newState;
     }
 
+    Scene *Component::getScene() const {
+        return scene;
+    }
+
+    void Component::setScene(Scene *newScene) {
+        scene = newScene;
+    }
+
+    GameObject Component::createGameObject() const {
+        const auto [id_, name] = scene->createEntity();
+
+        return {id_, scene};
+    }
+
+    GameObject Component::getGameObject() const {
+        return {owner, scene};
+    }
+
+    void Component::destroyGameObject(GameObject const &gameObject) const {
+        scene->removeEntity(gameObject.id);
+    }
+
     Component::~Component() = default;
 }

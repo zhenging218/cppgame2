@@ -24,11 +24,15 @@ namespace cppengine {
     class Component;
     class TransformManager;
     class ComponentManager;
-    class SceneSetup;
 
     class Scene {
     private:
         friend class SceneSetup;
+
+        friend class GameObjectProxy;
+
+        template <typename T> requires ComponentType<T>
+        friend class ComponentProxy;
 
         std::uint64_t cycle = 0;
         ObjectHandle<CycleGenerator> cycleGenerator;
@@ -78,10 +82,11 @@ namespace cppengine {
         template <typename T, typename ... Rest>
         std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> getAllComponentSets() const;
 
+        void setEntityName(std::uint64_t entityId, std::string_view newName);
         std::pair<std::uint64_t, std::string_view> createEntity();
         std::pair<std::uint64_t, std::string_view> createEntity(std::string_view name);
         std::pair<std::uint64_t, std::string_view> getEntity(std::uint64_t id) const;
-        void removeEntity(std::uint64_t);
+        void removeEntity(std::uint64_t entityId);
 
         void init();
         void update();

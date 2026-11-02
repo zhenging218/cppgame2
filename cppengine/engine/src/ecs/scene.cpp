@@ -16,6 +16,14 @@ namespace cppengine {
         cycle = cycleGenerator->curr();
     }
 
+    void Scene::setEntityName(std::uint64_t entityId, std::string_view newName) {
+        auto it = entities.find(entityId);
+
+        if (it != entities.end()) {
+            it->second = newName;
+        }
+    }
+
     std::pair<std::uint64_t, std::string_view> Scene::createEntity() {
         return createEntity("entity");
     }
