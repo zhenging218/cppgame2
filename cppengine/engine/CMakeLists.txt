@@ -51,6 +51,7 @@ set(ENGINE_ECS_SRCS
 	${ENGINE_SRC_DIR}/ecs/game_object.cpp
 	${ENGINE_SRC_DIR}/ecs/scene.cpp
 	${ENGINE_SRC_DIR}/ecs/scene_setup.cpp
+	${ENGINE_SRC_DIR}/ecs/scene_manager.cpp
 )
 
 set(ENGINE_GRAPHICS_SRCS

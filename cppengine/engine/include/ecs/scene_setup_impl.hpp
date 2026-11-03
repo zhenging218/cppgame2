@@ -19,10 +19,26 @@ namespace cppengine {
     }
 
     template<typename T> requires ComponentType<T>
+    ComponentProxy<T>::ComponentProxy(std::uint64_t owner_, ObjectHandle<T> component_, SceneSetup const *sceneSetup_)
+        : owner(owner_), component(component_), sceneSetup(sceneSetup_) {
+
+    }
+
+    template<typename T> requires ComponentType<T>
     GameObjectProxy ComponentProxy<T>::getGameObject() const {
         const auto [id, name] = sceneSetup->scene->getEntity(owner);
 
         return { id, sceneSetup };
+    }
+
+    template<typename T> requires ComponentType<T>
+    T &ComponentProxy<T>::operator*() const {
+        return *component;
+    }
+
+    template<typename T> requires ComponentType<T>
+    T *ComponentProxy<T>::operator->() const {
+        return &(*component);
     }
 }
 

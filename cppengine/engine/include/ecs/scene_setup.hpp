@@ -21,15 +21,15 @@ namespace cppengine {
         friend class ComponentProxy;
 
         std::uint64_t id;
-        SceneSetup *sceneSetup;
+        SceneSetup const *sceneSetup;
 
-        GameObjectProxy(std::uint64_t id_, SceneSetup *sceneSetup_);
+        GameObjectProxy(std::uint64_t id_, SceneSetup const *sceneSetup_);
     public:
         template <typename T, typename ... Args> requires ComponentType<T>
-        ComponentProxy<T> addComponent(Args &&... args) const;
+        [[nodiscard]] ComponentProxy<T> addComponent(Args &&... args) const;
 
         template <typename T> requires ComponentType<T>
-        ComponentProxy<T> getComponent() const;
+        [[nodiscard]] ComponentProxy<T> getComponent() const;
 
         [[nodiscard]] ObjectHandle<Transform> getTransform() const;
         [[nodiscard]] std::string_view getName() const;
@@ -40,11 +40,11 @@ namespace cppengine {
     private:
         std::uint64_t owner;
         ObjectHandle<T> component;
-        SceneSetup *sceneSetup;
+        SceneSetup const *sceneSetup;
 
-        ComponentProxy(std::uint64_t owner_, ObjectHandle<T> component_, SceneSetup * sceneSetup_);
+        ComponentProxy(std::uint64_t owner_, ObjectHandle<T> component_, SceneSetup const * sceneSetup_);
     public:
-        GameObjectProxy getGameObject() const;
+        [[nodiscard]] GameObjectProxy getGameObject() const;
 
         T& operator*() const;
         T * operator->() const;
@@ -54,6 +54,7 @@ namespace cppengine {
 
     class SceneSetup {
     private:
+        friend class SceneManager;
         friend class GameObjectProxy;
 
         template <typename T> requires ComponentType<T>
@@ -63,12 +64,11 @@ namespace cppengine {
 
         explicit SceneSetup(Scene *scene_);
     protected:
-        GameObjectProxy createGameObject() const;
-        GameObjectProxy createGameObject(std::string_view name) const;
+        [[nodiscard]] GameObjectProxy createGameObject() const;
+        [[nodiscard]] GameObjectProxy createGameObject(std::string_view name) const;
 
     public:
         virtual void setup() = 0;
-
         virtual ~SceneSetup() = 0;
     };
 }

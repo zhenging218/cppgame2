@@ -14,13 +14,23 @@ namespace cppengine {
         return sceneSetup->scene->getComponent<Transform>(id);
     }
 
-    GameObjectProxy::GameObjectProxy(std::uint64_t id_, SceneSetup *sceneSetup_)
+    GameObjectProxy::GameObjectProxy(std::uint64_t id_, SceneSetup const *sceneSetup_)
         : id(id_), sceneSetup(sceneSetup_) {
 
     }
 
     SceneSetup::SceneSetup(Scene *scene_) : scene(scene_) {
 
+    }
+
+    GameObjectProxy SceneSetup::createGameObject(std::string_view name) const {
+        const auto [id_, name_] = scene->createEntity(name);
+
+        return GameObjectProxy(id_, this);
+    }
+
+    GameObjectProxy SceneSetup::createGameObject() const {
+        return createGameObject("gameObject");
     }
 
     SceneSetup::~SceneSetup() = default;
