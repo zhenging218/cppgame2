@@ -33,11 +33,6 @@ namespace cppengine {
     }
 
     template<typename T> requires ComponentType<T>
-    T &ComponentProxy<T>::operator*() const {
-        return *component;
-    }
-
-    template<typename T> requires ComponentType<T>
     T *ComponentProxy<T>::operator->() const {
         return &(*component);
     }

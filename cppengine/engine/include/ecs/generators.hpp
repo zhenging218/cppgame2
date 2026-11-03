@@ -12,9 +12,9 @@ namespace cppengine {
 
     public:
 
-        virtual std::uint64_t unidentified() const = 0;
-        virtual std::uint64_t next() = 0;
-        virtual std::uint64_t curr() = 0;
+        [[nodiscard]] virtual std::uint64_t unidentified() const = 0;
+        [[nodiscard]] virtual std::uint64_t next() = 0;
+        [[nodiscard]] virtual std::uint64_t curr() = 0;
         virtual ~IdGenerator() = 0;
     };
 
@@ -23,8 +23,8 @@ namespace cppengine {
 
     public:
 
-        virtual std::uint64_t next() = 0;
-        virtual std::uint64_t curr() = 0;
+        [[nodiscard]] virtual std::uint64_t next() = 0;
+        [[nodiscard]] virtual std::uint64_t curr() = 0;
         virtual ~CycleGenerator() = 0;
     };
 }

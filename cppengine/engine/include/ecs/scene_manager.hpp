@@ -5,6 +5,7 @@
 #ifndef CPPGAME_SCENE_MANAGER_HPP
 #define CPPGAME_SCENE_MANAGER_HPP
 
+#include "ecs/scene_setup.hpp"
 #include "ecs/enum_scene_state.hpp"
 #include "memory/object_handle.hpp"
 
@@ -14,30 +15,39 @@ namespace cppengine {
   class TransformManager;
 
   class SceneManager {
-    private:
+  private:
 
-      ObjectHandle<ComponentManager> componentManager;
-      ObjectHandle<TransformManager> transformManager;
+    ObjectHandle<CycleGenerator> cycleGenerator;
+    ObjectHandle<IdGenerator> idGenerator;
+    ObjectHandle<ComponentManager> componentManager;
+    ObjectHandle<TransformManager> transformManager;
 
-      ObjectHandle<Scene> scene;
-      ObjectHandle<Scene> nextScene;
-    public:
+    SceneState state;
+    ObjectHandle<Scene> scene;
+    ObjectHandle<SceneSetup> nextScene;
 
-      void initialise();
-      void shutdown();
+    SceneManager();
 
-      void load();
-      void init();
-      void update();
-      void dispose();
-      void unload();
+  public:
 
-      SceneState getState() const;
+    void initialise();
+    void shutdown();
 
-      static SceneManager& getInstance();
+    void load();
+    void init();
+    void update();
+    void dispose();
+    void unload();
 
-      template <typename T, typename ... Rest>
-      [[nodiscard]] std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> getAllComponentSets() const;
+    template <typename T, typename ... Args> requires SceneSetupType<T>
+    void loadLevel(Args &&...args);
+
+    [[nodiscard]] SceneState getState() const;
+
+    static SceneManager& getInstance();
+
+    template <typename T, typename ... Rest>
+    [[nodiscard]] std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> getAllComponentSets() const;
   };
 }
 

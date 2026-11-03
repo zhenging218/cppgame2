@@ -26,7 +26,7 @@ namespace cppengine {
         GameObjectProxy(std::uint64_t id_, SceneSetup const *sceneSetup_);
     public:
         template <typename T, typename ... Args> requires ComponentType<T>
-        [[nodiscard]] ComponentProxy<T> addComponent(Args &&... args) const;
+        ComponentProxy<T> addComponent(Args &&... args) const;
 
         template <typename T> requires ComponentType<T>
         [[nodiscard]] ComponentProxy<T> getComponent() const;
@@ -38,6 +38,8 @@ namespace cppengine {
     template<typename T> requires ComponentType<T>
     class ComponentProxy {
     private:
+        friend class GameObjectProxy;
+
         std::uint64_t owner;
         ObjectHandle<T> component;
         SceneSetup const *sceneSetup;
@@ -46,11 +48,8 @@ namespace cppengine {
     public:
         [[nodiscard]] GameObjectProxy getGameObject() const;
 
-        T& operator*() const;
         T * operator->() const;
     };
-
-
 
     class SceneSetup {
     private:
@@ -60,9 +59,9 @@ namespace cppengine {
         template <typename T> requires ComponentType<T>
         friend class ComponentProxy;
 
-        Scene *scene;
+        Scene *scene = nullptr;
 
-        explicit SceneSetup(Scene *scene_);
+        void setScene(Scene *scene_);
     protected:
         [[nodiscard]] GameObjectProxy createGameObject() const;
         [[nodiscard]] GameObjectProxy createGameObject(std::string_view name) const;
@@ -71,6 +70,9 @@ namespace cppengine {
         virtual void setup() = 0;
         virtual ~SceneSetup() = 0;
     };
+
+    template <typename T>
+    concept SceneSetupType = std::derived_from<T, SceneSetup>;
 }
 
 #endif //CPPGAME_SCENE_SETUP_HPP

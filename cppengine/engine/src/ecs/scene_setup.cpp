@@ -19,8 +19,8 @@ namespace cppengine {
 
     }
 
-    SceneSetup::SceneSetup(Scene *scene_) : scene(scene_) {
-
+    void SceneSetup::setScene(Scene *scene_) {
+        scene = scene_;
     }
 
     GameObjectProxy SceneSetup::createGameObject(std::string_view name) const {

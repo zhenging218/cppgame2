@@ -4,6 +4,8 @@
 
 #include "test.hpp"
 #include "memory/object_allocator.hpp"
+#include "memory/object_handle.hpp"
+#include "memory/weak_handle.hpp"
 
 #include <cstdint>
 #include <ranges>

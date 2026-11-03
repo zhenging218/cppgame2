@@ -44,6 +44,7 @@ namespace cppengine {
                 throw R"(somehow created a new component even though a component of the type already exists)";
             }
 
+            component->setScene(this);
             return static_handle_cast<T>(component);
         }
 
