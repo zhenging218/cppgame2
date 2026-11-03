@@ -85,6 +85,6 @@ add_library(${ENGINE_TARGET} OBJECT
 )
 
 target_include_directories(${ENGINE_TARGET} PUBLIC ${ENGINE_INC_DIR})
-#target_precompile_headers(${ENGINE_TARGET} PUBLIC ${ENGINE_INC_DIR}/engine.hpp)
+target_precompile_headers(${ENGINE_TARGET} PUBLIC ${ENGINE_INC_DIR}/engine.hpp)
 
 set_property(GLOBAL PROPERTY ENGINE_LINKED 1)
