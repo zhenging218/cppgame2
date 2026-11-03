@@ -1,7 +1,4 @@
-#include "maths/matrix4x4.hpp"
-#include "maths/vector4.hpp"
-#include "maths/quaternion.hpp"
-#include "maths/math_helper.hpp"
+#include "maths/maths.hpp"
 
 #include <limits>
 #include <cstdlib>

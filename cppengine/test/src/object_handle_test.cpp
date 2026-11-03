@@ -4,6 +4,7 @@
 
 #include "test.hpp"
 #include "memory/object_handle.hpp"
+#include "memory/weak_handle.hpp"
 
 namespace {
     int objectCount = 0;

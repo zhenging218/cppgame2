@@ -9,7 +9,7 @@ namespace cppgame {
     private:
 
     public:
-        void setup(ObjectHandle<Scene> scene) override;
+        void setup() override;
     };
 }
 

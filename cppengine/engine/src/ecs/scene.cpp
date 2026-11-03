@@ -1,156 +1,166 @@
-#include "ecs/scene.hpp"
+//
+// Created by Admin on 31/10/2026.
+//
 
-#include "engine.hpp"
+#include <ranges>
+#include <utility>
+
+#include "ecs/ecs.hpp"
 
 namespace cppengine {
-    Scene::Scene(std::reference_wrapper<ObjectAllocatorContext> allocators_) : allocators(allocators_), nextId(1) {}
 
-    Scene::Scene(Scene &&other) noexcept
-            : nextId(other.nextId),
-              allocators(other.allocators),
-              entities(std::move(other.entities)),
-              transforms(std::move(other.transforms)),
-              ecs(std::move(other.ecs)),
-              components(std::move(other.components)) {
+    Scene::Scene(ObjectHandle<TransformManager> transformManager_,ObjectHandle<ComponentManager> componentManager_, ObjectHandle<IdGenerator> idGenerator_,
+                 ObjectHandle<CycleGenerator> cycleGenerator_)
+        : cycleGenerator(std::move(cycleGenerator_)), idGenerator(std::move(idGenerator_)),
+          transformManager(std::move(transformManager_)), componentManager(std::move(componentManager_)) {
+        cycle = cycleGenerator->curr();
     }
 
-    Scene & Scene::operator=(Scene &&other) noexcept {
-        std::swap(nextId, other.nextId);
-        std::swap(allocators, other.allocators);
-        std::swap(entities, other.entities);
-        std::swap(transforms, other.transforms);
-        std::swap(ecs, other.ecs);
-        std::swap(components, other.components);
-        return *this;
-    }
+    void Scene::setEntityName(std::uint64_t entityId, std::string_view newName) {
+        auto it = entities.find(entityId);
 
-    std::string const & Scene::getNameOfEntity(uint64_t id) const {
-        return entities.at(id);
-    }
-
-    void Scene::setNameOfEntity(std::uint64_t id, std::string const &name) {
-        if (entities.contains(id)) {
-            entities[id] = name;
+        if (it != entities.end()) {
+            it->second = newName;
         }
     }
 
-    void Scene::setNameOfEntity(std::uint64_t id, std::string &&name) {
-        if (entities.contains(id)) {
-            entities[id] = std::move(name);
+    std::pair<std::uint64_t, std::string_view> Scene::createEntity() {
+        return createEntity("entity");
+    }
+
+    std::pair<std::uint64_t, std::string_view> Scene::createEntity(std::string_view name) {
+        auto [id, emplaced] = entities.emplace(idGenerator->next(), name);
+
+        if (!emplaced) {
+            throw R"(Somehow entity already exists)";
+        }
+
+        transforms.emplace(id->first, transformManager->createTransform());
+        return { id->first, id->second };
+    }
+
+    std::pair<std::uint64_t, std::string_view> Scene::getEntity(std::uint64_t id) const {
+        if (const auto entity = entities.find(id); entity != entities.end()) {
+            return { entity->first, entity->second };
+        }
+
+        return { idGenerator->unidentified(), "" };
+    }
+
+    void Scene::removeComponent(std::uint64_t entityId, TypeDescriptor const *descriptor) {
+        auto &componentMap = components[descriptor];
+
+        if (auto it = componentMap.find(entityId); it != componentMap.end()) {
+
+            auto handle = it->second;
+
+            switch (handle->getState()) {
+                case ComponentState::INITIALISING: {
+                        handle->setState(ComponentState::DISPOSED);
+                        disposalQueue.emplace([h = std::move(handle)] {
+
+                        });
+
+                        componentsOfEntities[entityId].erase(descriptor);
+                        componentMap.erase(entityId);
+                    }
+                    break;
+                case ComponentState::ACTIVE: {
+                        handle->setState(ComponentState::DISPOSING);
+                        disposalQueue.emplace([this, descriptor, h = std::move(handle)] {
+                            const auto disposer = componentManager->getDisposer(descriptor);
+                            disposer(*h);
+                        });
+
+                        componentsOfEntities[entityId].erase(descriptor);
+                        componentMap.erase(entityId);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
         }
     }
 
-    std::uint64_t Scene::getEntityOfComponent(Component const *component) const {
-        if (component != nullptr) {
-            auto entityMap = components.find(component->descriptor);
+    void Scene::commitDisposals() {
+        std::queue<std::function<void()>> snapshot;
+        std::swap(snapshot, disposalQueue);
 
-            if (entityMap != components.end()) {
-                auto result = std::ranges::find_if(entityMap->second, [component](auto const &value) {
-                    return reinterpret_cast<void const *>(&*value.second) == reinterpret_cast<void const *>(component);
+        while (!snapshot.empty()) {
+            auto command = std::move(snapshot.front());
+            snapshot.pop();
+            command();
+        }
+    }
+
+    void Scene::removeEntity(std::uint64_t entityId) {
+        const auto [id, name] = getEntity(entityId);
+
+        if (id != idGenerator->unidentified()) {
+            if (auto const & componentsOfEntity = componentsOfEntities.find(entityId); componentsOfEntity != componentsOfEntities.end()) {
+                const auto componentsToRemove = componentsOfEntity->second;
+
+                std::ranges::for_each(componentsToRemove, [this, entityId](auto const &descriptor) {
+                    removeComponent(entityId, descriptor);
                 });
 
-                if (result != entityMap->second.end()) {
-                    return result->first;
-                }
+                componentsOfEntity->second = {};
             }
-        }
 
-        return 0;
-    }
+            disposalQueue.emplace([this, entityId] {
+                const auto [idCheck, _] = getEntity(entityId);
 
-    std::uint64_t Scene::getEntityOfTransform(ObjectHandle<Transform> transform) const {
-        if (transform != nullptr) {
-            for (auto const &[id, t] : transforms) {
-                if (t == transform) {
-                    return id;
+                if (idCheck != idGenerator->unidentified()) {
+                    // last mile component removal
+                    if (auto const & leftoverComponentsOfEntity = componentsOfEntities.find(entityId); leftoverComponentsOfEntity != componentsOfEntities.end()) {
+                        auto &componentsOfEntity = leftoverComponentsOfEntity->second;
+                        while (!componentsOfEntity.empty()) {
+                            const auto leftoverComponentsToRemove = componentsOfEntity;
+                            componentsOfEntity = {};
+
+                            std::ranges::for_each(leftoverComponentsToRemove, [this, entityId](auto const &descriptor) {
+                                auto componentMap = components.find(descriptor);
+
+                                if (componentMap != components.end()) {
+                                    auto &cm = componentMap->second;
+                                    auto handle = cm.find(entityId);
+                                    if (handle != cm.end()) {
+                                        const auto disposer = componentManager->getDisposer(descriptor);
+                                        disposer(*handle->second);
+                                        cm.erase(entityId);
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+                    componentsOfEntities.erase(entityId);
+                    transforms.erase(entityId);
+                    entities.erase(entityId);
                 }
-            }
-        }
-        return 0;
-    }
-
-    std::uint64_t Scene::createEntity() {
-        auto id = nextId++;
-        entities[id] = "entity";
-        transforms[id] = allocators.get().createHandle<Transform>();
-        ecs[id] = {};
-        return id;
-    }
-
-    void Scene::destroyEntity(std::uint64_t id) {
-        auto const componentsToDelete = ecs.at(id);
-        std::ranges::for_each(componentsToDelete, [this, &id](auto const &descriptor) {
-            auto &entityMap = components.at(descriptor);
-            entityMap.erase(id);
-        });
-
-        auto transform = transforms.at(id);
-
-        transform->setParent(nullptr);
-
-        auto children = transform->getChildren();
-
-        std::ranges::for_each(children, [](auto &child) {
-            child->setParent(nullptr);
-        });
-
-        transforms.erase(id);
-
-        ecs.erase(id);
-
-        entities.erase(id);
-    }
-
-    ObjectHandle<Transform> Scene::getTransformOfEntity(std::uint64_t id) const {
-        return transforms.at(id);
-    }
-
-    std::vector<ObjectHandle<Component>> Scene::getComponentsOfEntity(const std::uint64_t id) const {
-        auto const &componentsOfEntity = ecs.at(id);
-
-        std::vector<ObjectHandle<Component>> result;
-        result.reserve(componentsOfEntity.size());
-        std::ranges::transform(componentsOfEntity.begin(), componentsOfEntity.end(), std::back_inserter(result), [this, id](auto const *descriptor) {
-            return static_handle_cast<Component>(components.at(descriptor).at(id));
-        });
-
-        return result;
-    }
-
-    std::vector<ObjectHandle<Component>> Scene::getAllComponents() const {
-        std::vector<ObjectHandle<Component>> results;
-
-        std::size_t total = 0;
-        for (auto const &[descriptor, componentInstances] : components) {
-            total += componentInstances.size();
-        }
-
-        results.reserve(total);
-
-        for (auto const &[descriptor, componentInstances] : components) {
-            std::ranges::transform(componentInstances, std::back_inserter(results), [](auto const &instance) {
-                return instance.second;
             });
         }
-
-        return results;
     }
 
     void Scene::init() {
-        std::ranges::for_each(components, [](auto const &list) {
-            list.first->init(list.second);
-        });
+        componentManager->init();
+        commitDisposals();
     }
 
     void Scene::update() {
-        std::ranges::for_each(components, [](auto const &list) {
-            list.first->update(list.second);
-        });
+        cycle = cycleGenerator->next();
+        componentManager->update(cycle);
+        commitDisposals();
     }
 
     void Scene::dispose() {
-        std::ranges::for_each(components, [](auto const &list) {
-            list.first->dispose(list.second);
-        });
+        commitDisposals();
+        componentManager->dispose();
+        components = {};
+        componentsOfEntities = {};
+        transforms = {};
+        entities = {};
+        disposalQueue = {};
     }
 }

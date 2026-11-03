@@ -1,172 +1,174 @@
-#ifndef SCENE_IMPL_HPP
-#define SCENE_IMPL_HPP
+//
+// Created by Admin on 31/10/2026.
+//
+
+#ifndef CPPGAME_SCENE_IMPL_HPP
+#define CPPGAME_SCENE_IMPL_HPP
+
+#include "ecs/ecs_concepts.hpp"
+#include "ecs/scene.hpp"
 
 namespace cppengine {
-    template <typename T, typename U> requires ComponentType<T>
-    ObjectHandle<T> Scene::castComponentHandle(ObjectHandle<U> handle) {
-        return static_handle_cast<T>(handle);
+    template<typename T> requires ComponentType<T>
+    void Scene::removeComponent(std::uint64_t entityId) {
+        const auto descriptor = TypeDescriptor::getTypeDescriptor<T>();
+        removeComponent(entityId, descriptor);
     }
 
-    template <typename T, typename U> requires TransformType<T>
-    ObjectHandle<T> Scene::castComponentHandle(ObjectHandle<U> handle) {
-        static_assert(!TransformType<T>, "function should not be instanced");
-        return nullptr;
-    }
+    template<typename T, typename... Args> requires ComponentType<T>
+    ObjectHandle<T> Scene::setupComponent(std::uint64_t entityId, Args &&... args) {
+        const auto descriptor = TypeDescriptor::getTypeDescriptor<T>();
 
-    template <typename T>  requires (ComponentType<T> || TransformType<T>)
-    ObjectHandle<T> Scene::getComponent(const std::uint64_t ownerId) const {
-        if constexpr (TransformType<T>) {
-            return getTransformOfEntity(ownerId);
-        } else {
-            ComponentDescriptor const *descriptor = ComponentDescriptor::getComponentDescriptor<T>();
-            if (ecs.contains(ownerId)) {
-                auto const &entityComponents = ecs.at(ownerId);
-                if (entityComponents.contains(descriptor)) {
-                    return castComponentHandle<T>(components.at(descriptor).at(ownerId));
-                }
-
-                auto result = std::find_if(
-                    entityComponents.begin(), entityComponents.end(),
-                    [&descriptor](auto componentType) {
-                    return descriptor->isSuperType(componentType);
-                });
-
-                if (result != entityComponents.end()) {
-                    return castComponentHandle<T>(components.at(*result).at(ownerId));
-                }
-            }
-        }
-
-        return nullptr;
-    }
-
-    template <typename T, typename ... Args> requires ComponentType<T>
-    ObjectHandle<T> Scene::addComponent(const std::uint64_t ownerId, Args &&... args) {
-        ComponentDescriptor const *descriptor = ComponentDescriptor::getComponentDescriptor<T>();
-
-        if (ecs.contains(ownerId)) {
-            if (ecs.at(ownerId).contains(descriptor)) {
+        if (entities.contains(entityId)) {
+            auto &componentMap = componentsOfEntities[entityId];
+            if (componentMap.contains(descriptor)) {
                 return nullptr;
             }
 
-            ObjectHandle<Component> handle = allocators.get().createHandle<T>(std::forward<Args>(args)...);
+            auto &entityMap = components[descriptor];
 
-            handle->descriptor = descriptor;
-            components[descriptor][ownerId] = handle;
-            ecs[ownerId].insert(descriptor);
-            return static_handle_cast<T>(handle);
+            auto component = static_handle_cast<Component>(componentManager->createComponent<T>(std::forward<Args>(args)...));
+            component->setState(ComponentState::INITIALISING);
+            component->setStamp(cycleGenerator->curr());
+            component->setOwner(entityId);
+
+            const auto [it, emplaced] = entityMap.emplace(std::make_pair(entityId, component));
+
+            if (!emplaced) {
+                throw R"(somehow created a new component even though a component of the type already exists)";
+            }
+
+            auto [descriptorIt, descriptorEmplaced] = componentMap.emplace(descriptor);
+
+            if (!descriptorEmplaced) {
+                throw R"(somehow created a new component even though a component of the type already exists)";
+            }
+
+            component->setScene(this);
+            return static_handle_cast<T>(component);
         }
 
         return nullptr;
     }
 
-    template <typename T> requires ComponentType<T>
-    void Scene::removeComponent(const std::uint64_t ownerId) {
-        ComponentDescriptor const *descriptor = ComponentDescriptor::getComponentDescriptor<T>();
+    template<typename T, typename... Args> requires ComponentType<T>
+    ObjectHandle<T> Scene::addComponent(std::uint64_t entityId, Args &&... args) {
+        auto component = setupComponent<T>(entityId, std::forward<Args>(args)...);
 
-        if (ecs.contains(ownerId) && ecs.at(ownerId).contains(descriptor)) {
-            auto &entityMap = components.at(descriptor);
-            entityMap.erase(ownerId);
-            ecs.at(ownerId).erase(descriptor);
-        }
-    }
-
-    template <typename T> requires ComponentType<T>
-    std::uint64_t Scene::getEntityOfComponent(ObjectHandle<T> component) const {
         if (component != nullptr) {
-            // no need poly check, descriptor should always tally
-            ComponentDescriptor const *descriptor = dynamic_handle_cast<Component>(component)->descriptor;
-            auto component_list = std::find_if(
-                components.begin(), components.end(),
-                [&descriptor](const component_map_type::value_type &value) {
-                return descriptor == value.first;
-            });
-
-            if (component_list != components.end()) {
-                auto entity = std::find_if(
-                    component_list->second.begin(), component_list->second.end(),
-                    [&component](auto const &value) {
-                    return value.second == component;
-                });
-
-                if (entity != component_list->second.end()) {
-                    return entity->first;
-                }
+            if constexpr(InitialisableComponentType<T>) {
+                component->init();
             }
+            if (component->getState() == ComponentState::INITIALISING) {
+                static_handle_cast<Component>(component)->setScene(this);
+                static_handle_cast<Component>(component)->setState(ComponentState::ACTIVE);
+                static_handle_cast<Component>(component)->setOwner(entityId);
+            }
+        } else {
+            // get component but match exactly the type
+            component = getComponentExact<T>(entityId);
         }
-        return 0;
+
+        return component;
     }
 
     template<typename T> requires ComponentType<T>
-    std::vector<ObjectHandle<T>> Scene::getAllComponentsOfType(const std::uint64_t ownerId) const {
-        ComponentDescriptor const *descriptor = ComponentDescriptor::getComponentDescriptor<T>();
-        std::vector<ObjectHandle<T>> results;
-        if (ecs.contains(ownerId)) {
-            auto const &componentsOfEntity = ecs.at(ownerId);
-            std::for_each(componentsOfEntity.begin(), componentsOfEntity.end(),
-                [this, &results, &descriptor, &ownerId](ComponentDescriptor const *componentType) {
-                if (descriptor->isSuperType(componentType)) {
-                    results.push_back(static_handle_cast<T>(components.at(componentType).at(ownerId)));
-                }
-            });
-        }
-        return results;
-    }
+    ObjectHandle<T> Scene::getComponent(std::uint64_t entityId,
+        std::unordered_map<std::uint64_t, ObjectHandle<Component>> const &candidates) const {
+        const auto result = candidates.find(entityId);
 
-    template <typename T> requires ComponentType<T>
-    std::vector<ObjectHandle<T>> Scene::getAllComponentsOfType() const {
-        ComponentDescriptor const *descriptor = ComponentDescriptor::getComponentDescriptor<T>();
+        if (result != candidates.end()) {
+            const auto state = result->second->getState();
 
-        std::vector<ObjectHandle<T>> results;
-
-        if (components.contains(descriptor)) {
-            auto const &entityMap = components.at(descriptor);
-            results.reserve(entityMap.size());
-            std::ranges::transform(entityMap, std::back_inserter(results),
-                    [](auto const &component) {
-                    return static_handle_cast<T>(component.second);
-                });
+            return state != ComponentState::DISPOSING && state != ComponentState::DISPOSED ? static_handle_cast<T>(result->second) : nullptr;
         }
 
-        return results;
+        return nullptr;
     }
 
-    template <typename T, typename ... Rest>
-    std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> Scene::getAllComponentSets() const {
+    template<typename T> requires ComponentType<T>
+    ObjectHandle<T> Scene::getComponentExact(std::uint64_t entityId) const {
+        const auto target = TypeDescriptor::getTypeDescriptor<T>();
 
-        std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> results;
+        const auto & componentMap = componentsOfEntities.find(entityId);
 
-        if constexpr (TransformType<T>) {
+        if (componentMap != componentsOfEntities.end()) {
+            if (componentMap->second.contains(target)) {
+                const auto candidates = components.find(target);
 
-            for (auto const &[id, transform] : transforms) {
-                auto list = std::make_tuple(
-                    transform,
-                    getComponent<Rest>(id)...
-                );
-
-                if (((std::get<ObjectHandle<Rest>>(list) != nullptr) && ...)) {
-                    results.emplace_back(std::move(list));
+                if (candidates != components.end()) {
+                    return getComponent<T>(entityId, candidates->second);
                 }
             }
-        } else {
-            ComponentDescriptor const *anchoringType = ComponentDescriptor::getComponentDescriptor<T>();
-            for (auto const &[descriptor, entityMap] : components) {
-                if (anchoringType->isSuperType(descriptor)) {
-                    for (auto const &[id, handle] : entityMap) {
-                        auto list = std::make_tuple(
-                            static_handle_cast<T>(handle),
-                            getComponent<Rest>(id)...
-                        );
+        }
 
-                        if (((std::get<ObjectHandle<Rest>>(list) != nullptr) && ...)) {
-                            results.emplace_back(std::move(list));
+        return nullptr;
+    }
+
+    template<typename T> requires TransformType<T> || ComponentType<T>
+    ObjectHandle<T> Scene::getComponent(std::uint64_t entityId) const {
+        if constexpr (TransformType<T>) {
+            auto const t = transforms.find(entityId);
+
+            return t != transforms.end() ? t->second : nullptr;
+        } else {
+            auto target = TypeDescriptor::getTypeDescriptor<T>();
+
+            if (const auto & componentMap = componentsOfEntities.find(entityId); componentMap != componentsOfEntities.end()) {
+                auto firstMatch = std::ranges::find_if(componentMap->second, [target](auto const &descriptor) {
+                    return TypeDescriptor::isSuperType(target, descriptor);
+                });
+
+                if (firstMatch != componentMap->second.end()) {
+                    target = *firstMatch;
+
+                    const auto candidates = components.find(target);
+
+                    if (candidates != components.end()) {
+                        return getComponent<T>(entityId, candidates->second);
+                    }
+                }
+            }
+
+            return nullptr;
+        }
+    }
+
+    template<typename T, typename... Rest> requires TransformType<T> || ComponentType<T>
+    std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> Scene::getAllComponentSets() const {
+        std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> result;
+
+        if  constexpr (TransformType<T>) {
+
+            for (auto const& [id, transform] : transforms) {
+                auto set = std::make_tuple(transform, getComponent<Rest>(id)...);
+
+                if (((std::get<ObjectHandle<Rest>>(set) != nullptr) && ...)) {
+                    result.emplace_back(std::move(set));
+                }
+            }
+
+        } else if constexpr (ComponentType<T>) {
+            const auto descriptor = TypeDescriptor::getTypeDescriptor<T>();
+
+            for (const auto & componentMap : components) {
+                if (componentMap.first == descriptor || TypeDescriptor::isSuperType(descriptor, componentMap.first)) {
+                    auto const &c = componentMap.second;
+                    for (auto const &[id, component] : c) {
+                        if (component->getState() != ComponentState::DISPOSING && component->getState() != ComponentState::DISPOSED) {
+                            auto set = std::make_tuple(static_handle_cast<T>(component), getComponent<Rest>(id)...);
+
+                            if (((std::get<ObjectHandle<Rest>>(set) != nullptr) && ...)) {
+                                result.emplace_back(std::move(set));
+                            }
                         }
                     }
                 }
             }
         }
-        return results;
+
+        return result;
     }
 }
 
-#endif
+#endif //CPPGAME_SCENE_IMPL_HPP

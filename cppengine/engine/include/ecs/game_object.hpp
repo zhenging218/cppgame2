@@ -1,49 +1,46 @@
-#ifndef GAME_OBJECT_HPP
-#define GAME_OBJECT_HPP
-#include <cstdint>
-#include <utility>
+//
+// Created by Admin on 2/11/2026.
+//
 
-#include "scene.hpp"
-#include "scene_manager.hpp"
+#ifndef CPPGAME_GAME_OBJECT_HPP
+#define CPPGAME_GAME_OBJECT_HPP
+
+#include <cstdint>
+#include <string>
+
+#include "ecs_concepts.hpp"
 #include "memory/object_handle.hpp"
 
+
 namespace cppengine {
+    class Transform;
+
     class GameObject {
     private:
         friend class Component;
+        friend class Scene;
 
         std::uint64_t id;
+        Scene *scene;
+
+        GameObject(std::uint64_t id_, Scene * scene_);
     public:
-        GameObject(const std::uint64_t id_);
 
-        GameObject(const GameObject &other);
+        template <typename T> requires ComponentType<T>
+        ObjectHandle<T> getComponent() const;
 
-        GameObject(GameObject &&other) noexcept;
+        template <typename T, typename ... Args> requires ComponentType<T>
+        ObjectHandle<T> addComponent(Args &&... args) const;
 
-        GameObject & operator=(GameObject const &other);
+        template <typename T> requires ComponentType<T>
+        void removeComponent() const;
 
-        template <typename T>
-        ObjectHandle<T> getComponent() const {
-            return SceneManager::getInstance().getComponent<T>(id);
-        }
+        [[nodiscard]] std::string_view getName() const;
+        void setName(std::string_view name) const;
 
-        template <typename T, typename ... Args>
-        ObjectHandle<T> addComponent(Args &&...args) {
-            return SceneManager::getInstance().addComponent<T>(id, std::forward<Args>(args)...);
-        }
-
-        template <typename T>
-        void removeComponent() {
-            SceneManager::getInstance().removeComponent<T>(id);
-        }
-
-        std::string const &getName() const;
-        void setName(std::string const &name);
-        void setName(std::string &&name);
-
-        ObjectHandle<Transform> getTransform() const;
+        [[nodiscard]] ObjectHandle<Transform> getTransform() const;
     };
 
 }
 
-#endif
+#endif //CPPGAME_GAME_OBJECT_HPP

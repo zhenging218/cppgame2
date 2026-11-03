@@ -1,85 +1,100 @@
-#include "engine.hpp"
+//
+// Created by zyiu on 3/11/2026.
+//
+
+#include "ecs/ecs.hpp"
+
+namespace {
+  using namespace cppengine;
+
+  struct FromOneIdGenerator : public IdGenerator {
+    std::uint64_t id = 0;
+
+    [[nodiscard]] std::uint64_t unidentified() const override {
+      return 0;
+    }
+
+    [[nodiscard]] std::uint64_t next() override {
+      return ++id;
+    }
+
+    [[nodiscard]] std::uint64_t curr() override {
+      return id;
+    }
+  };
+
+  struct FromOneCycleGenerator : public CycleGenerator {
+
+    std::uint64_t cycle = 0;
+
+    [[nodiscard]] std::uint64_t next() override {
+      return ++cycle;
+    }
+
+    [[nodiscard]] std::uint64_t curr() override {
+      return cycle;
+    }
+  };
+}
 
 namespace cppengine {
-    std::uint64_t SceneManager::createEntity() {
-        return scene->createEntity();
-    }
 
-    void SceneManager::destroyEntity(const std::uint64_t id) {
-        auto components = scene->getComponentsOfEntity(id);
-        std::ranges::for_each(components, [](auto const &handle) { handle->descriptor->dispose(handle); });
-        scene->destroyEntity(id);
-    }
+  void SceneManager::load() {
+    auto next = createHandle<Scene>(
+      transformManager,
+      componentManager,
+      idGenerator,
+      cycleGenerator);
 
-    std::uint64_t SceneManager::getEntityOfComponent(Component const *component) const {
-        return scene->getEntityOfComponent(component);
-    }
+    nextScene->scene = &(*next);
+    nextScene->setup();
+    scene = next;
+    nextScene = nullptr;
+    ++state;
+  }
 
-    std::string const &SceneManager::getNameOfEntity(uint64_t id) const {
-        return scene->getNameOfEntity(id);
-    }
+  void SceneManager::init() {
+    scene->init();
+    ++state;
+  }
 
-    void SceneManager::setNameOfEntity(const std::uint64_t id, std::string const &name) {
-        scene->setNameOfEntity(id, name);
-    }
+  void SceneManager::update() {
+    scene->update();
+  }
 
-    void SceneManager::setNameOfEntity(const std::uint64_t id, std::string &&name) {
-        scene->setNameOfEntity(id, name);
-    }
+  void SceneManager::dispose() {
+    scene->dispose();
+    ++state;
+  }
 
-    ObjectHandle<Transform> SceneManager::getTransformOfEntity(const std::uint64_t id) const {
-        return scene->getTransformOfEntity(id);
-    }
+  void SceneManager::unload() {
+    scene = nullptr;
+    ++state;
+  }
 
-    std::uint64_t SceneManager::getEntityOfTransform(ObjectHandle<Transform> transform) const {
-        return scene->getEntityOfTransform(transform);
-    }
+  SceneManager::SceneManager()
+  : cycleGenerator(createHandle<FromOneCycleGenerator>()),
+    idGenerator(createHandle<FromOneIdGenerator>()),
+    componentManager(createHandle<ComponentManager>()),
+    transformManager(createHandle<TransformManager>()),
+    state(SceneState::STARTUP) {
 
-    void SceneManager::initialise() {
+  }
 
-    }
+  SceneState SceneManager::getState() const {
+    return state;
+  }
 
-    void SceneManager::shutdown() {
+  SceneManager &SceneManager::getInstance() {
+    static SceneManager instance;
+    return instance;
+  }
 
-    }
+  void SceneManager::initialise() {
 
-    void SceneManager::load() {
-        scene = new Scene(std::reference_wrapper(allocators));
-        nextScene->setup(scene);
-        nextScene = nullptr;
-        ++state;
-    }
+  }
 
-    void SceneManager::init() {
-        scene->init();
-        ++state;
-    }
+  void SceneManager::shutdown() {
 
-    void SceneManager::update() {
-        scene->update();
-    }
-
-    void SceneManager::dispose() {
-        scene->dispose();
-        ++state;
-    }
-
-    void SceneManager::unload() {
-        scene = nullptr;
-        ++state;
-    }
-
-    SceneManager::SceneManager()
-    : state(SceneState::STARTUP) {
-
-    }
-
-    SceneState SceneManager::getState() const {
-        return state;
-    }
-
-    SceneManager &SceneManager::getInstance() {
-        static SceneManager instance;
-        return instance;
-    }
+  }
 }

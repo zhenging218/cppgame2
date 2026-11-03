@@ -1,76 +1,54 @@
-#ifndef SCENE_MANAGER_HPP
-#define SCENE_MANAGER_HPP
+//
+// Created by zyiu on 3/11/2026.
+//
 
-#include <cstdint>
+#ifndef CPPGAME_SCENE_MANAGER_HPP
+#define CPPGAME_SCENE_MANAGER_HPP
 
-#include "enum_scene_state.hpp"
+#include "ecs/scene_setup.hpp"
+#include "ecs/enum_scene_state.hpp"
 #include "memory/object_handle.hpp"
-#include "maths/transform.hpp"
-#include "scene_helper.hpp"
-#include "scene_setup.hpp"
 
 namespace cppengine {
-    class Scene;
 
-    class SceneManager {
-    private:
-        SceneState state;
-        ObjectAllocatorContext allocators;
-        ObjectHandle<SceneSetup> nextScene;
-        ObjectHandle<Scene> scene;
-    public:
-        SceneManager();
-        SceneManager(SceneManager const &) = delete;
-        SceneManager(SceneManager &&) = delete;
-        SceneManager &operator=(SceneManager const &) = delete;
-        SceneManager &operator=(SceneManager &&) = delete;
+  class ComponentManager;
+  class TransformManager;
 
-        static SceneManager &getInstance();
+  class SceneManager {
+  private:
 
-        void initialise();
+    ObjectHandle<CycleGenerator> cycleGenerator;
+    ObjectHandle<IdGenerator> idGenerator;
+    ObjectHandle<ComponentManager> componentManager;
+    ObjectHandle<TransformManager> transformManager;
 
-        template <typename T, typename ... Args>
-        void loadLevel(Args &&... args) {
-            nextScene = new T(std::forward<Args>(args)...);
-            ++state;
-        }
+    SceneState state;
+    ObjectHandle<Scene> scene;
+    ObjectHandle<SceneSetup> nextScene;
 
-        void load();
-        void init();
-        void update();
-        void dispose();
-        void unload();
+    SceneManager();
 
-        SceneState getState() const;
-        void shutdown();
+  public:
 
-        template <typename T, typename ... Args> requires ComponentType<T>
-        ObjectHandle<T> addComponent(const std::uint64_t id, Args &&... args);
+    void initialise();
+    void shutdown();
 
-        template <typename T>
-        void removeComponent(const std::uint64_t id);
+    void load();
+    void init();
+    void update();
+    void dispose();
+    void unload();
 
-        template <typename T>
-        ObjectHandle<T> getComponent(const std::uint64_t id) const;
+    template <typename T, typename ... Args> requires SceneSetupType<T>
+    void loadLevel(Args &&...args);
 
-        std::uint64_t createEntity();
-        void destroyEntity(const std::uint64_t id);
-        ObjectHandle<Transform> getTransformOfEntity(const std::uint64_t id) const;
+    [[nodiscard]] SceneState getState() const;
 
-        std::string const &getNameOfEntity(uint64_t id) const;
-        void setNameOfEntity(const std::uint64_t id, std::string const &name);
-        void setNameOfEntity(const std::uint64_t id, std::string &&name);
+    static SceneManager& getInstance();
 
-        std::uint64_t getEntityOfComponent(Component const *component) const;
-        std::uint64_t getEntityOfTransform(ObjectHandle<Transform> transform) const;
-
-        template <typename T>
-        std::vector<ObjectHandle<T>> getAllComponentsOfType() const;
-
-        template <typename T, typename ... Rest>
-        std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> getAllComponentSets() const;
-
-    };
+    template <typename T, typename ... Rest>
+    [[nodiscard]] std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> getAllComponentSets() const;
+  };
 }
 
-#endif
+#endif //CPPGAME_SCENE_MANAGER_HPP

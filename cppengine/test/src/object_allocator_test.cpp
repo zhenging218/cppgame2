@@ -4,6 +4,8 @@
 
 #include "test.hpp"
 #include "memory/object_allocator.hpp"
+#include "memory/object_handle.hpp"
+#include "memory/weak_handle.hpp"
 
 #include <cstdint>
 #include <ranges>
@@ -242,6 +244,38 @@ SCENARIO("weak handles work for non polymorphic types using allocators") {
             AND_WHEN("the weak handle is out of scope") {
                 THEN("the memory is returned to the allocator") {
                     REQUIRE(allocator.getAllocatedBlockCount() == 0);
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("allocators allow mutating allocated objects via visitation") {
+    GIVEN("an allocator") {
+        auto allocator = Allocator<AllocatedObject>();
+
+        AND_GIVEN("some objects that are allocated") {
+            auto objectHandle = allocator.createHandle(1);
+            auto objectHandle2 = allocator.createHandle(2);
+            auto objectHandle3 = allocator.createHandle(3);
+            auto objectHandle4 = allocator.createHandle(4);
+
+            WHEN("a visitor with a visit counter sets values on the allocated object") {
+                int visits = 0;
+
+                allocator.visit([&visits](auto &object) {
+                    object.x = 69;
+                    ++visits;
+                });
+
+                THEN("the amount of visitations match the number of allocated objects") {
+                    REQUIRE(visits == allocator.getAllocatedBlockCount());
+                }
+                AND_THEN("the objects are mutated") {
+                    REQUIRE(objectHandle->x == 69);
+                    REQUIRE(objectHandle2->x == 69);
+                    REQUIRE(objectHandle3->x == 69);
+                    REQUIRE(objectHandle4->x == 69);
                 }
             }
         }

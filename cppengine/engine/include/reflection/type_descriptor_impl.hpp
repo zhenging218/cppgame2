@@ -82,6 +82,17 @@ namespace cppengine {
         TypeDescriptor const *superType = TypeDescriptor::getTypeDescriptor<typename std::remove_cvref<T>::type>();
         return isSuperType(superType, subType);
     }
+
+    template <typename T>
+    TypeDescriptor const *TypeDescriptor::getRootDescriptor() {
+        auto descriptor = TypeDescriptor::getTypeDescriptor<T>();
+
+        while (descriptor->getSuperType() != descriptor) {
+            descriptor = descriptor->getSuperType();
+        }
+
+        return descriptor;
+    }
 }
 
 #endif

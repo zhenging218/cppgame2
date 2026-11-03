@@ -29,6 +29,9 @@ namespace cppengine {
         virtual ~TypeDescriptor();
 
         template <typename T>
+        static TypeDescriptor const *getRootDescriptor();
+
+        template <typename T>
         static bool isSuperType(TypeDescriptor const *descriptor);
 
         static bool isSuperType(TypeDescriptor const *superType, TypeDescriptor const *subType);
