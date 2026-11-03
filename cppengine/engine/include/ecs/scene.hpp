@@ -79,7 +79,7 @@ namespace cppengine {
         template <typename T> requires ComponentType<T>
         void removeComponent(std::uint64_t entityId);
 
-        template <typename T, typename ... Rest>
+        template <typename T, typename ... Rest> requires TransformType<T> || ComponentType<T>
         std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> getAllComponentSets() const;
 
         void setEntityName(std::uint64_t entityId, std::string_view newName);

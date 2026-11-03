@@ -134,7 +134,7 @@ namespace cppengine {
         }
     }
 
-    template<typename T, typename... Rest>
+    template<typename T, typename... Rest> requires TransformType<T> || ComponentType<T>
     std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> Scene::getAllComponentSets() const {
         std::vector<std::tuple<ObjectHandle<T>, ObjectHandle<Rest>...>> result;
 
@@ -151,16 +151,17 @@ namespace cppengine {
         } else if constexpr (ComponentType<T>) {
             const auto descriptor = TypeDescriptor::getTypeDescriptor<T>();
 
-            auto c = std::ranges::find_if(components, [descriptor](auto const &list) {
-                return list.first == descriptor || TypeDescriptor::isSuperType(descriptor, list.first);
-            });
+            for (const auto & componentMap : components) {
+                if (componentMap.first == descriptor || TypeDescriptor::isSuperType(descriptor, componentMap.first)) {
+                    auto const &c = componentMap.second;
+                    for (auto const &[id, component] : c) {
+                        if (component->getState() != ComponentState::DISPOSING && component->getState() != ComponentState::DISPOSED) {
+                            auto set = std::make_tuple(static_handle_cast<T>(component), getComponent<Rest>(id)...);
 
-            if (c != components.end()) {
-                for (auto const &[id, component] : c->second) {
-                    auto set = std::make_tuple(static_handle_cast<T>(component), getComponent<Rest>(id)...);
-
-                    if (((std::get<ObjectHandle<Rest>>(set) != nullptr) && ...)) {
-                        result.emplace_back(std::move(set));
+                            if (((std::get<ObjectHandle<Rest>>(set) != nullptr) && ...)) {
+                                result.emplace_back(std::move(set));
+                            }
+                        }
                     }
                 }
             }
