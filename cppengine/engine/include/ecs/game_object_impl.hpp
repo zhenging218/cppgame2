@@ -5,6 +5,9 @@
 #ifndef CPPGAME_GAME_OBJECT_IMPL_HPP
 #define CPPGAME_GAME_OBJECT_IMPL_HPP
 
+#include "ecs/ecs_concepts.hpp"
+#include "ecs/game_object.hpp"
+
 namespace cppengine {
 
     template<typename T> requires ComponentType<T>

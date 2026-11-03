@@ -5,7 +5,8 @@
 #ifndef CPPGAME_SCENE_SETUP_IMPL_HPP
 #define CPPGAME_SCENE_SETUP_IMPL_HPP
 
-#include "scene_setup.hpp"
+#include "ecs/ecs_concepts.hpp"
+#include "ecs/scene_setup.hpp"
 
 namespace cppengine {
     template<typename T, typename... Args> requires ComponentType<T>
