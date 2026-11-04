@@ -14,9 +14,9 @@ namespace cppengine {
         GladShaderContext(GladShaderContext const &) = delete;
         GladShaderContext &operator=(GladShaderContext const &) = delete;
 
-        ShaderID loadShader(const std::string &shaderName) override;
+        ShaderID loadShader(std::string_view shaderName) override;
 
-        ShaderID getShader(std::string const &shaderName) const override;
+        ShaderID getShaderId(std::string_view shaderName) const override;
         ObjectHandle<ShaderHandle> getShader(ShaderID shaderId) override;
 
         ~GladShaderContext() override;

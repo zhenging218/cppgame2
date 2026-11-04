@@ -15,10 +15,8 @@ namespace cppengine {
 
         friend class GladShaderContext;
     public:
-        GladShaderHandle(std::string const &name_, GLuint id_);
-        GladShaderHandle(std::string  &&name_, GLuint id_);
-        explicit GladShaderHandle(std::string const &name_);
-        explicit GladShaderHandle(std::string &&name_);
+        GladShaderHandle(std::string_view name_, GLuint id_);
+        explicit GladShaderHandle(std::string_view name_);
 
         GladShaderHandle(GladShaderHandle const &) = delete;
         GladShaderHandle &operator=(GladShaderHandle const &) = delete;

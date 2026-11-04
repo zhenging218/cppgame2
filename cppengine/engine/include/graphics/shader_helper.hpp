@@ -5,7 +5,7 @@
 
 namespace cppengine {
     namespace ShaderHelper {
-        std::pair<std::string, std::string> getShaderSourcePaths(std::string const &name);
+        std::pair<std::string, std::string> getShaderSourcePaths(std::string_view name);
     }
 }
 

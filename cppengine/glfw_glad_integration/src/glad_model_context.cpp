@@ -25,9 +25,7 @@ namespace cppengine {
     }
 
     ObjectHandle<ModelHandle> GladModelContext::getModel(ModelID id) const {
-        auto result = std::ranges::find_if(models, [&id](auto const &model) {
-            return model.first == id;
-        });
+        auto result = models.find(id);
 
         return result != models.end() ? result->second : nullptr;
     }

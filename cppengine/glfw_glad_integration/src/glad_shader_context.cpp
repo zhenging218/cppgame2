@@ -60,7 +60,7 @@ namespace cppengine {
         };
     }
 
-    ShaderID GladShaderContext::getShader(std::string const &shaderName) const {
+    ShaderID GladShaderContext::getShaderId(std::string_view shaderName) const {
         auto result = std::ranges::find_if(shaders, [&shaderName] (auto const &shader) {
             return shader.second->getName() == shaderName;
         });
@@ -73,9 +73,7 @@ namespace cppengine {
     }
 
     ObjectHandle<ShaderHandle> GladShaderContext::getShader(ShaderID shaderId) {
-        auto result = std::ranges::find_if(shaders, [&shaderId] (auto const &shader) {
-            return shader.first == shaderId;
-        });
+        auto result = shaders.find(shaderId);
 
         if (result != shaders.end()) {
             return result->second;
@@ -84,7 +82,7 @@ namespace cppengine {
         return nullptr;
     }
 
-    ShaderID GladShaderContext::loadShader(const std::string &shaderName) {
+    ShaderID GladShaderContext::loadShader(std::string_view shaderName) {
         auto result = std::ranges::find_if(shaders, [&shaderName] (auto const &shader) {
             return shader.second->getName() == shaderName;
         });

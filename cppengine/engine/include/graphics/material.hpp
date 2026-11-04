@@ -22,7 +22,7 @@ namespace cppengine {
 
 
     public:
-        ShaderID shaderId;
+        std::string shaderName = DEFAULT_SHADER_NAME;
 
     private:
         std::unordered_map<std::string, Uniform> uniforms;
@@ -30,7 +30,7 @@ namespace cppengine {
     public:
         Material();
 
-        ShaderID getShaderId() const;
+        std::string_view getShaderName() const;
 
         // todo: shader asset system, so setShader can set by name only
         void setShader(std::string const &name);

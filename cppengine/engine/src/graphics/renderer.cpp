@@ -86,19 +86,19 @@ namespace {
         return {};
     }
 
-    std::map<ShaderID, std::vector<renderable_item_type>> preprocessAndGroupByShaders(
+    std::map<std::string_view, std::vector<renderable_item_type>> preprocessAndGroupByShaders(
         ObjectHandle<ModelContext> modelContext,
         ObjectHandle<TextureContext> texture_context,
         std::vector<renderable_entity_type> const &renderables
         ) {
 
-        std::map<ShaderID, std::vector<renderable_entity_type>> grouped;
-        std::map<ShaderID, std::vector<renderable_item_type>> result;
+        std::map<std::string_view, std::vector<renderable_entity_type>> grouped;
+        std::map<std::string_view, std::vector<renderable_item_type>> result;
 
         for (auto const &renderable : renderables) {
             auto const & [t, r, m] = renderable;
 
-            grouped[m->getShaderId()].emplace_back(t,r,m);
+            grouped[m->getShaderName()].emplace_back(t,r,m);
         }
 
         for (auto const &[id, group] : grouped) {
@@ -157,17 +157,24 @@ namespace cppengine {
             drawContext->begin();
 
             for (auto const &batch : renderables) {
-                auto shader = shaderContext->getShader(batch.first);
-                drawContext->bindShader(shader);
+                auto shader = shaderContext->getShaderId(batch.first);
+
+                if (shader == NO_SHADER) {
+                    shader = loadShader(batch.first);
+                }
+
+                auto shaderHandle = shaderContext->getShader(shader);
+
+                drawContext->bindShader(shaderHandle);
 
                 for (auto const &[transform, model, uniforms, textures] : batch.second) {
                     // render
                     drawContext->bindModel(model);
-                    drawContext->render(shader, model, uniforms, textures, transform->getMatrix());
+                    drawContext->render(shaderHandle, model, uniforms, textures, transform->getMatrix());
                     drawContext->unbindModel(model);
                 }
 
-                drawContext->unbindShader(shader);
+                drawContext->unbindShader(shaderHandle);
             }
 
             drawContext->flush();
@@ -181,9 +188,9 @@ namespace cppengine {
         return instance.context->getModelContext()->getModel(name);
     }
 
-    ShaderID Renderer::getShader(std::string const &name) {
+    ShaderID Renderer::getShader(std::string_view name) {
         auto &instance = getInstance();
-        return instance.context->getShaderContext()->getShader(name);
+        return instance.context->getShaderContext()->getShaderId(name);
     }
 
     ModelID Renderer::loadModel(std::string const &name, Vector3 const *vertices, std::uint32_t vertex_count, std::uint32_t const *indices, std::uint32_t index_count) {
@@ -191,7 +198,7 @@ namespace cppengine {
         return instance.context->getModelContext()->loadModel(name, vertices, indices, vertex_count, index_count);
     }
 
-    ShaderID Renderer::loadShader(std::string const &name) {
+    ShaderID Renderer::loadShader(std::string_view name) {
         auto &instance = getInstance();
         return instance.context->getShaderContext()->loadShader(name);
     }

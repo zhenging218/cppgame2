@@ -51,27 +51,19 @@ namespace {
             vertSource.c_str(), fragSource.c_str());
     }
 
-    GLuint createShaderProgram(std::string const & name) {
+    GLuint createShaderProgram(std::string_view name) {
         auto const &[vert, frag] = ShaderHelper::getShaderSourcePaths(name);
         return loadShader(vert.c_str(), frag.c_str());
     }
 }
 
 namespace cppengine {
-    GladShaderHandle::GladShaderHandle(std::string const &name_, GLuint id_) : shaderName(name_), id(id_) {
+    GladShaderHandle::GladShaderHandle(std::string_view name_, GLuint id_) : shaderName(name_), id(id_) {
 
     }
 
-    GladShaderHandle::GladShaderHandle(std::string &&name_, GLuint id_) : shaderName(std::move(name_)), id(id_) {
+    GladShaderHandle::GladShaderHandle(std::string_view name_) : id(createShaderProgram(name_)), shaderName(name_) {
 
-    }
-
-    GladShaderHandle::GladShaderHandle(std::string const &name_) : id(createShaderProgram(name_)), shaderName(name_) {
-
-    }
-
-    GladShaderHandle::GladShaderHandle(std::string &&name_) : id(createShaderProgram(name_)), shaderName(std::move(name_)) {
-        
     }
 
     GladShaderHandle::~GladShaderHandle() {
