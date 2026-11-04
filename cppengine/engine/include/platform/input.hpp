@@ -20,7 +20,9 @@ namespace cppengine {
         void initialise();
         void shutdown();
 
+        void beginFrame();
         void getInputs();
+        void endFrame();
 
         static bool isKeyDown(KeyCode keyCode);
         static bool isKeyUp(KeyCode keyCode);

@@ -27,11 +27,13 @@ namespace {
 					SceneManager::getInstance().init();
 					break;
 				case SceneState::UPDATE:
+					Input::getInstance().beginFrame();
 					Window::getInstance().beginFrame();
 					Input::getInstance().getInputs();
 					SceneManager::getInstance().update();
 					Renderer::getInstance().draw();
 					Window::getInstance().endFrame();
+					Input::getInstance().endFrame();
 					Time::getInstance().advance();
 					break;
 				case SceneState::TEARDOWN:

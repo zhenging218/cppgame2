@@ -10,7 +10,7 @@ namespace cppengine {
         GLFWInputContext();
         ~GLFWInputContext() override;
 
-        void clearInputs();
+        void clearInputs() override;
 
         bool isKeyUp(KeyCode keyCode) const override;
 

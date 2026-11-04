@@ -1,4 +1,4 @@
-#include <cstring>
+    #include <cstring>
 
 #include "engine.hpp"
 #include "gg_integration.hpp"
@@ -6,16 +6,16 @@
 namespace {
     using namespace cppengine;
     
-    bool keyIsDown[GLFW_KEY_LAST] = { false };
-    bool keyIsPressed[GLFW_KEY_LAST] = { false };
-    bool keyIsReleased[GLFW_KEY_LAST] = { false };
+    bool keyIsDown[GLFW_KEY_LAST + 1] = { false };
+    bool keyIsPressed[GLFW_KEY_LAST + 1] = { false };
+    bool keyIsReleased[GLFW_KEY_LAST + 1] = { false };
 
-    bool mouseIsDown[GLFW_MOUSE_BUTTON_LAST] = { false };
-    bool mouseIsPressed[GLFW_MOUSE_BUTTON_LAST] = { false };
-    bool mouseIsReleased[GLFW_MOUSE_BUTTON_LAST] = { false };
+    bool mouseIsDown[GLFW_MOUSE_BUTTON_LAST + 1] = { false };
+    bool mouseIsPressed[GLFW_MOUSE_BUTTON_LAST + 1] = { false };
+    bool mouseIsReleased[GLFW_MOUSE_BUTTON_LAST + 1] = { false };
 
     void onGlfwKeyEvent(GLFWwindow *window, int key, int scancode, int action, int mods) {
-        if (!(key < 0) && key < GLFW_KEY_LAST) {
+        if (!(key < 0) && key <= GLFW_KEY_LAST) {
             switch (action) {
                 case GLFW_PRESS:
                     keyIsDown[key] = true;
@@ -32,7 +32,7 @@ namespace {
     }
 
     void onGLFWMouseEvent(GLFWwindow *window, int button, int action, int mods) {
-        if (!(button < 0) && button < GLFW_MOUSE_BUTTON_LAST) {
+        if (!(button < 0) && button <= GLFW_MOUSE_BUTTON_LAST) {
             switch (action) {
                 case GLFW_PRESS:
                     mouseIsDown[button] = true;
