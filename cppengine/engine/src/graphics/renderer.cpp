@@ -160,7 +160,7 @@ namespace cppengine {
                 auto shader = shaderContext->getShaderId(batch.first);
 
                 if (shader == NO_SHADER) {
-                    shader = loadShader(batch.first);
+                    shader = shaderContext->getShaderId(DEFAULT_SHADER_NAME);
                 }
 
                 auto shaderHandle = shaderContext->getShader(shader);

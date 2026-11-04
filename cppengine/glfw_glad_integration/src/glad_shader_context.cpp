@@ -91,12 +91,20 @@ namespace cppengine {
             return result->first;
         }
 
+        // todo: try to load and compile the shader from assets
+
+        // only register the shader if load and compile succeeds
+        // i.e. only create the shader handle upon success then do shaders.emplace
+        // otherwise, return no shader
+
+        /*
         ObjectHandle<ShaderHandle> shader = new GladShaderHandle(shaderName);
         auto const [it, inserted] = shaders.try_emplace(static_cast<ShaderID>(static_handle_cast<GladShaderHandle>(shader)->getId()), shader);
 
         if (inserted) {
             return it->first;
         }
+        */
 
         return ShaderID::NO_SHADER;
     }

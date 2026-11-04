@@ -11,6 +11,7 @@ namespace cppengine {
 
     void Material::setShader(std::string const &name) {
         shaderName = name;
+        Renderer::loadShader(name);
     }
 
     std::string_view Material::getShaderName() const {
