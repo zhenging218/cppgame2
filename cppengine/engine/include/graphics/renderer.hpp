@@ -24,12 +24,9 @@ namespace cppengine {
 
         static Renderer &getInstance();
 
-        static ModelID getModel(std::string const &name);
-        static ShaderID getShader(std::string const &name);
-
-        static ModelID loadModel(std::string const &name, Vector3 const *vertices, std::uint32_t vertex_count, std::uint32_t const *indices, std::uint32_t index_count);
-        static ShaderID loadShader(std::string const &name);
-        static Texture loadTexture(std::string const &path);
+        static ModelID loadModel(std::string_view name, Vector3 const *vertices, std::uint32_t vertex_count, std::uint32_t const *indices, std::uint32_t index_count);
+        static ShaderID loadShader(std::string_view name);
+        static Texture loadTexture(std::string_view path);
     };
 }
 

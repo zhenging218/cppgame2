@@ -35,7 +35,6 @@ namespace cppengine {
     }
 
     void GLFWWindowContext::beginFrame() {
-        GGContextManager::getInputContext()->clearInputs();
         glfwPollEvents();
     }
 

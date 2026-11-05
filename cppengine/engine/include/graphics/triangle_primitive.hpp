@@ -5,12 +5,10 @@
 
 namespace cppengine {
     class TrianglePrimitive : public Renderable {
-    private:
-        ModelID id;
     public:
         TrianglePrimitive();
 
-        ModelID getModelId() const override;
+        std::string_view getModelName() const override;
 
         Triangle const &getTriangle() const;
     };

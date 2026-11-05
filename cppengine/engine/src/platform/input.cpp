@@ -14,7 +14,15 @@ namespace cppengine {
 
     }
 
+    void Input::beginFrame() {
+        context->clearInputs();
+    }
+
     void Input::getInputs() {
+
+    }
+
+    void Input::endFrame() {
 
     }
 

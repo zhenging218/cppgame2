@@ -7,18 +7,17 @@
 namespace cppengine {
     class GladModelContext : public ModelContext {
     private:
-        std::unordered_map<ModelID, ObjectHandle<ModelHandle>> models;
+        std::unordered_map<std::string, ObjectHandle<ModelHandle>, GladRendererHelper::StringHash, std::equal_to<>> models;
 
     public:
         GladModelContext();
         GladModelContext(GladModelContext const &) = delete;
         GladModelContext &operator=(GladModelContext const &) = delete;
 
-        ModelID loadModel(const std::string &name, const Vector3 *vertices, const std::uint32_t *indices,
+        ModelID loadModel(std::string_view, const Vector3 *vertices, const std::uint32_t *indices,
             std::uint32_t vertexCount, std::uint32_t indexCount) override;
 
-        ModelID getModel(std::string const &name) const override;
-        ObjectHandle<ModelHandle> getModel(ModelID id) const override;
+        ObjectHandle<ModelHandle> getModel(std::string_view id) const override;
 
         ~GladModelContext() override;
     };

@@ -12,7 +12,7 @@ namespace cppengine {
     protected:
 
     public:
-        virtual ModelID getModelId() const = 0;
+        virtual std::string_view getModelName() const = 0;
 
         ~Renderable() override = 0;
     };

@@ -31,6 +31,7 @@ add_library(${ENGINE_PLATFORM_INTEGRATION_TARGET} OBJECT
 	${INTEGRATION_SRC_DIR}/glad_model_handle.cpp
 	${INTEGRATION_SRC_DIR}/glad_model_context.cpp
 	${INTEGRATION_SRC_DIR}/glad_shader_helper.cpp
+	${INTEGRATION_SRC_DIR}/glad_renderer_helper.cpp
 	${INTEGRATION_SRC_DIR}/glad_shader_handle.cpp
 	${INTEGRATION_SRC_DIR}/glad_shader_context.cpp
 	${INTEGRATION_SRC_DIR}/glad_draw_context.cpp

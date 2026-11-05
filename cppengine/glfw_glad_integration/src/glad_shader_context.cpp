@@ -54,28 +54,14 @@ namespace cppengine {
     GladShaderContext::GladShaderContext() {
         shaders = {
             {
-                ShaderID::DEFAULT_DIFFUSE_SHADER,
-                ObjectHandle(new GladShaderHandle(DEFAULT_SHADER_NAME, loadDefaultShader()))
+                DEFAULT_SHADER_NAME,
+                ObjectHandle(new GladShaderHandle(loadDefaultShader()))
             }
         };
     }
 
-    ShaderID GladShaderContext::getShader(std::string const &shaderName) const {
-        auto result = std::ranges::find_if(shaders, [&shaderName] (auto const &shader) {
-            return shader.second->getName() == shaderName;
-        });
-
-        if (result != shaders.end()) {
-            return result->first;
-        }
-
-        return NO_SHADER;
-    }
-
-    ObjectHandle<ShaderHandle> GladShaderContext::getShader(ShaderID shaderId) {
-        auto result = std::ranges::find_if(shaders, [&shaderId] (auto const &shader) {
-            return shader.first == shaderId;
-        });
+    ObjectHandle<ShaderHandle> GladShaderContext::getShader(std::string_view shaderName) {
+        auto result = shaders.find(shaderName);
 
         if (result != shaders.end()) {
             return result->second;
@@ -84,21 +70,27 @@ namespace cppengine {
         return nullptr;
     }
 
-    ShaderID GladShaderContext::loadShader(const std::string &shaderName) {
-        auto result = std::ranges::find_if(shaders, [&shaderName] (auto const &shader) {
-            return shader.second->getName() == shaderName;
-        });
+    ShaderID GladShaderContext::loadShader(std::string_view shaderName) {
+        auto result = shaders.find(shaderName);
 
         if (result != shaders.end()) {
-            return result->first;
+            return result->second->getId();
         }
 
+        // todo: try to load and compile the shader from assets
+
+        // only register the shader if load and compile succeeds
+        // i.e. only create the shader handle upon success then do shaders.emplace
+        // otherwise, return no shader
+
+        /*
         ObjectHandle<ShaderHandle> shader = new GladShaderHandle(shaderName);
         auto const [it, inserted] = shaders.try_emplace(static_cast<ShaderID>(static_handle_cast<GladShaderHandle>(shader)->getId()), shader);
 
         if (inserted) {
             return it->first;
         }
+        */
 
         return ShaderID::NO_SHADER;
     }

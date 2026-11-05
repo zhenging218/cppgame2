@@ -1,12 +1,13 @@
 #ifndef MODEL_HANDLE_HPP
 #define MODEL_HANDLE_HPP
+#include "enum_model_id.hpp"
 
 namespace cppengine {
     class ModelHandle {
     private:
 
     public:
-        virtual std::string const &getName() const = 0;
+        [[nodiscard]] virtual ModelID getId() const = 0;
         virtual void bindModel() = 0;
         virtual void unbindModel() = 0;
         virtual ~ModelHandle() = 0;

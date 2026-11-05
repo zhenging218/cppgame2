@@ -6,7 +6,7 @@
 namespace {
     using namespace cppengine;
 
-    const std::unordered_map<std::string, std::string> defaultLocationNames = {
+    const std::unordered_map<std::string, std::string, GladRendererHelper::StringHash, std::equal_to<>> defaultLocationNames = {
         { ShaderLocation::SHADER_MVP_MATRIX_UNIFORM, "mvp" },
         { ShaderLocation::SHADER_DIFFUSE_COLOUR_UNIFORM, "tint" },
         { ShaderLocation::SHADER_DIFFUSE_TEXTURE_UNIFORM, "albedo" },
@@ -51,27 +51,19 @@ namespace {
             vertSource.c_str(), fragSource.c_str());
     }
 
-    GLuint createShaderProgram(std::string const & name) {
+    GLuint createShaderProgram(std::string_view name) {
         auto const &[vert, frag] = ShaderHelper::getShaderSourcePaths(name);
         return loadShader(vert.c_str(), frag.c_str());
     }
 }
 
 namespace cppengine {
-    GladShaderHandle::GladShaderHandle(std::string const &name_, GLuint id_) : shaderName(name_), id(id_) {
+    GladShaderHandle::GladShaderHandle(GLuint id_) : id(id_) {
 
     }
 
-    GladShaderHandle::GladShaderHandle(std::string &&name_, GLuint id_) : shaderName(std::move(name_)), id(id_) {
+    GladShaderHandle::GladShaderHandle(std::string_view name_) : GladShaderHandle(createShaderProgram(name_)) {
 
-    }
-
-    GladShaderHandle::GladShaderHandle(std::string const &name_) : id(createShaderProgram(name_)), shaderName(name_) {
-
-    }
-
-    GladShaderHandle::GladShaderHandle(std::string &&name_) : id(createShaderProgram(name_)), shaderName(std::move(name_)) {
-        
     }
 
     GladShaderHandle::~GladShaderHandle() {
@@ -80,10 +72,6 @@ namespace cppengine {
 
     void GladShaderHandle::bindShader() {
         glUseProgram(id);
-    }
-
-    const std::string &GladShaderHandle::getName() const {
-        return shaderName;
     }
     
     void GladShaderHandle::setUniform(const std::string &name, const std::int32_t value) {
@@ -185,7 +173,7 @@ namespace cppengine {
         glUseProgram(0);
     }
 
-    GLuint GladShaderHandle::getId() const {
-        return id;
+    ShaderID GladShaderHandle::getId() const {
+        return static_cast<ShaderID>(id);
     }
 }

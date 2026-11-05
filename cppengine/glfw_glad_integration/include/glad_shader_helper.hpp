@@ -9,7 +9,12 @@ namespace cppengine {
     namespace GladShaderHelper {
         GLuint compileShader(char const *vertPath, char const *fragPath,
             char const *vertSource, char const *fragSource);
+
+
     }
+
+
+
 }
 
 #endif

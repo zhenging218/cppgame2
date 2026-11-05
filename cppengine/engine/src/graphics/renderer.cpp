@@ -86,24 +86,24 @@ namespace {
         return {};
     }
 
-    std::map<ShaderID, std::vector<renderable_item_type>> preprocessAndGroupByShaders(
+    std::map<std::string_view, std::vector<renderable_item_type>> preprocessAndGroupByShaders(
         ObjectHandle<ModelContext> modelContext,
         ObjectHandle<TextureContext> texture_context,
         std::vector<renderable_entity_type> const &renderables
         ) {
 
-        std::map<ShaderID, std::vector<renderable_entity_type>> grouped;
-        std::map<ShaderID, std::vector<renderable_item_type>> result;
+        std::map<std::string_view, std::vector<renderable_entity_type>> grouped;
+        std::map<std::string_view, std::vector<renderable_item_type>> result;
 
         for (auto const &renderable : renderables) {
             auto const & [t, r, m] = renderable;
 
-            grouped[m->getShaderId()].emplace_back(t,r,m);
+            grouped[m->getShaderName()].emplace_back(t,r,m);
         }
 
         for (auto const &[id, group] : grouped) {
             for (auto const &[r, t, m] : group) {
-                auto model = modelContext->getModel(r->getModelId());
+                auto model = modelContext->getModel(r->getModelName());
 
                 result[id].push_back({t, model, m->getUniforms(), {}});
             }
@@ -158,6 +158,11 @@ namespace cppengine {
 
             for (auto const &batch : renderables) {
                 auto shader = shaderContext->getShader(batch.first);
+
+                if (shader == nullptr) {
+                    shader = shaderContext->getShader(DEFAULT_SHADER_NAME);
+                }
+
                 drawContext->bindShader(shader);
 
                 for (auto const &[transform, model, uniforms, textures] : batch.second) {
@@ -176,27 +181,17 @@ namespace cppengine {
         context->endDraw();
     }
 
-    ModelID Renderer::getModel(std::string const &name) {
-        auto &instance = getInstance();
-        return instance.context->getModelContext()->getModel(name);
-    }
-
-    ShaderID Renderer::getShader(std::string const &name) {
-        auto &instance = getInstance();
-        return instance.context->getShaderContext()->getShader(name);
-    }
-
-    ModelID Renderer::loadModel(std::string const &name, Vector3 const *vertices, std::uint32_t vertex_count, std::uint32_t const *indices, std::uint32_t index_count) {
+    ModelID Renderer::loadModel(std::string_view name, Vector3 const *vertices, std::uint32_t vertex_count, std::uint32_t const *indices, std::uint32_t index_count) {
         auto &instance = getInstance();
         return instance.context->getModelContext()->loadModel(name, vertices, indices, vertex_count, index_count);
     }
 
-    ShaderID Renderer::loadShader(std::string const &name) {
+    ShaderID Renderer::loadShader(std::string_view name) {
         auto &instance = getInstance();
         return instance.context->getShaderContext()->loadShader(name);
     }
 
-    Texture Renderer::loadTexture(std::string const &path) {
+    Texture Renderer::loadTexture(std::string_view path) {
         return {};
     }
 

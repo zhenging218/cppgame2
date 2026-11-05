@@ -12,6 +12,8 @@ namespace cppengine {
         virtual bool isKeyDown(KeyCode keyCode) const = 0;
         virtual bool isKeyPressed(KeyCode keyCode) const = 0;
         virtual bool isKeyReleased(KeyCode keyCode) const = 0;
+
+        virtual void clearInputs() = 0;
     };
 
     inline InputContext::~InputContext() = default;

@@ -2,6 +2,7 @@
 #define SHADER_HANDLE_HPP
 #include <string>
 
+#include "enum_shader_id.hpp"
 #include "memory/object_handle.hpp"
 #include "texture_handle.hpp"
 
@@ -18,7 +19,7 @@ namespace cppengine {
     private:
 
     public:
-        virtual std::string const &getName() const = 0;
+        virtual ShaderID getId() const = 0;
 
         virtual void bindShader() = 0;
 

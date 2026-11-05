@@ -10,20 +10,11 @@ namespace cppengine {
 
     class GladModelHandle : public ModelHandle {
     private:
-        std::string name;
         GLuint vao, vbo, ebo;
         std::uint32_t elementCount;
 
     public:
         GladModelHandle(
-            std::string const &name,
-            Vector3 const *vertices,
-            std::uint32_t vertexCount,
-            std::uint32_t const *indices,
-            std::uint32_t indexCount);
-
-        GladModelHandle(
-            std::string &&name,
             Vector3 const *vertices,
             std::uint32_t vertexCount,
             std::uint32_t const *indices,
@@ -35,9 +26,8 @@ namespace cppengine {
         void bindModel() override;
         void unbindModel() override;
 
-        GLuint getId() const;
-        std::uint32_t getElementCount() const;
-        std::string const &getName() const override;
+        [[nodiscard]] ModelID getId() const override;
+        [[nodiscard]] std::uint32_t getElementCount() const;
 
         ~GladModelHandle() override;
     };
