@@ -15,11 +15,11 @@ namespace {
 }
 
 namespace cppengine {
-    Box2DPrimitive::Box2DPrimitive() : id(loadPrimitive()) {
-
+    Box2DPrimitive::Box2DPrimitive() {
+        loadPrimitive();
     }
 
-    ModelID Box2DPrimitive::getModelId() const {
-        return id;
+    std::string_view Box2DPrimitive::getModelName() const {
+        return "BOX2D";
     }
 }

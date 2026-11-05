@@ -103,7 +103,7 @@ namespace {
 
         for (auto const &[id, group] : grouped) {
             for (auto const &[r, t, m] : group) {
-                auto model = modelContext->getModel(r->getModelId());
+                auto model = modelContext->getModel(r->getModelName());
 
                 result[id].push_back({t, model, m->getUniforms(), {}});
             }
@@ -181,17 +181,7 @@ namespace cppengine {
         context->endDraw();
     }
 
-    ModelID Renderer::getModel(std::string const &name) {
-        auto &instance = getInstance();
-        return instance.context->getModelContext()->getModel(name);
-    }
-
-    ShaderID Renderer::getShader(std::string_view name) {
-        auto &instance = getInstance();
-        return instance.context->getShaderContext()->getShader(name)->getId();
-    }
-
-    ModelID Renderer::loadModel(std::string const &name, Vector3 const *vertices, std::uint32_t vertex_count, std::uint32_t const *indices, std::uint32_t index_count) {
+    ModelID Renderer::loadModel(std::string_view name, Vector3 const *vertices, std::uint32_t vertex_count, std::uint32_t const *indices, std::uint32_t index_count) {
         auto &instance = getInstance();
         return instance.context->getModelContext()->loadModel(name, vertices, indices, vertex_count, index_count);
     }
@@ -201,7 +191,7 @@ namespace cppengine {
         return instance.context->getShaderContext()->loadShader(name);
     }
 
-    Texture Renderer::loadTexture(std::string const &path) {
+    Texture Renderer::loadTexture(std::string_view path) {
         return {};
     }
 

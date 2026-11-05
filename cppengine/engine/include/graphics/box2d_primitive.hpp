@@ -5,12 +5,10 @@
 
 namespace cppengine {
     class Box2DPrimitive : public Renderable {
-    private:
-        ModelID id;
     public:
         Box2DPrimitive();
 
-        ModelID getModelId() const override;
+        [[nodiscard]] std::string_view getModelName() const override;
     };
 }
 

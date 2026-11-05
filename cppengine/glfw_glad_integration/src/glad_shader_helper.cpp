@@ -1,8 +1,8 @@
 #include "engine.hpp"
 #include "gg_integration.hpp"
 
-namespace cppengine {
-    namespace GladShaderHelper {
+
+    namespace cppengine::GladShaderHelper {
         GLuint compileShader(char const *vertPath, char const *fragPath,
             char const *vertSource, char const *fragSource) {
             auto vert = glCreateShader(GL_VERTEX_SHADER);
@@ -33,17 +33,4 @@ namespace cppengine {
 
             return program;
         }
-
-        size_t StringHash::operator()(const char *txt) const {
-            return std::hash<std::string_view>{}(txt);
-        }
-
-        size_t StringHash::operator()(std::string_view txt) const {
-            return std::hash<std::string_view>{}(txt);
-        }
-
-        size_t StringHash::operator()(const std::string &txt) const {
-            return std::hash<std::string>{}(txt);
-        }
     }
-}

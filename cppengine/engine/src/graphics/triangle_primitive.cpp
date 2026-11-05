@@ -15,11 +15,11 @@ namespace {
 }
 
 namespace cppengine {
-    TrianglePrimitive::TrianglePrimitive() : id(loadPrimitive()) {
-
+    TrianglePrimitive::TrianglePrimitive() {
+        loadPrimitive();
     }
 
-    ModelID TrianglePrimitive::getModelId() const {
-        return ModelID::TRIANGLE;
+    std::string_view TrianglePrimitive::getModelName() const {
+        return "TRIANGLE";
     }
 }
