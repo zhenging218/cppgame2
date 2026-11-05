@@ -54,26 +54,14 @@ namespace cppengine {
     GladShaderContext::GladShaderContext() {
         shaders = {
             {
-                ShaderID::DEFAULT_DIFFUSE_SHADER,
-                ObjectHandle(new GladShaderHandle(DEFAULT_SHADER_NAME, loadDefaultShader()))
+                DEFAULT_SHADER_NAME,
+                ObjectHandle(new GladShaderHandle(loadDefaultShader()))
             }
         };
     }
 
-    ShaderID GladShaderContext::getShaderId(std::string_view shaderName) const {
-        auto result = std::ranges::find_if(shaders, [&shaderName] (auto const &shader) {
-            return shader.second->getName() == shaderName;
-        });
-
-        if (result != shaders.end()) {
-            return result->first;
-        }
-
-        return NO_SHADER;
-    }
-
-    ObjectHandle<ShaderHandle> GladShaderContext::getShader(ShaderID shaderId) {
-        auto result = shaders.find(shaderId);
+    ObjectHandle<ShaderHandle> GladShaderContext::getShader(std::string_view shaderName) {
+        auto result = shaders.find(shaderName);
 
         if (result != shaders.end()) {
             return result->second;
@@ -83,12 +71,10 @@ namespace cppengine {
     }
 
     ShaderID GladShaderContext::loadShader(std::string_view shaderName) {
-        auto result = std::ranges::find_if(shaders, [&shaderName] (auto const &shader) {
-            return shader.second->getName() == shaderName;
-        });
+        auto result = shaders.find(shaderName);
 
         if (result != shaders.end()) {
-            return result->first;
+            return result->second->getId();
         }
 
         // todo: try to load and compile the shader from assets

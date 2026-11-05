@@ -157,24 +157,22 @@ namespace cppengine {
             drawContext->begin();
 
             for (auto const &batch : renderables) {
-                auto shader = shaderContext->getShaderId(batch.first);
+                auto shader = shaderContext->getShader(batch.first);
 
-                if (shader == NO_SHADER) {
-                    shader = shaderContext->getShaderId(DEFAULT_SHADER_NAME);
+                if (shader == nullptr) {
+                    shader = shaderContext->getShader(DEFAULT_SHADER_NAME);
                 }
 
-                auto shaderHandle = shaderContext->getShader(shader);
-
-                drawContext->bindShader(shaderHandle);
+                drawContext->bindShader(shader);
 
                 for (auto const &[transform, model, uniforms, textures] : batch.second) {
                     // render
                     drawContext->bindModel(model);
-                    drawContext->render(shaderHandle, model, uniforms, textures, transform->getMatrix());
+                    drawContext->render(shader, model, uniforms, textures, transform->getMatrix());
                     drawContext->unbindModel(model);
                 }
 
-                drawContext->unbindShader(shaderHandle);
+                drawContext->unbindShader(shader);
             }
 
             drawContext->flush();
@@ -190,7 +188,7 @@ namespace cppengine {
 
     ShaderID Renderer::getShader(std::string_view name) {
         auto &instance = getInstance();
-        return instance.context->getShaderContext()->getShaderId(name);
+        return instance.context->getShaderContext()->getShader(name)->getId();
     }
 
     ModelID Renderer::loadModel(std::string const &name, Vector3 const *vertices, std::uint32_t vertex_count, std::uint32_t const *indices, std::uint32_t index_count) {

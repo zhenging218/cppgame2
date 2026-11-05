@@ -2,12 +2,13 @@
 #define GLAD_SHADER_CONTEXT_HPP
 #include <unordered_map>
 
+#include "glad_shader_helper.hpp"
 #include "graphics/shader_context.hpp"
 
 namespace cppengine {
     class GladShaderContext : public ShaderContext {
     private:
-        std::unordered_map<ShaderID, ObjectHandle<ShaderHandle>> shaders;
+        std::unordered_map<std::string, ObjectHandle<ShaderHandle>, GladShaderHelper::StringHash, std::equal_to<>> shaders;
 
     public:
         GladShaderContext();
@@ -15,9 +16,7 @@ namespace cppengine {
         GladShaderContext &operator=(GladShaderContext const &) = delete;
 
         ShaderID loadShader(std::string_view shaderName) override;
-
-        ShaderID getShaderId(std::string_view shaderName) const override;
-        ObjectHandle<ShaderHandle> getShader(ShaderID shaderId) override;
+        ObjectHandle<ShaderHandle> getShader(std::string_view shaderName) override;
 
         ~GladShaderContext() override;
     };
