@@ -6,7 +6,7 @@
 namespace {
     using namespace cppengine;
 
-    const std::unordered_map<std::string, std::string, GladRendererHelper::StringHash, std::equal_to<>> defaultLocationNames = {
+    const std::unordered_map<std::string, std::string, HashHelper::StringHash, std::equal_to<>> defaultLocationNames = {
         { ShaderLocation::SHADER_MVP_MATRIX_UNIFORM, "mvp" },
         { ShaderLocation::SHADER_DIFFUSE_COLOUR_UNIFORM, "tint" },
         { ShaderLocation::SHADER_DIFFUSE_TEXTURE_UNIFORM, "albedo" },

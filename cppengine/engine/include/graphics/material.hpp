@@ -28,11 +28,9 @@ namespace cppengine {
         std::unordered_map<std::string, Uniform> uniforms;
         std::unordered_map<std::string, Texture> textures;
     public:
-        Material();
 
         std::string_view getShaderName() const;
 
-        // todo: shader asset system, so setShader can set by name only
         void setShader(std::string const &name);
 
         template<typename T> requires UniformType<T>

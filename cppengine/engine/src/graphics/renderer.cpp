@@ -18,6 +18,17 @@ namespace {
     std::unordered_map<std::string,
     ObjectHandle<TextureHandle>>>;
 
+    const std::unordered_map<std::string, ModelID(*)(ObjectHandle<ModelContext> const &), HashHelper::StringHash, std::equal_to<>> primitiveLoaders = {
+        { TRIANGLE_PRIMITIVE_NAME,  [](const ObjectHandle<ModelContext>& context) {
+            Triangle triangle;
+            return context->loadModel(TRIANGLE_PRIMITIVE_NAME, triangle.vertices, triangle.getIndices(), triangle.getVertexCount(), triangle.getIndexCount());
+        }},
+    { BOX2D_PRIMITIVE_NAME,  [](const ObjectHandle<ModelContext>& context) {
+        Box2D box2d;
+        return context->loadModel(TRIANGLE_PRIMITIVE_NAME, box2d.vertices, box2d.getIndices(), box2d.getVertexCount(), box2d.getIndexCount());
+    }}
+    };
+
     Rectangle2D getAbsoluteViewport(
         Rectangle2D const &relativeViewport, const int frameBufferWidth, const int frameBufferHeight) {
         return {
@@ -105,6 +116,16 @@ namespace {
             for (auto const &[r, t, m] : group) {
                 auto model = modelContext->getModel(r->getModelName());
 
+                if (model == nullptr) {
+                    if (auto loader = primitiveLoaders.find(r->getModelName()); loader != primitiveLoaders.end()) {
+                        loader->second(modelContext);
+                        model = modelContext->getModel(r->getModelName());
+                    }
+                    else {
+                        continue;
+                    }
+                }
+
                 result[id].push_back({t, model, m->getUniforms(), {}});
             }
         }
@@ -156,8 +177,8 @@ namespace cppengine {
 
             drawContext->begin();
 
-            for (auto const &batch : renderables) {
-                auto shader = shaderContext->getShader(batch.first);
+            for (const auto &[shaderName, components] : renderables) {
+                auto shader = shaderContext->getShader(shaderName);
 
                 if (shader == nullptr) {
                     shader = shaderContext->getShader(DEFAULT_SHADER_NAME);
@@ -165,7 +186,7 @@ namespace cppengine {
 
                 drawContext->bindShader(shader);
 
-                for (auto const &[transform, model, uniforms, textures] : batch.second) {
+                for (auto const &[transform, model, uniforms, textures] : components) {
                     // render
                     drawContext->bindModel(model);
                     drawContext->render(shader, model, uniforms, textures, transform->getMatrix());
@@ -183,6 +204,13 @@ namespace cppengine {
 
     ModelID Renderer::loadModel(std::string_view name, Vector3 const *vertices, std::uint32_t vertex_count, std::uint32_t const *indices, std::uint32_t index_count) {
         auto &instance = getInstance();
+
+        auto primitive = primitiveLoaders.find(name);
+
+        if (primitive != primitiveLoaders.end()) {
+            return primitive->second(instance.context->getModelContext());
+        }
+
         return instance.context->getModelContext()->loadModel(name, vertices, indices, vertex_count, index_count);
     }
 

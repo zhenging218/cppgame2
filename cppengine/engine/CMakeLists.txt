@@ -55,6 +55,7 @@ set(ENGINE_ECS_SRCS
 )
 
 set(ENGINE_GRAPHICS_SRCS
+	${ENGINE_SRC_DIR}/graphics/hash_helper.cpp
 	${ENGINE_SRC_DIR}/graphics/colour.cpp
 	${ENGINE_SRC_DIR}/graphics/texture.cpp
 	${ENGINE_SRC_DIR}/graphics/shader_helper.cpp

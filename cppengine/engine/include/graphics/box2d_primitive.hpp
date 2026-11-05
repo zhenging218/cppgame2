@@ -6,8 +6,6 @@
 namespace cppengine {
     class Box2DPrimitive : public Renderable {
     public:
-        Box2DPrimitive();
-
         [[nodiscard]] std::string_view getModelName() const override;
     };
 }

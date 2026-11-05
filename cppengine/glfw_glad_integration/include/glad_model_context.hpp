@@ -7,7 +7,7 @@
 namespace cppengine {
     class GladModelContext : public ModelContext {
     private:
-        std::unordered_map<std::string, ObjectHandle<ModelHandle>, GladRendererHelper::StringHash, std::equal_to<>> models;
+        std::unordered_map<std::string, ObjectHandle<ModelHandle>, HashHelper::StringHash, std::equal_to<>> models;
 
     public:
         GladModelContext();

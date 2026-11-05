@@ -6,11 +6,7 @@
 namespace cppengine {
     class TrianglePrimitive : public Renderable {
     public:
-        TrianglePrimitive();
-
-        std::string_view getModelName() const override;
-
-        Triangle const &getTriangle() const;
+        [[nodiscard]] std::string_view getModelName() const override;
     };
 }
 
