@@ -1,9 +1,6 @@
 #include "engine.hpp"
 
 namespace cppengine {
-    Material::Material() : shaderName(DEFAULT_SHADER_NAME) {
-
-    }
 
     std::unordered_map<std::string, Uniform> const &Material::getUniforms() const {
         return uniforms;
@@ -11,7 +8,6 @@ namespace cppengine {
 
     void Material::setShader(std::string const &name) {
         shaderName = name;
-        Renderer::loadShader(name);
     }
 
     std::string_view Material::getShaderName() const {

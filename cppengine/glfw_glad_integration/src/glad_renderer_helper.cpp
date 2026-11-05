@@ -6,15 +6,5 @@
 
 
     namespace cppengine::GladRendererHelper {
-        size_t StringHash::operator()(const char *txt) const {
-            return std::hash<std::string_view>{}(txt);
-        }
 
-        size_t StringHash::operator()(std::string_view txt) const {
-            return std::hash<std::string_view>{}(txt);
-        }
-
-        size_t StringHash::operator()(const std::string &txt) const {
-            return std::hash<std::string>{}(txt);
-        }
     }

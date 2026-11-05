@@ -8,12 +8,7 @@
 
 namespace cppengine {
     namespace GladRendererHelper {
-        struct StringHash {
-            using is_transparent = void;
-            [[nodiscard]] size_t operator()(const char *txt) const;
-            [[nodiscard]] size_t operator()(std::string_view txt) const;
-            [[nodiscard]] size_t operator()(const std::string &txt) const;
-        };
+
     }
 }
 

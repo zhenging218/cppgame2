@@ -8,7 +8,7 @@
 namespace cppengine {
     class GladShaderContext : public ShaderContext {
     private:
-        std::unordered_map<std::string, ObjectHandle<ShaderHandle>, GladRendererHelper::StringHash, std::equal_to<>> shaders;
+        std::unordered_map<std::string, ObjectHandle<ShaderHandle>, HashHelper::StringHash, std::equal_to<>> shaders;
 
     public:
         GladShaderContext();
