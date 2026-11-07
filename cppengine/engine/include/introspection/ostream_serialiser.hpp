@@ -44,7 +44,7 @@ namespace cppengine {
         void serialiseValue(const bool &value) override;
         void serialiseValue(std::string_view value) override;
 
-        void placeSeparator() override;
+        void processSeparator() override;
 
          void endObject() override;
          void endArray() override;

@@ -42,8 +42,14 @@ namespace cppengine {
         using owner_type = T;
         using field_type = U;
 
+        using const_getter_type = field_type const &(*)(owner_type const &);
+        using getter_type = field_type &(*)(owner_type &);
+
         static constexpr char const *getName() { return name; }
         static constexpr U T::* getMember() { return member; }
+
+        static constexpr field_type &get(owner_type &owner) { return owner.*getMember(); }
+        static constexpr field_type const &get(owner_type const &owner) { return owner.*getMember(); }
     };
 
     template <typename ... Args>

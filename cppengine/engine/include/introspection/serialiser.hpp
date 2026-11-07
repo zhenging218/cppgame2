@@ -75,7 +75,7 @@ namespace cppengine {
         virtual void serialiseValue(std::string_view name, bool const &value) = 0;
         virtual void serialiseValue(std::string_view name, std::string_view value) = 0;
 
-        virtual void placeSeparator() = 0;
+        virtual void processSeparator() = 0;
 
         virtual void endObject() = 0;
         virtual void endArray() = 0;

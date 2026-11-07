@@ -58,7 +58,7 @@ namespace cppengine {
         ostream << " }";
     }
 
-    void OStreamSerialiser::placeSeparator() {
+    void OStreamSerialiser::processSeparator() {
         ostream << ", ";
     }
 

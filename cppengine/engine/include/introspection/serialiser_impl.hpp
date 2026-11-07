@@ -59,7 +59,7 @@ namespace cppengine {
     [[maybe_unused]] bool first = true;
     (([&] {
           if (!first)
-            placeSeparator();
+            processSeparator();
         first = false;
         v(T{});
     }()), ...);
@@ -74,7 +74,7 @@ namespace cppengine {
     for (auto i = begin; i != end; i = std::next(i)) {
       serialiseValue(*i);
       if (std::next(i) != end) {
-        placeSeparator();
+        processSeparator();
       }
     }
     endArray();
@@ -89,7 +89,7 @@ namespace cppengine {
     for (auto i = begin; i != end; i = std::next(i)) {
       serialiseValue(*i);
       if (std::next(i) != end) {
-        placeSeparator();
+        processSeparator();
       }
     }
     endArray();
@@ -99,7 +99,7 @@ namespace cppengine {
   void Serialiser::serialiseObject(std::string_view name, T const &object) {
     beginObject(name);
     serialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && value) {
-        serialiseValue(value.getName(), object.*value.getMember());
+        serialiseValue(value.getName(), value.get(object));
     });
     endObject();
   }
@@ -108,7 +108,7 @@ namespace cppengine {
   void Serialiser::serialiseObject(T const &object) {
     beginObject();
     serialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && value) {
-        serialiseValue(value.getName(), object.*value.getMember());
+        serialiseValue(value.getName(), value.get(object));
     });
     endObject();
   }

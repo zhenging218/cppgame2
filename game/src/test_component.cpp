@@ -5,6 +5,22 @@
 #include <numbers>
 #include <cmath>
 
+namespace {
+    struct Test {
+        int x = 0;
+        std::string y = "hello";
+        int z[10] {0};
+    };
+}
+
+DECL_TYPE_DESCRIPTOR(Test);
+
+DECL_TYPE_MEMBERS(Test)
+    DECL_TYPE_MEMBER(x),
+    DECL_TYPE_MEMBER(y),
+    DECL_TYPE_MEMBER(z)
+END_DECL_TYPE_MEMBERS();
+
 namespace cppgame {
     using namespace cppengine;
     
@@ -65,5 +81,6 @@ namespace cppgame {
             transform->setScale(transform->getScale() + Vector3{scale.x, scale.y, 1.f});
         }
 
+        std::cout << Test{} << std::endl;
     }
 }
