@@ -13,6 +13,7 @@ set(ENGINE_ASSET_INTEGRATION_TARGET assets)
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/engine/")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/glfw_glad_integration/")
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/rapidjson_integration/")
 
 get_property(ENGINE_LINKED GLOBAL PROPERTY ENGINE_LINKED)
 get_property(PLATFORM_LINKED GLOBAL PROPERTY ENGINE_PLATFORM_INTEGRATION_LINKED)
