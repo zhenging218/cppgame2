@@ -1,7 +1,7 @@
 #ifndef VECTOR4_HPP
 #define VECTOR4_HPP
 
-#include <ostream>
+#include "reflection/type_descriptor.hpp"
 
 namespace cppengine {
     class Vector4 {
@@ -41,8 +41,15 @@ namespace cppengine {
     float dot(Vector4 const& lhs, Vector4 const& rhs);
     float magnitude(Vector4 const& v);
     Vector4 normalise(Vector4 const& v);
-
-    std::ostream& operator<<(std::ostream& os, Vector4 const& v);
 }
+
+DECL_TYPE_DESCRIPTOR(cppengine::Vector4);
+
+DECL_TYPE_MEMBERS(cppengine::Vector4)
+    DECL_TYPE_MEMBER(x),
+    DECL_TYPE_MEMBER(y),
+    DECL_TYPE_MEMBER(z),
+    DECL_TYPE_MEMBER(w)
+END_DECL_TYPE_MEMBERS();
 
 #endif

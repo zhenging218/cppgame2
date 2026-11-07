@@ -112,8 +112,4 @@ namespace cppengine {
             lhs.x * rhs.y - lhs.y * rhs.x
         };
     }
-
-    std::ostream& operator<<(std::ostream& os, Vector3 const& v) {
-        return os << v.x << ", " << v.y << ", " << v.z;
-    }
 }

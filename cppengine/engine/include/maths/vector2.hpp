@@ -1,6 +1,8 @@
 #ifndef VECTOR2_HPP
 #define VECTOR2_HPP
 
+#include "reflection/type_descriptor.hpp"
+
 #include <ostream>
 
 namespace cppengine {
@@ -45,8 +47,13 @@ namespace cppengine {
     float dot(Vector2 const& lhs, Vector2 const &rhs);
     float magnitude(Vector2 const& v);
     Vector2 normalise(Vector2 const& v);
-
-    std::ostream& operator<<(std::ostream& os, Vector2 const& v);
 }
+
+DECL_TYPE_DESCRIPTOR(cppengine::Vector2);
+
+DECL_TYPE_MEMBERS(cppengine::Vector2)
+    DECL_TYPE_MEMBER(x),
+    DECL_TYPE_MEMBER(y)
+END_DECL_TYPE_MEMBERS();
 
 #endif

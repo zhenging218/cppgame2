@@ -90,8 +90,4 @@ namespace cppengine {
     Vector4 normalise(Vector4 const& v) {
         return Vector4{ v } /= magnitude(v);
     }
-
-    std::ostream& operator<<(std::ostream& os, Vector4 const& v) {
-        return os << v.x << ", " << v.y << ", " << v.z << ", " << v.w;
-    }
 }

@@ -52,8 +52,6 @@ namespace cppengine {
     float magnitude(Vector3 const& v);
     Vector3 normalise(Vector3 const& v);
     Vector3 cross(Vector3 const& lhs, Vector3 const& rhs);
-
-    std::ostream& operator<<(std::ostream& os, Vector3 const& v);
 }
 
 DECL_TYPE_DESCRIPTOR(cppengine::Vector3);
