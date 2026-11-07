@@ -2,7 +2,6 @@
 #define TYPE_DESCRIPTOR_H
 
 #include <span>
-#include <typeinfo>
 #include <string_view>
 #include "string_literal.hpp"
 
@@ -50,25 +49,6 @@ namespace cppengine {
 
         static constexpr field_type &get(owner_type &owner) { return owner.*getMember(); }
         static constexpr field_type const &get(owner_type const &owner) { return owner.*getMember(); }
-    };
-
-    template <typename ... Args>
-    struct ArgumentList {};
-
-    template <typename T>
-    struct TypeTraits {
-        using type = T;
-        using super_type = T;
-        static constexpr std::size_t size = sizeof(T);
-        static constexpr char const *getName() { return typeid(T).name(); }
-        static constexpr bool pod_type_v = false;
-        static constexpr bool defined_trait_v = false;
-    };
-
-    template <typename T>
-    struct TypeMemberTraits {
-        static constexpr bool members_defined_v = false;
-        using members = ArgumentList<>;
     };
 
     template <typename T>
