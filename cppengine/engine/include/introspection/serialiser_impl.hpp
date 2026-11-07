@@ -8,11 +8,6 @@
 
 namespace cppengine {
 
-  template <typename ... Visitor>
-  struct FieldSerialiser : Visitor... {
-    using Visitor::operator()...;
-  };
-
   template <typename T> requires (KeyValuePairType<T>)
   void Serialiser::serialiseKeyValuePair(std::string_view name, T const &value) {
     beginObject(name);
