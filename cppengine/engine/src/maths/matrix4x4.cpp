@@ -286,14 +286,7 @@ namespace cppengine {
 
         return transpose(cof) * inv;
     }
-
-    std::ostream &operator<<(std::ostream &os, Matrix4x4 const &m) {
-        return os << m.m00 << ", " << m.m01 << ", " << m.m02 << ", " << m.m03 << ", "
-                  << m.m10 << ", " << m.m11 << ", " << m.m12 << ", " << m.m13 << ", "
-                  << m.m20 << ", " << m.m21 << ", " << m.m22 << ", " << m.m23 << ", "
-                  << m.m30 << ", " << m.m31 << ", " << m.m32 << ", " << m.m33;
-    }
-
+    
     Matrix4x4 translate(Vector3 const &t) {
         return Matrix4x4{
             1.f, 0.f, 0.f, t.x,

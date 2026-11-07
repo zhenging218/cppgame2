@@ -43,14 +43,6 @@ namespace cppengine {
         return *this;
     }
 
-    float& Vector4::operator[](int i) {
-        return idx[i];
-    }
-
-    float const& Vector4::operator[](int i) const {
-        return idx[i];
-    }
-
     Vector4 operator+(Vector4 const& lhs, Vector4 const& rhs) {
         return Vector4{ lhs } += rhs;
     }

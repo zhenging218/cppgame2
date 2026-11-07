@@ -31,14 +31,6 @@ namespace cppengine {
         return *this;
     }
 
-    float& Vector2::operator[](int i) {
-        return idx[i];
-    }
-
-    float const& Vector2::operator[](int i) const {
-        return idx[i];
-    }
-
     Vector2 operator+(Vector2 const& lhs, Vector2 const& rhs) {
         return Vector2{ lhs } += rhs;
     }
