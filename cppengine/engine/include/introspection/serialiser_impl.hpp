@@ -1,6 +1,8 @@
 #ifndef SERIALIZER_IMPL_HPP
 #define SERIALIZER_IMPL_HPP
 
+#include <format>
+
 #include "introspection_traits.hpp"
 #include "serialiser.hpp"
 
@@ -27,27 +29,33 @@ namespace cppengine {
 
   template<typename T>
   void Serialiser::serialiseValue(T const &value) {
-    if constexpr (IterableSerialisableType<T>) {
+    if constexpr (std::is_convertible_v<T, std::string_view>) {
+      serialiseValue(std::string_view{value});
+    } else if constexpr (IterableSerialisableType<T>) {
       serialiseArray(value);
     } else if constexpr (NonTriviallyIntrospectableType<T>) {
       serialiseObject(value);
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(value);
     } else {
-      serialiseValue(std::string{TypeTraits<T>::getName()} + "@" + std::string{std::to_string(reinterpret_cast<std::uintptr_t>(&value))});
+      auto output = std::format("{}@{}", TypeTraits<T>::getName(), std::to_string(reinterpret_cast<std::uintptr_t>(&value)));
+      serialiseValue(output);
     }
   }
 
   template <typename T>
   void Serialiser::serialiseValue(std::string_view name, T const &value) {
-    if constexpr (IterableSerialisableType<T>) {
+    if constexpr(std::is_convertible_v<T, std::string_view>) {
+      serialiseValue(name, std::string_view{value});
+    } else if constexpr (IterableSerialisableType<T>) {
       serialiseArray(name, value);
     } else if constexpr (NonTriviallyIntrospectableType<T>) {
       serialiseObject(name, value);
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(name, value);
     }  else {
-      serialiseValue(name, std::string{TypeTraits<T>::getName()} + "@" + std::string{std::to_string(reinterpret_cast<std::uintptr_t>(&value))});
+      auto output = std::format("{}@{}", TypeTraits<T>::getName(), std::to_string(reinterpret_cast<std::uintptr_t>(&value)));
+      serialiseValue(name, output);
     }
   }
 

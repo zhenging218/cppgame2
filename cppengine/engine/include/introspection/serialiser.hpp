@@ -58,7 +58,7 @@ namespace cppengine {
         virtual void serialiseValue(float const &value) = 0;
         virtual void serialiseValue(double const &value) = 0;
         virtual void serialiseValue(bool const &value) = 0;
-        virtual void serialiseValue(std::string const &value) = 0;
+        virtual void serialiseValue(std::string_view value) = 0;
 
         virtual void serialiseValue(std::string_view name, char const &value) = 0;
         virtual void serialiseValue(std::string_view name, unsigned char const &value) = 0;
@@ -73,7 +73,7 @@ namespace cppengine {
         virtual void serialiseValue(std::string_view name, float const &value) = 0;
         virtual void serialiseValue(std::string_view name, double const &value) = 0;
         virtual void serialiseValue(std::string_view name, bool const &value) = 0;
-        virtual void serialiseValue(std::string_view name, std::string const &value) = 0;
+        virtual void serialiseValue(std::string_view name, std::string_view value) = 0;
 
         virtual void placeSeparator() = 0;
 

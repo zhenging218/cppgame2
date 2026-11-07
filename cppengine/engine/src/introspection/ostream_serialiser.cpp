@@ -1,20 +1,35 @@
 #include "engine.hpp"
 
 namespace {
+
     template <typename T>
-    void serialiseValueImpl(std::ostream &os, T const &value) {
-        os << value;
-    }
+    struct ValueSerialiser {
+        static void serialiseValue(std::ostream &os, T const &value) {
+            os << value;
+        }
+    };
 
     template <>
-    void serialiseValueImpl(std::ostream &os, std::string const &value) {
-        os << "\"" << value << "\"";
+    struct ValueSerialiser<std::string_view> {
+        static void serialiseValue(std::ostream &os, std::string_view value) {
+            os << "\"" << value << "\"";
+        }
+    };
+
+    template <typename T>
+    void serialiseValueImpl(std::ostream &os, T &&value) {
+        if constexpr (std::is_convertible_v<T, std::string_view>) {
+            ValueSerialiser<std::string_view>::serialiseValue(os, std::forward<T>(value));
+        } else {
+            ValueSerialiser<T>::serialiseValue(os, value);
+        }
+
     }
 
     template <typename T>
-    void serialiseValueImpl(std::ostream &os, std::string_view name, T const &value) {
+    void serialiseValueImpl(std::ostream &os, std::string_view name, T &&value) {
         os << name << ": ";
-        serialiseValueImpl(os, value);
+        serialiseValueImpl(os, std::forward<T>(value));
     }
 }
 
@@ -66,7 +81,7 @@ namespace cppengine {
     void OStreamSerialiser::serialiseValue(std::string_view name, float const &value) { serialiseValueImpl(ostream, name, value); }
     void OStreamSerialiser::serialiseValue(std::string_view name, double const &value) { serialiseValueImpl(ostream, name, value); }
     void OStreamSerialiser::serialiseValue(std::string_view name, bool const &value) { serialiseValueImpl(ostream, name, value); }
-    void OStreamSerialiser::serialiseValue(std::string_view name, std::string const &value) { serialiseValueImpl(ostream, name, value); }
+    void OStreamSerialiser::serialiseValue(std::string_view name, std::string_view value) { serialiseValueImpl(ostream, name, value); }
 
     void OStreamSerialiser::serialiseValue(char const &value) { serialiseValueImpl(ostream, value); }
     void OStreamSerialiser::serialiseValue(unsigned char const &value) { serialiseValueImpl(ostream, value); }
@@ -81,5 +96,5 @@ namespace cppengine {
     void OStreamSerialiser::serialiseValue(float const &value) { serialiseValueImpl(ostream, value); }
     void OStreamSerialiser::serialiseValue(double const &value) { serialiseValueImpl(ostream, value); }
     void OStreamSerialiser::serialiseValue(bool const &value) { serialiseValueImpl(ostream, value); }
-    void OStreamSerialiser::serialiseValue(std::string const &value) { serialiseValueImpl(ostream, value); }
+    void OStreamSerialiser::serialiseValue(std::string_view value) { serialiseValueImpl(ostream, value); }
 }
