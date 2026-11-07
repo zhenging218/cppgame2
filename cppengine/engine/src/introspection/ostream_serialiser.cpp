@@ -5,31 +5,25 @@ namespace {
     template <typename T>
     struct ValueSerialiser {
         static void serialiseValue(std::ostream &os, T const &value) {
-            os << value;
-        }
-    };
 
-    template <>
-    struct ValueSerialiser<std::string_view> {
-        static void serialiseValue(std::ostream &os, std::string_view value) {
-            os << "\"" << value << "\"";
+            if constexpr(std::is_convertible_v<T, std::string_view>) {
+                os << "\"" << value << "\"";
+            } else {
+                os << value;
+            }
+
         }
     };
 
     template <typename T>
-    void serialiseValueImpl(std::ostream &os, T &&value) {
-        if constexpr (std::is_convertible_v<T, std::string_view>) {
-            ValueSerialiser<std::string_view>::serialiseValue(os, std::forward<T>(value));
-        } else {
-            ValueSerialiser<T>::serialiseValue(os, value);
-        }
-
+    void serialiseValueImpl(std::ostream &os, T const &value) {
+        ValueSerialiser<T>::serialiseValue(os, value);
     }
 
     template <typename T>
-    void serialiseValueImpl(std::ostream &os, std::string_view name, T &&value) {
+    void serialiseValueImpl(std::ostream &os, std::string_view name, T const &value) {
         os << name << ": ";
-        serialiseValueImpl(os, std::forward<T>(value));
+        serialiseValueImpl(os, value);
     }
 }
 
@@ -39,7 +33,7 @@ namespace cppengine {
     }
 
     void OStreamSerialiser::beginArray(std::string_view name) {
-        ostream << name << " : ";
+        ostream << name << ": ";
         beginArray();
     }
 
@@ -52,7 +46,7 @@ namespace cppengine {
     }
 
     void OStreamSerialiser::beginObject(std::string_view name) {
-        ostream << name << " : ";
+        ostream << name << ": ";
         beginObject();
     }
 
