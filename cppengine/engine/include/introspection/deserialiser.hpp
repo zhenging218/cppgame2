@@ -15,10 +15,16 @@ namespace cppengine {
         void deserialiseKeyValuePair(std::string_view name, T &value);
 
         template <typename T> requires KeyValuePairType<T>
+        void deserialiseKeyValuePair(std::size_t i, T &value);
+
+        template <typename T> requires KeyValuePairType<T>
         void deserialiseKeyValuePair(T &value);
 
         template <typename T> requires IterableSerialisableType<T>
         void deserialiseArray(std::string_view name, T &array);
+
+        template <typename T> requires IterableSerialisableType<T>
+        void deserialiseArray(std::size_t i, T &array);
 
         template <typename T> requires IterableSerialisableType<T>
         void deserialiseArray(T &array);
@@ -27,10 +33,16 @@ namespace cppengine {
         void deserialiseObject(std::string_view name, T &object);
 
         template <typename T>
+        void deserialiseObject(std::size_t i, T &object);
+
+        template <typename T>
         void deserialiseObject(T &object);
 
         template <typename T>
         void deserialiseValue(std::string_view name, T &value);
+
+        template <typename T>
+        void deserialiseValue(std::size_t i, T &value);
 
         template <typename T>
         void deserialiseValue(T &value);
@@ -38,12 +50,16 @@ namespace cppengine {
     protected:
         virtual void processSeparator() = 0;
 
+        virtual std::string getFieldKey() = 0;
+
         virtual void beginObject() = 0;
         virtual void beginObject(std::string_view name) = 0;
+        virtual void beginObject(std::size_t i) = 0;
         virtual void endObject() = 0;
 
         virtual std::size_t beginArray() = 0;
         virtual std::size_t beginArray(std::string_view name) = 0;
+        virtual std::size_t beginArray(std::size_t i) = 0;
         virtual void endArray() = 0;
 
         virtual void deserialiseValue(char &value) = 0;
@@ -75,6 +91,21 @@ namespace cppengine {
         virtual void deserialiseValue(std::string_view name, double &value) = 0;
         virtual void deserialiseValue(std::string_view name, bool &value) = 0;
         virtual void deserialiseValue(std::string_view name, std::string &value) = 0;
+
+        virtual void deserialiseValue(std::size_t i, char &value) = 0;
+        virtual void deserialiseValue(std::size_t i, unsigned char &value) = 0;
+        virtual void deserialiseValue(std::size_t i, short &value) = 0;
+        virtual void deserialiseValue(std::size_t i, unsigned short &value) = 0;
+        virtual void deserialiseValue(std::size_t i, int &value) = 0;
+        virtual void deserialiseValue(std::size_t i, unsigned int &value) = 0;
+        virtual void deserialiseValue(std::size_t i, long &value) = 0;
+        virtual void deserialiseValue(std::size_t i, unsigned long &value) = 0;
+        virtual void deserialiseValue(std::size_t i, long long &value) = 0;
+        virtual void deserialiseValue(std::size_t i, unsigned long long &value) = 0;
+        virtual void deserialiseValue(std::size_t i, float &value) = 0;
+        virtual void deserialiseValue(std::size_t i, double &value) = 0;
+        virtual void deserialiseValue(std::size_t i, bool &value) = 0;
+        virtual void deserialiseValue(std::size_t i, std::string &value) = 0;
 
     public:
 
