@@ -42,8 +42,8 @@ namespace cppengine {
         virtual void beginObject(std::string_view name) = 0;
         virtual void endObject() = 0;
 
-        virtual void beginArray(std::size_t size) = 0;
-        virtual void beginArray(std::string_view name, std::size_t size) = 0;
+        virtual std::size_t beginArray() = 0;
+        virtual std::size_t beginArray(std::string_view name) = 0;
         virtual void endArray() = 0;
 
         virtual void deserialiseValue(char &value) = 0;
