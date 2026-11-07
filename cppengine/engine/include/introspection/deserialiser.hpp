@@ -13,7 +13,13 @@ namespace cppengine {
 
     public:
 
+        template <typename T>
+        void deserialise(T &dest);
+
+        virtual ~Deserialiser() = 0;
     };
+
+    inline Deserialiser::~Deserialiser() = default;
 }
 
 #endif
