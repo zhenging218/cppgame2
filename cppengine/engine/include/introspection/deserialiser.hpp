@@ -36,12 +36,6 @@ namespace cppengine {
         void deserialiseValue(T &value);
 
     protected:
-
-    public:
-
-        template <typename T>
-        void deserialise(T &dest);
-
         virtual void processSeparator() = 0;
 
         virtual void beginObject() = 0;
@@ -81,6 +75,11 @@ namespace cppengine {
         virtual void deserialiseValue(std::string_view name, double &value) = 0;
         virtual void deserialiseValue(std::string_view name, bool &value) = 0;
         virtual void deserialiseValue(std::string_view name, std::string &value) = 0;
+
+    public:
+
+        template <typename T>
+        void deserialise(T &dest);
 
         virtual ~Deserialiser() = 0;
     };
