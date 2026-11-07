@@ -112,16 +112,7 @@ namespace cppengine {
 
   template<typename T>
   void Serialiser::serialise(T const &src) {
-
-    if constexpr(NonTriviallyIntrospectableType<T> && !IterableSerialisableType<T> && !std::is_convertible_v<T, std::string_view>) {
-      serialiseObject(src);
-    } else if constexpr (IterableSerialisableType<T> && !std::is_convertible_v<T, std::string_view>) {
-      serialiseArray(src);
-    } else {
-      serialiseValue(src);
-    }
-
-
+    serialiseValue(src);
   }
 }
 
