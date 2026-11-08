@@ -257,15 +257,39 @@ namespace cppengine {
 
     template<typename T>
     void Deserialiser::deserialiseValue(std::string_view name, T &value) {
-
+        using value_type = std::remove_cvref_t<decltype(value)>;
+        value_type result(value);
+        deserialiseValue(name, result);
+        value = std::move(result);
     }
 
     template<typename T>
     void Deserialiser::deserialiseValue(std::size_t at, T &value) {
+        using value_type = std::remove_cvref_t<decltype(value)>;
+        value_type result(value);
+        deserialiseValue(at, result);
+        value = std::move(result);
     }
 
     template<typename T>
     void Deserialiser::deserialiseValue(T &value) {
+        using value_type = std::remove_cvref_t<decltype(value)>;
+        value_type result(value);
+
+        if constexpr (DynamicIterableType<T>) {
+            deserialiseArray(value);
+        } else if constexpr (IterableSerialisableType<T>) {
+            deserialiseArray(value);
+        } else if constexpr (KeyValuePairType<T>) {
+            deserialiseKeyValuePair(value);
+        }
+        else if constexpr (NonTriviallyIntrospectableType<T>) {
+            deserialiseObject(value);
+        }
+        else {
+            deserialiseValue(value);
+        }
+
     }
 
     template<typename T> requires IterableSerialisableType<T>
