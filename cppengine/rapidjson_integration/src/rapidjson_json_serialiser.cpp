@@ -40,7 +40,7 @@ namespace {
 
     template <typename T, typename OSW>
     void write(rapidjson::Writer<OSW> &writer, std::string_view key, T const &value) {
-        writer.Key(key.data());
+        writer.Key(key.data(), key.size(), true);
         write(writer, value);
     }
 }
