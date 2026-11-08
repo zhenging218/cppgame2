@@ -8,6 +8,9 @@ namespace cppengine {
     class Deserialiser {
     private:
 
+        template <typename T> requires StringKeyConvertibleType<T>
+        T convertFieldKey(std::string_view key);
+
         template <typename Visitor, typename ... T>
         void deserialiseObjectFields(ArgumentList<T...>, Visitor &&v);
 
@@ -48,6 +51,8 @@ namespace cppengine {
         void deserialiseValue(T &value);
 
     protected:
+        virtual bool convertBooleanValue(std::string_view value) = 0;
+
         virtual void processSeparator() = 0;
 
         virtual std::string getFieldKey() = 0;

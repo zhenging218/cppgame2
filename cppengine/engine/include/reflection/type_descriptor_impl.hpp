@@ -73,7 +73,7 @@ namespace cppengine {
 
     template<typename T>
     TypeDescriptor const *TypeDescriptor::getTypeDescriptor() {
-        static TypeDescriptorImpl<typename std::remove_cvref<T>::type> type;
+        static TypeDescriptorImpl<std::remove_cvref_t<T>> type;
         return &type;
     }
 

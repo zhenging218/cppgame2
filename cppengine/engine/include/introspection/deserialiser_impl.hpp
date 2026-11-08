@@ -11,7 +11,31 @@
 
 namespace cppengine {
 
-    // todo: concepts to check if the array is dynamic or static
+    template<typename T> requires StringKeyConvertibleType<T>
+    T Deserialiser::convertFieldKey(std::string_view key) {
+        using result_type = std::remove_cv_t<T>;
+
+        if constexpr(std::same_as<result_type, std::string>) {
+            return std::string(key);
+        } else if constexpr(std::same_as<result_type, bool>) {
+            return convertBooleanValue(key);
+        } else {
+            result_type value{};
+
+            auto first = key.data();
+            auto last = key.data() + key.size();
+
+            auto [ptr, ec] = std::from_chars(first, last, value);
+
+            if (ec != std::errc{} || ptr != last) {
+                throw std::runtime_error(std::format("unable to parse key value from {} to type {} due to {}",
+                    key, TypeDescriptor::getTypeDescriptor<T>()->getName(), std::make_error_code(ec).message()));
+            }
+
+            return value;
+
+        }
+    }
 
     template<typename Visitor, typename ... T>
     void Deserialiser::deserialiseObjectFields(ArgumentList<T...>, Visitor &&v) {
@@ -23,17 +47,23 @@ namespace cppengine {
         beginObject(name);
 
         using key_type = std::remove_cv_t<std::tuple_element_t<0, T>>;
-        using value_type = std::tuple_element_t<1, T>;
+        using value_type = std::remove_cv_t<std::tuple_element_t<1, T>>;
 
-        key_type pairKey = getFieldKey();
-        value_type pairValue;
+        auto fieldKey = getFieldKey();
+        value_type pairValue{};
 
-        deserialiseValue(pairKey, pairValue);
-
-        std::get<0>(value) = pairKey;
-        std::get<1>(value) = pairValue;
+        deserialiseValue(fieldKey, pairValue);
 
         endObject();
+
+        if constexpr (std::same_as<key_type, std::string>) {
+            std::get<0>(value) = std::move(fieldKey);
+        } else {
+            key_type pairKey = convertFieldKey<key_type>(fieldKey);
+            std::get<0>(value) = std::move(pairKey);
+        }
+
+        std::get<1>(value) = std::move(pairValue);
     }
 
     template<typename T> requires KeyValuePairType<T>
@@ -41,17 +71,23 @@ namespace cppengine {
         beginObject(i);
 
         using key_type = std::remove_cv_t<std::tuple_element_t<0, T>>;
-        using value_type = std::tuple_element_t<1, T>;
+        using value_type = std::remove_cv_t<std::tuple_element_t<1, T>>;
 
-        key_type pairKey = getFieldKey();
-        value_type pairValue;
+        auto fieldKey = getFieldKey();
+        value_type pairValue{};
 
-        deserialiseValue(pairKey, pairValue);
-
-        std::get<0>(value) = pairKey;
-        std::get<1>(value) = pairValue;
+        deserialiseValue(fieldKey, pairValue);
 
         endObject();
+
+        if constexpr (std::same_as<key_type, std::string>) {
+            std::get<0>(value) = std::move(fieldKey);
+        } else {
+            key_type pairKey = convertFieldKey<key_type>(fieldKey);
+            std::get<0>(value) = std::move(pairKey);
+        }
+
+        std::get<1>(value) = std::move(pairValue);
     }
 
     template<typename T> requires KeyValuePairType<T>
@@ -59,17 +95,23 @@ namespace cppengine {
         beginObject();
 
         using key_type = std::remove_cv_t<std::tuple_element_t<0, T>>;
-        using value_type = std::tuple_element_t<1, T>;
+        using value_type = std::remove_cv_t<std::tuple_element_t<1, T>>;
 
-        key_type pairKey = getFieldKey();
-        value_type pairValue;
+        auto fieldKey = getFieldKey();
+        value_type pairValue{};
 
-        deserialiseValue(pairKey, pairValue);
-
-        std::get<0>(value) = std::move(pairKey);
-        std::get<1>(value) = std::move(pairValue);
+        deserialiseValue(fieldKey, pairValue);
 
         endObject();
+
+        if constexpr (std::same_as<key_type, std::string>) {
+            std::get<0>(value) = std::move(fieldKey);
+        } else {
+            key_type pairKey = convertFieldKey<key_type>(fieldKey);
+            std::get<0>(value) = std::move(pairKey);
+        }
+
+        std::get<1>(value) = std::move(pairValue);
     }
 
     template<typename T> requires IterableSerialisableType<T>

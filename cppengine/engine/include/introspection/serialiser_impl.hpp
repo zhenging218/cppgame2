@@ -7,18 +7,28 @@
 #include "serialiser.hpp"
 
 namespace cppengine {
+  template<typename T> requires KeyStringConvertibleType<T>
+  std::string Serialiser::convertKey(T const &key) {
+    if constexpr (std::same_as<std::remove_cv_t<T>, std::string>) {
+      return key;
+    } else if constexpr (std::convertible_to<decltype(key), std::string_view>) {
+      return std::string(key);
+    } else {
+      return std::to_string(key);
+    }
+  }
 
   template <typename T> requires (KeyValuePairType<T>)
   void Serialiser::serialiseKeyValuePair(std::string_view name, T const &value) {
     beginObject(name);
-    serialiseValue(std::get<0>(value), std::get<1>(value));
+    serialiseValue(convertKey(std::get<0>(value)), std::get<1>(value));
     endObject();
   }
 
   template <typename T> requires (KeyValuePairType<T>)
   void Serialiser::serialiseKeyValuePair(T const &value) {
     beginObject();
-    serialiseValue(std::get<0>(value), std::get<1>(value));
+    serialiseValue(convertKey(std::get<0>(value)), std::get<1>(value));
     endObject();
   }
 

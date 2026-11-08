@@ -4,12 +4,16 @@
 
 #include <numbers>
 #include <cmath>
+#include <set>
 
 namespace {
     struct Test {
         int x = 0;
         std::string y = "hello";
         int z[10] {0};
+        std::map<std::string, int> w { {"hi", 0}, {"yo", 1} };
+        std::set<int> u { 69, 420 };
+        std::unordered_map<int, std::string> v { { 67, "hihi" }, { 1337, "bye" } };
     };
 }
 
@@ -18,7 +22,10 @@ DECL_TYPE_DESCRIPTOR(Test);
 DECL_TYPE_MEMBERS(Test)
     DECL_TYPE_MEMBER(x),
     DECL_TYPE_MEMBER(y),
-    DECL_TYPE_MEMBER(z)
+    DECL_TYPE_MEMBER(z),
+    DECL_TYPE_MEMBER(w),
+    DECL_TYPE_MEMBER(u),
+    DECL_TYPE_MEMBER(v)
 END_DECL_TYPE_MEMBERS();
 
 namespace cppgame {
