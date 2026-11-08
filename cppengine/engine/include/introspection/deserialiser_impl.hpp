@@ -39,7 +39,13 @@ namespace cppengine {
 
     template<typename Visitor, typename ... T>
     void Deserialiser::deserialiseObjectFields(ArgumentList<T...>, Visitor &&v) {
-
+        [[maybe_unused]] bool first = true;
+        (([&] {
+              if (!first)
+                  processSeparator();
+              first = false;
+              v(T{});
+          }()), ...);
     }
 
     template<typename T> requires KeyValuePairType<T>
@@ -207,18 +213,46 @@ namespace cppengine {
     template<typename T>
     void Deserialiser::deserialiseObject(std::string_view name, T &object) {
         beginObject(name);
-        deserialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && value) {
-            
+        deserialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && descriptor) {
+            using descriptor_type = std::remove_cvref_t<decltype(descriptor)>;
+            using value_type = descriptor_type::field_type;
+
+            value_type value(descriptor.get(object));
+            deserialiseValue(descriptor.getName(), value);
+            descriptor.set(object, std::move(value));
         });
+
         endObject();
     }
 
     template<typename T>
     void Deserialiser::deserialiseObject(std::size_t at, T &object) {
+        beginObject(at);
+        deserialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && descriptor) {
+            using descriptor_type = std::remove_cvref_t<decltype(descriptor)>;
+            using value_type = descriptor_type::field_type;
+
+            value_type value(descriptor.get(object));
+            deserialiseValue(descriptor.getName(), value);
+            descriptor.set(object, std::move(value));
+        });
+
+        endObject();
     }
 
     template<typename T>
     void Deserialiser::deserialiseObject(T &object) {
+        beginObject();
+        deserialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && descriptor) {
+            using descriptor_type = std::remove_cvref_t<decltype(descriptor)>;
+            using value_type = descriptor_type::field_type;
+
+            value_type value(descriptor.get(object));
+            deserialiseValue(descriptor.getName(), value);
+            descriptor.set(object, std::move(value));
+        });
+
+        endObject();
     }
 
     template<typename T>

@@ -20,7 +20,7 @@ namespace {
 
     public:
         int const &getI() const { return i; }
-        void setI(int const &i_) { i = i_; }
+        void setI(int i_) { i = i_; }
     };
 }
 

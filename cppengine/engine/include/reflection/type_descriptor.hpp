@@ -1,6 +1,7 @@
 #ifndef TYPE_DESCRIPTOR_H
 #define TYPE_DESCRIPTOR_H
 
+#include <functional>
 #include <span>
 #include <string_view>
 #include "string_literal.hpp"
@@ -22,9 +23,9 @@ namespace cppengine {
         template <typename T>
         static TypeDescriptor const *getTypeDescriptor();
 
-        virtual TypeDescriptor const *getSuperType() const = 0;
-        virtual std::string_view getName() const = 0;
-        virtual std::span<const FieldDescriptor> getFields() const = 0;
+        [[nodiscard]] virtual TypeDescriptor const *getSuperType() const = 0;
+        [[nodiscard]] virtual std::string_view getName() const = 0;
+        [[nodiscard]] virtual std::span<const FieldDescriptor> getFields() const = 0;
         virtual ~TypeDescriptor();
 
         template <typename T>
@@ -36,7 +37,7 @@ namespace cppengine {
         static bool isSuperType(TypeDescriptor const *superType, TypeDescriptor const *subType);
     };
 
-    template <typename T, StringLiteral name, typename U, U T::* member = nullptr, U const &(T::*getter)() const = nullptr, void (T::*setter)(U const &) = nullptr>
+    template <typename T, StringLiteral name, typename U, U T::* member = nullptr, auto getter = nullptr, auto setter = nullptr>
     struct MemberDescriptor {
         using owner_type = T;
         using field_type = U;
@@ -51,16 +52,21 @@ namespace cppengine {
         static constexpr char const *getName() { return name; }
         static constexpr field_type owner_type::* getMember() { return member; }
 
-        static constexpr auto const &get(owner_type const &owner) {
+        static constexpr auto getAccessor() {
             if constexpr (hasGetter) {
-                return (owner.*getter)();
+                return getter;
             } else {
-                return owner.*member;
+                return member;
             }
         }
 
-        template <typename V> requires std::is_convertible_v<V, field_type const &>
-        static constexpr void set(owner_type &owner, V &&value) {
+        template <typename O> requires std::same_as<std::remove_cvref_t<O>, owner_type>
+        static constexpr auto get(O &&owner)-> decltype(std::invoke(getAccessor(), std::forward<O>(owner))) {
+            return std::invoke(getAccessor(), std::forward<O>(owner));
+        }
+
+        template <typename O, typename V> requires std::derived_from<std::remove_cvref_t<O>, owner_type> && std::is_convertible_v<V, field_type const &>
+        static constexpr void set(O &&owner, V &&value) {
             if constexpr (hasSetter) {
                 (owner.*setter)(std::forward<V>(value));
             } else {
@@ -82,9 +88,9 @@ namespace cppengine {
         TypeDescriptorImpl &operator=(TypeDescriptorImpl const &) = delete;
         TypeDescriptorImpl &operator=(TypeDescriptorImpl &&) = delete;
 
-        TypeDescriptor const * getSuperType() const override;
-        std::string_view getName() const override;
-        std::span<const FieldDescriptor> getFields() const override;
+        [[nodiscard]] TypeDescriptor const * getSuperType() const override;
+        [[nodiscard]] std::string_view getName() const override;
+        [[nodiscard]] std::span<const FieldDescriptor> getFields() const override;
 
         ~TypeDescriptorImpl() override;
     };
