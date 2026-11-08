@@ -5,6 +5,7 @@
 
 #include "reflection/type_descriptor.hpp"
 #include "introspection_traits.hpp"
+#include "memory/object_handle.hpp"
 
 namespace cppengine {
 
@@ -86,6 +87,8 @@ namespace cppengine {
         void serialise(T const &src);
 
         virtual ~Serialiser() = 0;
+
+        static ObjectHandle<Serialiser> createJsonSerialiser(std::ostream &stream);
     };
 
     inline Serialiser::~Serialiser() = default;

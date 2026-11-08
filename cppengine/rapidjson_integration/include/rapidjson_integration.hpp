@@ -6,6 +6,6 @@
 #define CPPGAME_RAPIDJSON_INTEGRATION_HPP
 
 #include "engine.hpp"
-#include <rapidjson/document.h>
+#include "rapidjson_serialiser.hpp"
 
 #endif //CPPGAME_RAPIDJSON_INTEGRATION_HPP
