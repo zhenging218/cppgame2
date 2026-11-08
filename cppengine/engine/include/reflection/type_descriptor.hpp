@@ -36,19 +36,37 @@ namespace cppengine {
         static bool isSuperType(TypeDescriptor const *superType, TypeDescriptor const *subType);
     };
 
-    template <typename T, typename U, U T::* member, StringLiteral name>
+    template <typename T, StringLiteral name, typename U, U T::* member = nullptr, U const &(T::*getter)() const = nullptr, void (T::*setter)(U const &) = nullptr>
     struct MemberDescriptor {
         using owner_type = T;
         using field_type = U;
 
-        using const_getter_type = field_type const &(*)(owner_type const &);
-        using getter_type = field_type &(*)(owner_type &);
+        static constexpr bool hasMember = member != nullptr;
+        static constexpr bool hasGetter = getter != nullptr;
+        static constexpr bool hasSetter = setter != nullptr;
+
+        static_assert((hasMember && !hasGetter && !hasSetter) || (!hasMember && hasGetter && hasSetter),
+            "member descriptors should only be exposing either member or getter/setter");
 
         static constexpr char const *getName() { return name; }
-        static constexpr U T::* getMember() { return member; }
+        static constexpr field_type owner_type::* getMember() { return member; }
 
-        static constexpr field_type &get(owner_type &owner) { return owner.*getMember(); }
-        static constexpr field_type const &get(owner_type const &owner) { return owner.*getMember(); }
+        static constexpr auto const &get(owner_type const &owner) {
+            if constexpr (hasGetter) {
+                return (owner.*getter)();
+            } else {
+                return owner.*member;
+            }
+        }
+
+        template <typename V> requires std::is_convertible_v<V, field_type const &>
+        static constexpr void set(owner_type &owner, V &&value) {
+            if constexpr (hasSetter) {
+                (owner.*setter)(std::forward<V>(value));
+            } else {
+                owner.*member = std::forward<V>(value);
+            }
+        }
     };
 
     template <typename T>
@@ -106,9 +124,11 @@ namespace cppengine { \
         static constexpr bool members_defined_v = true; \
         using members = ArgumentList<
 
-#define DECL_TYPE_MEMBER(MEMBER) \
-    MemberDescriptor<type, decltype(type::MEMBER), &type::MEMBER, #MEMBER>
+#define DECL_TYPE_MEMBER_FIELD(MEMBER) \
+    MemberDescriptor<type, #MEMBER, decltype(type::MEMBER), &type::MEMBER>
 
+#define DECL_TYPE_MEMBER_ACCESSORS(MEMBER, GETTER, SETTER) \
+    MemberDescriptor<type, #MEMBER, std::remove_cvref_t<std::invoke_result_t<decltype(&type::GETTER), type const &>>, nullptr, &type::GETTER, &type::SETTER>
 
 #define END_DECL_TYPE_MEMBERS() \
     >; }; }

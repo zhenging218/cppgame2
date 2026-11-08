@@ -206,6 +206,11 @@ namespace cppengine {
 
     template<typename T>
     void Deserialiser::deserialiseObject(std::string_view name, T &object) {
+        beginObject(name);
+        deserialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && value) {
+            
+        });
+        endObject();
     }
 
     template<typename T>

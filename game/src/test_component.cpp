@@ -14,18 +14,26 @@ namespace {
         std::map<std::string, float> w { {"hi", 0.5f}, {"yo", 1.3f} };
         std::set<int> u { 69, 420 };
         std::unordered_map<int, std::string> v { { 67, "hihi" }, { 1337, "bye" } };
+
+    private:
+        int i = 555;
+
+    public:
+        int const &getI() const { return i; }
+        void setI(int const &i_) { i = i_; }
     };
 }
 
 DECL_TYPE_DESCRIPTOR(Test);
 
 DECL_TYPE_MEMBERS(Test)
-    DECL_TYPE_MEMBER(x),
-    DECL_TYPE_MEMBER(y),
-    DECL_TYPE_MEMBER(z),
-    DECL_TYPE_MEMBER(w),
-    DECL_TYPE_MEMBER(u),
-    DECL_TYPE_MEMBER(v)
+    DECL_TYPE_MEMBER_FIELD(x),
+    DECL_TYPE_MEMBER_FIELD(y),
+    DECL_TYPE_MEMBER_FIELD(z),
+    DECL_TYPE_MEMBER_FIELD(w),
+    DECL_TYPE_MEMBER_FIELD(u),
+    DECL_TYPE_MEMBER_FIELD(v),
+    DECL_TYPE_MEMBER_ACCESSORS(i, getI, setI)
 END_DECL_TYPE_MEMBERS();
 
 namespace cppgame {
