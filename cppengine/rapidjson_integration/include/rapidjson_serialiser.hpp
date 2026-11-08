@@ -5,9 +5,14 @@
 #ifndef CPPGAME_RAPIDJSON_SERIALISER_HPP
 #define CPPGAME_RAPIDJSON_SERIALISER_HPP
 
+#include "rapidjson/writer.h"
+#include "rapidjson/ostreamwrapper.h"
+
 namespace cppengine {
     class RapidJsonSerialiser : public Serialiser {
     private:
+        rapidjson::OStreamWrapper wrapper;
+        rapidjson::Writer<rapidjson::OStreamWrapper> writer;
 
     protected:
         void beginObject(std::string_view name) override;
@@ -52,6 +57,7 @@ namespace cppengine {
 
     public:
 
+        RapidJsonSerialiser(std::ostream &os);
         ~RapidJsonSerialiser() override;
     };
 }

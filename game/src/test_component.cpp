@@ -11,7 +11,7 @@ namespace {
         int x = 0;
         std::string y = "hello";
         int z[10] {0};
-        std::map<std::string, int> w { {"hi", 0}, {"yo", 1} };
+        std::map<std::string, float> w { {"hi", 0.5f}, {"yo", 1.3f} };
         std::set<int> u { 69, 420 };
         std::unordered_map<int, std::string> v { { 67, "hihi" }, { 1337, "bye" } };
     };

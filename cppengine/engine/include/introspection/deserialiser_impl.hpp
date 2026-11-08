@@ -67,8 +67,8 @@ namespace cppengine {
     }
 
     template<typename T> requires KeyValuePairType<T>
-    void Deserialiser::deserialiseKeyValuePair(std::size_t i, T &value) {
-        beginObject(i);
+    void Deserialiser::deserialiseKeyValuePair(std::size_t at, T &value) {
+        beginObject(at);
 
         using key_type = std::remove_cv_t<std::tuple_element_t<0, T>>;
         using value_type = std::remove_cv_t<std::tuple_element_t<1, T>>;
@@ -160,7 +160,48 @@ namespace cppengine {
     }
 
     template<typename T> requires IterableSerialisableType<T>
-    void Deserialiser::deserialiseArray(std::size_t i, T &array) {
+    void Deserialiser::deserialiseArray(std::size_t at, T &array) {
+        const auto size = beginArray(at);
+
+        if constexpr (BackInsertableType<T>) {
+            using value_type = T::value_type;
+            for (std::size_t i = 0; i < size; ++i) {
+                value_type value;
+                deserialiseValue(i, value);
+                array.push_back(std::move(value));
+
+                if (i + 1 < size) {
+                    processSeparator();
+                }
+            }
+
+        } else if constexpr (InsertableType<T>) {
+            using value_type = T::value_type;
+            for (std::size_t i = 0; i < size; ++i) {
+                value_type value;
+                deserialiseValue(i, value);
+                array.insert(std::move(value));
+
+                if (i + 1 < size) {
+                    processSeparator();
+                }
+            }
+
+        } else {
+            auto curr = std::begin(array);
+            auto end = std::end(array);
+
+            for (std::size_t i = 0; i < size && curr != end; ++i, curr = std::next(curr)) {
+                deserialiseValue(i, *curr);
+                auto next = curr;
+                next = std::next(next);
+                if (i + 1 < size && next != end) {
+                    processSeparator();
+                }
+            }
+        }
+
+        endArray();
     }
 
     template<typename T>
@@ -168,7 +209,7 @@ namespace cppengine {
     }
 
     template<typename T>
-    void Deserialiser::deserialiseObject(std::size_t i, T &object) {
+    void Deserialiser::deserialiseObject(std::size_t at, T &object) {
     }
 
     template<typename T>
@@ -181,7 +222,7 @@ namespace cppengine {
     }
 
     template<typename T>
-    void Deserialiser::deserialiseValue(std::size_t i, T &value) {
+    void Deserialiser::deserialiseValue(std::size_t at, T &value) {
     }
 
     template<typename T>
@@ -235,7 +276,7 @@ namespace cppengine {
 
     template<typename T>
     void Deserialiser::deserialise(T &dest) {
-
+        deserialiseValue(dest);
     }
 }
 
