@@ -39,15 +39,15 @@ namespace cppengine {
     public:
         EmptyReferenceCounter();
 
-        virtual void acquire() override;
-        virtual void release() override;
-        virtual void weakAcquire() override;
-        virtual void weakRelease() override;
+        void acquire() override;
+        void release() override;
+        void weakAcquire() override;
+        void weakRelease() override;
 
-        virtual void* getData() const override;
-        virtual std::size_t getCount() const override;
-        virtual std::size_t getWeakCount() const override;
-        virtual deallocator_type getDeallocator() const override;
+        void* getData() const override;
+        std::size_t getCount() const override;
+        std::size_t getWeakCount() const override;
+        deallocator_type getDeallocator() const override;
 
         static EmptyReferenceCounter *getEmptyReferenceCounter();
     };
@@ -79,35 +79,35 @@ namespace cppengine {
 
         }
 
-        virtual void acquire() override {
+        void acquire() override {
             ++count;
         }
 
-        virtual void release() override {
+        void release() override {
             --count;
         }
 
-        virtual void weakAcquire() override {
+        void weakAcquire() override {
             ++weakCount;
         }
 
-        virtual void weakRelease() override {
+        void weakRelease() override {
             --weakCount;
         }
 
-        virtual void* getData() const override {
+        void* getData() const override {
             return reinterpret_cast<T*>(data);
         }
 
-        virtual std::size_t getCount() const override {
+        std::size_t getCount() const override {
             return count;
         }
 
-        virtual std::size_t getWeakCount() const override {
+        std::size_t getWeakCount() const override {
             return weakCount;
         }
 
-        virtual deallocator_type getDeallocator() const override {
+        deallocator_type getDeallocator() const override {
             return deallocator;
         }
     };
@@ -121,35 +121,35 @@ namespace cppengine {
         TypeReferenceCounter(T* data_, MemoryControlBlock*counter_)
             : data(data_), counter(counter_) {}
 
-        virtual void acquire() override {
+        void acquire() override {
             counter->acquire();
         }
 
-        virtual void release() override {
+        void release() override {
             counter->release();
         }
 
-        virtual void weakAcquire() override {
+        void weakAcquire() override {
             counter->weakAcquire();
         }
 
-        virtual void weakRelease() override {
+        void weakRelease() override {
             counter->weakRelease();
         }
 
-        virtual void* getData() const override {
+        void* getData() const override {
             return reinterpret_cast<void *>(data);
         }
 
-        virtual std::size_t getCount() const override {
+        std::size_t getCount() const override {
             return counter->getAcquireCount();
         }
 
-        virtual std::size_t getWeakCount() const override {
+        std::size_t getWeakCount() const override {
             return counter->getWeakAcquireCount();
         }
 
-        virtual deallocator_type getDeallocator() const override {
+        deallocator_type getDeallocator() const override {
             return counter->getDeallocator();
         }
     };
@@ -165,35 +165,35 @@ namespace cppengine {
         UnownedTypeReference(T &reference) : data(&reference), count(0), weakCount(0) {
         }
 
-        virtual void *getData() const override {
+        void *getData() const override {
             return reinterpret_cast<T*>(data);
         }
 
-        virtual void acquire() override {
+        void acquire() override {
             ++count;
         }
 
-        virtual void release() override {
+        void release() override {
             --count;
         }
 
-        virtual void weakAcquire() override {
+        void weakAcquire() override {
             ++weakCount;
         }
 
-        virtual void weakRelease() override {
+        void weakRelease() override {
             --weakCount;
         }
 
-        virtual std::size_t getCount() const override {
+        std::size_t getCount() const override {
             return count;
         }
 
-        virtual std::size_t getWeakCount() const override {
+        std::size_t getWeakCount() const override {
             return weakCount;
         }
 
-        virtual deallocator_type getDeallocator() const override {
+        deallocator_type getDeallocator() const override {
             return { .context = nullptr, .deallocator = [](void *, void *, DeallocationPhase) {} };
         }
     };

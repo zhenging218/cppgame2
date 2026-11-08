@@ -7,5 +7,7 @@
 #include "serialiser_impl.hpp"
 #include "deserialiser_impl.hpp"
 #include "ostream_serialiser.hpp"
+#include "json_serialiser.hpp"
+#include "json_deserialiser.hpp"
 
 #endif
