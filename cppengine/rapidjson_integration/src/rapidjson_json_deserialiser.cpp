@@ -45,8 +45,64 @@ namespace {
 
 namespace cppengine {
     struct RapidJsonDeserialiser::Frame {
-
+        [[nodiscard]] virtual int getType() const = 0;
+        virtual ~Frame() = 0;
     };
+
+    struct RapidJsonDeserialiser::ObjectFrame : Frame {
+        [[nodiscard]] int getType() const override;
+        ~ObjectFrame() override;
+    };
+
+    struct RapidJsonDeserialiser::ArrayFrame : Frame {
+        [[nodiscard]] int getType() const override;
+        ~ArrayFrame() override;
+    };
+
+    template <typename T>
+    struct RapidJsonDeserialiser::ValueFrame : Frame {
+        [[nodiscard]] int getType() const override;
+
+
+
+        ~ValueFrame() override;
+    };
+
+    int RapidJsonDeserialiser::ObjectFrame::getType() const {
+        return rapidjsonTypeToJsonNodetype(rapidjson::kObjectType);
+    }
+
+    int RapidJsonDeserialiser::ArrayFrame::getType() const {
+        return rapidjsonTypeToJsonNodetype(rapidjson::kArrayType);
+    }
+
+    template <typename T>
+    int RapidJsonDeserialiser::ValueFrame<T>::getType() const {
+        return rapidjsonTypeToJsonNodetype(rapidjson::kNullType);
+    }
+
+    RapidJsonDeserialiser::Frame::~Frame() = default;
+    RapidJsonDeserialiser::ObjectFrame::~ObjectFrame() = default;
+    RapidJsonDeserialiser::ArrayFrame::~ArrayFrame() = default;
+
+    template <typename T>
+    RapidJsonDeserialiser::ValueFrame<T>::~ValueFrame() = default;
+
+    template <typename T> requires NonTriviallyIntrospectableType<T>
+    ObjectHandle<RapidJsonDeserialiser::Frame> RapidJsonDeserialiser::createFrame(rapidjson::Value &node) {
+
+    }
+
+    template <typename T> requires TriviallyIntrospectableType<T>
+    ObjectHandle<RapidJsonDeserialiser::Frame> RapidJsonDeserialiser::createFrame(rapidjson::Value &node) {
+
+    }
+
+    template <typename T> requires IterableSerialisableType<T>
+    ObjectHandle<RapidJsonDeserialiser::Frame> RapidJsonDeserialiser::createFrame(rapidjson::Value &node) {
+
+    }
+
 
     bool RapidJsonDeserialiser::convertBooleanValue(std::string_view value) {
     }
@@ -209,6 +265,7 @@ namespace cppengine {
     }
 
     RapidJsonDeserialiser::RapidJsonDeserialiser(std::istream &is) : wrapper(is), document(parseStreamAsDocument(wrapper)) {
+        // put the document into the stack as a frame
     }
 
     RapidJsonDeserialiser::~RapidJsonDeserialiser() = default;
