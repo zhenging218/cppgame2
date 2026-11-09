@@ -5,9 +5,19 @@
 #ifndef CPPGAME_RAPIDJSON_JSON_DESERIALISER_HPP
 #define CPPGAME_RAPIDJSON_JSON_DESERIALISER_HPP
 
+#include <stack>
+
+#include "rapidjson/istreamwrapper.h"
+#include "rapidjson/document.h"
+
 namespace cppengine {
     class RapidJsonDeserialiser : public Deserialiser {
     private:
+        struct Frame;
+
+        rapidjson::IStreamWrapper wrapper;
+        rapidjson::Document document;
+        std::stack<ObjectHandle<Frame>> frames;
 
     protected:
         bool convertBooleanValue(std::string_view value) override;

@@ -4,7 +4,50 @@
 
 #include "rapidjson_integration.hpp"
 
+namespace {
+    rapidjson::Document parseStreamAsDocument(rapidjson::IStreamWrapper &wrapper) {
+        rapidjson::Document d;
+        d.ParseStream(wrapper);
+        return d;
+    }
+
+    constexpr char const * jsonNodeTypes[] = {
+        "null",
+        "boolean (false)",
+        "boolean (true)",
+        "object",
+        "array",
+        "string",
+        "number"
+    };
+
+    int rapidjsonTypeToJsonNodetype(rapidjson::Type type) {
+        switch (type) {
+            case rapidjson::kNullType:
+                return 0;
+            case rapidjson::kFalseType:
+                return 1;
+            case rapidjson::kTrueType:
+                return 2;
+            case rapidjson::kObjectType:
+                return 3;
+            case rapidjson::kArrayType:
+                return 4;
+            case rapidjson::kStringType:
+                return 5;
+            case rapidjson::kNumberType:
+                return 6;
+            default:
+                throw std::runtime_error(std::format("unknown rapidjson type {}", static_cast<int>(type)));
+        }
+    }
+}
+
 namespace cppengine {
+    struct RapidJsonDeserialiser::Frame {
+
+    };
+
     bool RapidJsonDeserialiser::convertBooleanValue(std::string_view value) {
     }
 
@@ -15,6 +58,7 @@ namespace cppengine {
     }
 
     void RapidJsonDeserialiser::beginObject() {
+
     }
 
     void RapidJsonDeserialiser::beginObject(std::string_view name) {
@@ -164,7 +208,7 @@ namespace cppengine {
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, std::string &value) {
     }
 
-    RapidJsonDeserialiser::RapidJsonDeserialiser(std::istream &is) {
+    RapidJsonDeserialiser::RapidJsonDeserialiser(std::istream &is) : wrapper(is), document(parseStreamAsDocument(wrapper)) {
     }
 
     RapidJsonDeserialiser::~RapidJsonDeserialiser() = default;
