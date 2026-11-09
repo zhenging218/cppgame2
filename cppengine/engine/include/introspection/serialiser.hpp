@@ -22,10 +22,10 @@ namespace cppengine {
         template <typename T> requires (KeyValuePairType<T>)
         void serialiseKeyValuePair(T const &value);
 
-        template <typename T>
+        template <typename T> requires SerialisableType<T>
         void serialiseValue(T const &value);
 
-        template <typename T>
+        template <typename T> requires SerialisableType<T>
         void serialiseValue(std::string_view name, T const &value);
 
         template <typename T>
@@ -36,6 +36,9 @@ namespace cppengine {
 
         template <typename Visitor, typename ... T>
         void serialiseObjectFields(ArgumentList<T...>, Visitor &&v);
+
+        template <typename T>
+        void serialiseArrayElements(T const &array);
 
         template <typename T> requires IterableSerialisableType<T>
         void serialiseArray(std::string_view name, T const &array);

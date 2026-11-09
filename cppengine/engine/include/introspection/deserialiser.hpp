@@ -23,6 +23,9 @@ namespace cppengine {
         template <typename T> requires KeyValuePairType<T>
         void deserialiseKeyValuePair(T &value);
 
+        template <typename T, typename S> requires IterableSerialisableType<T>
+        void deserialiseArrayElements(T &array, S size);
+
         template <typename T> requires IterableSerialisableType<T>
         void deserialiseArray(std::string_view name, T &array);
 
@@ -41,13 +44,13 @@ namespace cppengine {
         template <typename T>
         void deserialiseObject(T &object);
 
-        template <typename T>
+        template <typename T> requires DeserialisableType<T>
         void deserialiseValue(std::string_view name, T &value);
 
-        template <typename T>
+        template <typename T> requires DeserialisableType<T>
         void deserialiseValue(std::size_t at, T &value);
 
-        template <typename T>
+        template <typename T> requires DeserialisableType<T>
         void deserialiseValue(T &value);
 
     protected:

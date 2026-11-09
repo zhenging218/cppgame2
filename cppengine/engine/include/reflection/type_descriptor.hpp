@@ -43,8 +43,8 @@ namespace cppengine {
         using field_type = U;
 
         static constexpr bool hasMember = member != nullptr;
-        static constexpr bool hasGetter = getter != nullptr;
-        static constexpr bool hasSetter = setter != nullptr;
+        static constexpr bool hasGetter = !std::is_null_pointer_v<decltype(getter)>;
+        static constexpr bool hasSetter = !std::is_null_pointer_v<decltype(setter)>;
 
         static_assert((hasMember && !hasGetter && !hasSetter) || (!hasMember && hasGetter && hasSetter),
             "member descriptors should only be exposing either member or getter/setter");

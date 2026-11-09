@@ -10,7 +10,6 @@
 #include "reflection/type_descriptor.hpp"
 
 namespace cppengine {
-
     template<typename T> requires StringKeyConvertibleType<T>
     T Deserialiser::convertFieldKey(std::string_view key) {
         using result_type = std::remove_cv_t<T>;
@@ -120,14 +119,17 @@ namespace cppengine {
         std::get<1>(value) = std::move(pairValue);
     }
 
-    template<typename T> requires IterableSerialisableType<T>
-    void Deserialiser::deserialiseArray(std::string_view name, T &array) {
-        const auto size = beginArray(name);
+    template<typename T, typename S> requires IterableSerialisableType<T>
+    void Deserialiser::deserialiseArrayElements(T &array, S size) {
+        if constexpr (ResettableIterableType<T>) {
+            array.clear();
+        }
 
         if constexpr (BackInsertableType<T>) {
-            using value_type = T::value_type;
+            using value_type = WritableElementType<T>::type;
+
             for (std::size_t i = 0; i < size; ++i) {
-                value_type value;
+                value_type value{};
                 deserialiseValue(i, value);
                 array.push_back(std::move(value));
 
@@ -137,9 +139,10 @@ namespace cppengine {
             }
 
         } else if constexpr (InsertableType<T>) {
-            using value_type = T::value_type;
+            using value_type = WritableElementType<T>::type;
+
             for (std::size_t i = 0; i < size; ++i) {
-                value_type value;
+                value_type value{};
                 deserialiseValue(i, value);
                 array.insert(std::move(value));
 
@@ -161,52 +164,26 @@ namespace cppengine {
                 }
             }
         }
+    }
 
+    template<typename T> requires IterableSerialisableType<T>
+    void Deserialiser::deserialiseArray(std::string_view name, T &array) {
+        const auto size = beginArray(name);
+        deserialiseArrayElements(array, size);
         endArray();
     }
 
     template<typename T> requires IterableSerialisableType<T>
     void Deserialiser::deserialiseArray(std::size_t at, T &array) {
         const auto size = beginArray(at);
+        deserialiseArrayElements(array, size);
+        endArray();
+    }
 
-        if constexpr (BackInsertableType<T>) {
-            using value_type = T::value_type;
-            for (std::size_t i = 0; i < size; ++i) {
-                value_type value;
-                deserialiseValue(i, value);
-                array.push_back(std::move(value));
-
-                if (i + 1 < size) {
-                    processSeparator();
-                }
-            }
-
-        } else if constexpr (InsertableType<T>) {
-            using value_type = T::value_type;
-            for (std::size_t i = 0; i < size; ++i) {
-                value_type value;
-                deserialiseValue(i, value);
-                array.insert(std::move(value));
-
-                if (i + 1 < size) {
-                    processSeparator();
-                }
-            }
-
-        } else {
-            auto curr = std::begin(array);
-            auto end = std::end(array);
-
-            for (std::size_t i = 0; i < size && curr != end; ++i, curr = std::next(curr)) {
-                deserialiseValue(i, *curr);
-                auto next = curr;
-                next = std::next(next);
-                if (i + 1 < size && next != end) {
-                    processSeparator();
-                }
-            }
-        }
-
+    template<typename T> requires IterableSerialisableType<T>
+    void Deserialiser::deserialiseArray(T &array) {
+        const auto size = beginArray();
+        deserialiseArrayElements(array, size);
         endArray();
     }
 
@@ -215,11 +192,15 @@ namespace cppengine {
         beginObject(name);
         deserialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && descriptor) {
             using descriptor_type = std::remove_cvref_t<decltype(descriptor)>;
-            using value_type = descriptor_type::field_type;
 
-            value_type value(descriptor.get(object));
-            deserialiseValue(descriptor.getName(), value);
-            descriptor.set(object, std::move(value));
+            if constexpr (descriptor_type::hasMember) {
+                deserialiseValue(descriptor.getName(), descriptor.get(object));
+            } else {
+                using value_type = typename descriptor_type::field_type;
+                value_type value = descriptor.get(object);
+                deserialiseValue(descriptor.getName(), value);
+                descriptor.set(object, std::move(value));
+            }
         });
 
         endObject();
@@ -230,11 +211,15 @@ namespace cppengine {
         beginObject(at);
         deserialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && descriptor) {
             using descriptor_type = std::remove_cvref_t<decltype(descriptor)>;
-            using value_type = descriptor_type::field_type;
 
-            value_type value(descriptor.get(object));
-            deserialiseValue(descriptor.getName(), value);
-            descriptor.set(object, std::move(value));
+            if constexpr (descriptor_type::hasMember) {
+                deserialiseValue(descriptor.getName(), descriptor.get(object));
+            } else {
+                using value_type = typename descriptor_type::field_type;
+                value_type value = descriptor.get(object);
+                deserialiseValue(descriptor.getName(), value);
+                descriptor.set(object, value);
+            }
         });
 
         endObject();
@@ -245,96 +230,57 @@ namespace cppengine {
         beginObject();
         deserialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && descriptor) {
             using descriptor_type = std::remove_cvref_t<decltype(descriptor)>;
-            using value_type = descriptor_type::field_type;
 
-            value_type value(descriptor.get(object));
-            deserialiseValue(descriptor.getName(), value);
-            descriptor.set(object, std::move(value));
+            if constexpr (descriptor_type::hasMember) {
+                deserialiseValue(descriptor.getName(), descriptor.get(object));
+            } else {
+                using value_type = typename descriptor_type::field_type;
+                value_type value = descriptor.get(object);
+                deserialiseValue(descriptor.getName(), value);
+                descriptor.set(object, value);
+            }
         });
 
         endObject();
     }
 
-    template<typename T>
+    template<typename T> requires DeserialisableType<T>
     void Deserialiser::deserialiseValue(std::string_view name, T &value) {
-        using value_type = std::remove_cvref_t<decltype(value)>;
-        value_type result(value);
-        deserialiseValue(name, result);
-        value = std::move(result);
+        if constexpr (std::same_as<T, std::string> || TriviallyIntrospectableType<T>) {
+            deserialiseValue(name, value);
+        }  else if constexpr (IterableSerialisableType<T>) {
+            deserialiseArray(name, value);
+        } else if constexpr (NonTriviallyIntrospectableType<T>) {
+            deserialiseObject(name, value);
+        } else if constexpr (KeyValuePairType<T>) {
+            deserialiseKeyValuePair(name, value);
+        }
     }
 
-    template<typename T>
+    template<typename T> requires DeserialisableType<T>
     void Deserialiser::deserialiseValue(std::size_t at, T &value) {
-        using value_type = std::remove_cvref_t<decltype(value)>;
-        value_type result(value);
-        deserialiseValue(at, result);
-        value = std::move(result);
+        if constexpr (std::same_as<T, std::string> || TriviallyIntrospectableType<T>) {
+            deserialiseValue(at, value);
+        }  else if constexpr (IterableSerialisableType<T>) {
+            deserialiseArray(at, value);
+        } else if constexpr (NonTriviallyIntrospectableType<T>) {
+            deserialiseObject(at, value);
+        } else if constexpr (KeyValuePairType<T>) {
+            deserialiseKeyValuePair(at, value);
+        }
     }
 
-    template<typename T>
+    template<typename T> requires DeserialisableType<T>
     void Deserialiser::deserialiseValue(T &value) {
-        using value_type = std::remove_cvref_t<decltype(value)>;
-        value_type result(value);
-
-        if constexpr (DynamicIterableType<T>) {
+        if constexpr (std::same_as<T, std::string> || TriviallyIntrospectableType<T>) {
+            deserialiseValue(value);
+        }  else if constexpr (IterableSerialisableType<T>) {
             deserialiseArray(value);
-        } else if constexpr (IterableSerialisableType<T>) {
-            deserialiseArray(value);
+        } else if constexpr (NonTriviallyIntrospectableType<T>) {
+            deserialiseObject(value);
         } else if constexpr (KeyValuePairType<T>) {
             deserialiseKeyValuePair(value);
         }
-        else if constexpr (NonTriviallyIntrospectableType<T>) {
-            deserialiseObject(value);
-        }
-        else {
-            deserialiseValue(value);
-        }
-
-    }
-
-    template<typename T> requires IterableSerialisableType<T>
-    void Deserialiser::deserialiseArray(T &array) {
-        const auto size = beginArray();
-
-        if constexpr (BackInsertableType<T>) {
-            using value_type = T::value_type;
-            for (std::size_t i = 0; i < size; ++i) {
-                value_type value;
-                deserialiseValue(i, value);
-                array.push_back(std::move(value));
-
-                if (i + 1 < size) {
-                    processSeparator();
-                }
-            }
-
-        } else if constexpr (InsertableType<T>) {
-            using value_type = T::value_type;
-            for (std::size_t i = 0; i < size; ++i) {
-                value_type value;
-                deserialiseValue(i, value);
-                array.insert(std::move(value));
-
-                if (i + 1 < size) {
-                    processSeparator();
-                }
-            }
-
-        } else {
-            auto curr = std::begin(array);
-            auto end = std::end(array);
-
-            for (std::size_t i = 0; i < size && curr != end; ++i, curr = std::next(curr)) {
-                deserialiseValue(i, *curr);
-                auto next = curr;
-                next = std::next(next);
-                if (i + 1 < size && next != end) {
-                    processSeparator();
-                }
-            }
-        }
-
-        endArray();
     }
 
     template<typename T>

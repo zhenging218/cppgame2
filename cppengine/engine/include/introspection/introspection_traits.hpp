@@ -8,6 +8,10 @@ namespace cppengine {
         TypeTraits<T>::defined_trait_v && TypeMemberTraits<T>::members_defined_v;
 
     template <typename T>
+    concept TriviallyIntrospectableType =
+        TypeTraits<T>::defined_trait_v && TypeTraits<T>::pod_type_v;
+
+    template <typename T>
     concept IterableSerialisableType =
     !std::is_convertible_v<T, std::string_view> &&
     (requires (T const &t) {
@@ -47,6 +51,25 @@ namespace cppengine {
     } && std::tuple_size_v<T> == 2
     && KeyStringConvertibleType<std::tuple_element_t<0, T>>;
 
+    template <typename T> requires IterableSerialisableType<T>
+    struct WritableElementType {
+        using type = T::value_type;
+    };
+
+    template <typename T> requires AssociativeContainerType<T>
+    struct WritableElementType<T> {
+        using key_type = std::remove_cv_t<typename T::key_type>;
+        using field_type = std::remove_cv_t<typename T::mapped_type>;
+
+        using type = std::pair<key_type, field_type>;
+    };
+
+    template <typename T, std::size_t S> requires IterableSerialisableType<T[S]>
+    struct WritableElementType<T[S]> {
+
+        using type = std::remove_cv_t<T>;
+    };
+
     template <typename T>
     concept BackInsertableType = IterableSerialisableType<T> && (requires (T &container, typename T::value_type value) {
         container.push_back(std::move(value));
@@ -58,8 +81,24 @@ namespace cppengine {
     });
 
     template <typename T>
+    concept ResettableIterableType = IterableSerialisableType<T> && (requires(T &container) {
+        container.clear();
+    });
+
+    template <typename T>
     concept DynamicIterableType = BackInsertableType<T> || InsertableType<T>;
 
+    template <typename T>
+    concept SerialisableType = std::is_convertible_v<T, std::string_view>
+        || TriviallyIntrospectableType<T>
+        || IterableSerialisableType<T>
+        || NonTriviallyIntrospectableType<T>
+        || KeyValuePairType<T>;
+
+    template <typename T>
+    concept DeserialisableType = !std::is_const_v<T> && (std::same_as<T, std::string> || TriviallyIntrospectableType<T>
+        || IterableSerialisableType<T> || NonTriviallyIntrospectableType<T>
+        || KeyValuePairType<T>);
 }
 
 #endif
