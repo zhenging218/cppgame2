@@ -295,7 +295,7 @@ namespace cppengine {
     }
 
     std::string RapidJsonDeserialiser::getFieldKey() {
-        return frames.top()
+
     }
 
     void RapidJsonDeserialiser::beginObject() {
