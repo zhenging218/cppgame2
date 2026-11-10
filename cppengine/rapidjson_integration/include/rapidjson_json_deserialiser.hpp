@@ -15,20 +15,23 @@ namespace cppengine {
     private:
         struct Frame;
 
-        template <typename T>
+        template <typename T> requires TriviallyIntrospectableType<T>
         struct ValueFrame;
 
+        template <typename  T> requires IterableSerialisableType<T>
         struct ArrayFrame;
+
+        template <typename T> requires NonTriviallyIntrospectableType<T>
         struct ObjectFrame;
 
         template <typename T> requires NonTriviallyIntrospectableType<T>
-        static ObjectHandle<Frame> createFrame(rapidjson::Value &node);
+        static ObjectHandle<Frame> createFrame(rapidjson::Value const &node);
 
         template <typename T> requires TriviallyIntrospectableType<T>
-        static ObjectHandle<Frame> createFrame(rapidjson::Value &node);
+        static ObjectHandle<Frame> createFrame(rapidjson::Value const &node);
 
         template <typename T> requires IterableSerialisableType<T>
-        static ObjectHandle<Frame> createFrame(rapidjson::Value &node);
+        static ObjectHandle<Frame> createFrame(rapidjson::Value const &node);
 
         rapidjson::IStreamWrapper wrapper;
         rapidjson::Document document;
