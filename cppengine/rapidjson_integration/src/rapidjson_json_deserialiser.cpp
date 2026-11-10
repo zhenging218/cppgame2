@@ -2,13 +2,15 @@
 // Created by Admin on 8/11/2026.
 //
 
+#include <utility>
+
 #include "rapidjson_integration.hpp"
 
 namespace {
-    rapidjson::Document parseStreamAsDocument(rapidjson::IStreamWrapper &wrapper) {
-        rapidjson::Document d;
-        d.ParseStream(wrapper);
-        return d;
+    cppengine::ObjectHandle<const rapidjson::Document> parseStreamAsDocument(rapidjson::IStreamWrapper &wrapper) {
+        cppengine::ObjectHandle<rapidjson::Document> d = cppengine::createHandle<rapidjson::Document>();
+        d->ParseStream(wrapper);
+        return const_handle_cast<const rapidjson::Document>(d);
     }
 
     constexpr char const * jsonNodeTypes[] = {
@@ -21,7 +23,7 @@ namespace {
         "number"
     };
 
-    int rapidjsonTypeToJsonNodetype(rapidjson::Type type) {
+    int rapidjsonTypeToJsonNodeType(rapidjson::Type type) {
         switch (type) {
             case rapidjson::kNullType:
                 return 0;
@@ -81,10 +83,10 @@ namespace cppengine {
     struct RapidJsonDeserialiser::Frame {
         [[nodiscard]] virtual int getType() const = 0;
         [[nodiscard]] virtual std::string_view getName() const = 0;
+        [[nodiscard]] virtual bool isRoot() const;
         virtual ~Frame() = 0;
     };
 
-    template <typename T> requires NonTriviallyIntrospectableType<T>
     struct RapidJsonDeserialiser::ObjectFrame : Frame {
         using value_type = std::remove_cvref_t<decltype(std::declval<rapidjson::Value const &>().GetObject())>;
 
@@ -92,23 +94,21 @@ namespace cppengine {
         std::reference_wrapper<const value_type> object;
 
         ObjectFrame(const value_type &object_);
+        ObjectFrame(std::string_view name_, const value_type &object_);
 
         [[nodiscard]] int getType() const override;
         [[nodiscard]] std::string_view getName() const override;
 
-        template <typename U> requires TriviallyIntrospectableType<U>
-        [[nodiscard]] U getValue(std::string_view name) const;
+        template <typename T> requires TriviallyIntrospectableType<T> || std::same_as<T, std::string>
+        [[nodiscard]] T getValue(std::string_view fieldName) const;
 
-        template <typename U> requires NonTriviallyIntrospectableType<U>
-        [[nodiscard]] ObjectHandle<ObjectFrame<U>> getObject(std::string_view name) const;
+        [[nodiscard]] ObjectHandle<ObjectFrame> getObject(std::string_view fieldName) const;
 
-        template <typename U> requires IterableSerialisableType<U>
-        [[nodiscard]] ObjectHandle<ArrayFrame<U>> getArray(std::string_view name) const;
+        [[nodiscard]] ObjectHandle<ArrayFrame> getArray(std::string_view fieldName) const;
 
         ~ObjectFrame() override;
     };
 
-    template <typename T> requires IterableSerialisableType<T>
     struct RapidJsonDeserialiser::ArrayFrame : Frame {
         using value_type = std::remove_cvref_t<decltype(std::declval<rapidjson::Value const &>().GetArray())>;
 
@@ -119,173 +119,159 @@ namespace cppengine {
 
         [[nodiscard]] int getType() const override;
         [[nodiscard]] std::string_view getName() const override;
-
         [[nodiscard]] std::size_t getSize() const;
 
         template <typename U> requires TriviallyIntrospectableType<U> || std::same_as<U, std::string>
         [[nodiscard]] U getValue(std::size_t at) const;
 
-        template <typename U> requires NonTriviallyIntrospectableType<T>
-        [[nodiscard]] ObjectHandle<ObjectFrame<U>> getObject(std::size_t at) const;
+        [[nodiscard]] ObjectHandle<ObjectFrame> getObject(std::size_t at) const;
 
-        template <typename U> requires IterableSerialisableType<T>
-        [[nodiscard]] ObjectHandle<ArrayFrame<U>> getArray(std::size_t at) const;
+        [[nodiscard]] ObjectHandle<ArrayFrame> getArray(std::size_t at) const;
 
         ~ArrayFrame() override;
     };
 
-    template <typename T> requires TriviallyIntrospectableType<T>
-    struct RapidJsonDeserialiser::ValueFrame : Frame {
+    struct RapidJsonDeserialiser::RootFrame : Frame {
+        ObjectHandle<const rapidjson::Document> document;
 
-        std::string name;
-        std::reference_wrapper<const rapidjson::Value> value;
-
-        ValueFrame(rapidjson::Value const &value_);
+        RootFrame(ObjectHandle<const rapidjson::Document> document_);
 
         [[nodiscard]] int getType() const override;
         [[nodiscard]] std::string_view getName() const override;
+        [[nodiscard]] bool isRoot() const override;
 
-        [[nodiscard]] T getValue() const;
+        template <typename U> requires TriviallyIntrospectableType<U> || std::same_as<U, std::string>
+        [[nodiscard]] U getValue() const;
+        [[nodiscard]] ObjectHandle<ObjectFrame> getObject() const;
+        [[nodiscard]] ObjectHandle<ArrayFrame> getArray() const;
 
-        ~ValueFrame() override;
+        ~RootFrame() override;
     };
 
-    template<typename T> requires NonTriviallyIntrospectableType<T>
-    RapidJsonDeserialiser::ObjectFrame<T>::ObjectFrame(const value_type &object_) : object(object_) {
+    bool RapidJsonDeserialiser::Frame::isRoot() const {
+        return false;
+    }
+
+    RapidJsonDeserialiser::ObjectFrame::ObjectFrame(const value_type &object_) : ObjectFrame("", object_) {
+    }
+
+    RapidJsonDeserialiser::ObjectFrame::ObjectFrame(std::string_view name_, const value_type &object_) : name(name_), object(object_) {
 
     }
 
-    template <typename T> requires NonTriviallyIntrospectableType<T>
-    int RapidJsonDeserialiser::ObjectFrame<T>::getType() const {
-        return rapidjsonTypeToJsonNodetype(rapidjson::kObjectType);
+    int RapidJsonDeserialiser::ObjectFrame::getType() const {
+        return rapidjsonTypeToJsonNodeType(rapidjson::kObjectType);
     }
 
-    template<typename T> requires NonTriviallyIntrospectableType<T>
-    std::string_view RapidJsonDeserialiser::ObjectFrame<T>::getName() const {
-        return object.get().
+    std::string_view RapidJsonDeserialiser::ObjectFrame::getName() const {
+        return "";
     }
 
-    template<typename T> requires NonTriviallyIntrospectableType<T>
-    template <typename U> requires TriviallyIntrospectableType<U>
-    U RapidJsonDeserialiser::ObjectFrame<T>::getValue(std::string_view name) const {
-        const auto &it = object.get().FindMember(name.data());
+    ObjectHandle<RapidJsonDeserialiser::ObjectFrame> RapidJsonDeserialiser::ObjectFrame::getObject(
+        std::string_view fieldName) const {
+        const auto &it = object.get().FindMember(fieldName.data());
 
         if (it != object.get().MemberEnd()) {
-            return read<U>(it->value);
+            return createHandle<ObjectFrame>(it->name.GetString(), it->value.GetObject());
         }
 
-        throw std::runtime_error(std::format("object has no such member {} of type {}", name, TypeDescriptor::getTypeDescriptor<U>()->getName()));
+        throw std::runtime_error(std::format("object has no such member {} of type {}", fieldName, jsonNodeTypes[getType()]));
     }
 
-    template<typename T> requires NonTriviallyIntrospectableType<T>
-    template<typename U> requires NonTriviallyIntrospectableType<U>
-    ObjectHandle<RapidJsonDeserialiser::ObjectFrame<U>> RapidJsonDeserialiser::ObjectFrame<T>::getObject(
-        std::string_view name) const {
-        const auto &it = object.get().FindMember(name.data());
+    ObjectHandle<RapidJsonDeserialiser::ArrayFrame> RapidJsonDeserialiser::ObjectFrame::getArray(
+        std::string_view fieldName) const {
+
+        const auto &it = object.get().FindMember(fieldName.data());
 
         if (it != object.get().MemberEnd()) {
-            return createHandle<ObjectFrame<U>>(it->value.GetObject());
+            return createHandle<ArrayFrame>(it->value.GetArray());
         }
 
-        throw std::runtime_error(std::format("object has no such member {} of type {}", name, TypeDescriptor::getTypeDescriptor<U>()->getName()));
+        throw std::runtime_error(std::format("object has no such member {} of type {}", fieldName, jsonNodeTypes[getType()]));
     }
 
-    template<typename T> requires NonTriviallyIntrospectableType<T>
-    template<typename U> requires IterableSerialisableType<U>
-    ObjectHandle<RapidJsonDeserialiser::ArrayFrame<U>> RapidJsonDeserialiser::ObjectFrame<T>::getArray(
-        std::string_view name) const {
-
-        const auto &it = object.get().FindMember(name.data());
+    template <typename T> requires TriviallyIntrospectableType<T> || std::same_as<T, std::string>
+    T RapidJsonDeserialiser::ObjectFrame::getValue(std::string_view fieldName) const {
+        const auto &it = object.get().FindMember(fieldName.data());
 
         if (it != object.get().MemberEnd()) {
-            return createHandle<ArrayFrame<U>>(it->value.GetArray());
+            return read<T>(it->value);
         }
 
-        throw std::runtime_error(std::format("object has no such member {} of type {}", name, TypeDescriptor::getTypeDescriptor<U>()->getName()));
+        throw std::runtime_error(std::format("object has no such member {} of type {}", fieldName, TypeDescriptor::getTypeDescriptor<T>()->getName()));
     }
 
-    template<typename T> requires IterableSerialisableType<T>
-    RapidJsonDeserialiser::ArrayFrame<T>::ArrayFrame(value_type const &array_) : array(array_) {
+    RapidJsonDeserialiser::ArrayFrame::ArrayFrame(value_type const &array_) : array(array_) {
     }
 
-    template <typename T> requires IterableSerialisableType<T>
-    int RapidJsonDeserialiser::ArrayFrame<T>::getType() const {
-        return rapidjsonTypeToJsonNodetype(rapidjson::kArrayType);
+    int RapidJsonDeserialiser::ArrayFrame::getType() const {
+        return rapidjsonTypeToJsonNodeType(rapidjson::kArrayType);
     }
 
-    template<typename T> requires IterableSerialisableType<T>
-    std::string_view RapidJsonDeserialiser::ArrayFrame<T>::getName() const {
+    std::string_view RapidJsonDeserialiser::ArrayFrame::getName() const {
+        return "";
     }
 
-    template<typename T> requires IterableSerialisableType<T>
-    std::size_t RapidJsonDeserialiser::ArrayFrame<T>::getSize() const {
+    std::size_t RapidJsonDeserialiser::ArrayFrame::getSize() const {
         return array.get().Size();
     }
 
-    template<typename T> requires IterableSerialisableType<T>
-    template<typename U> requires TriviallyIntrospectableType<U> || std::same_as<U, std::string>
-    U RapidJsonDeserialiser::ArrayFrame<T>::getValue(std::size_t at) const {
-        return read<U>(array.get()[at]);
-    }
-
-    template<typename T> requires IterableSerialisableType<T>
-    template<typename U> requires NonTriviallyIntrospectableType<T>
-    ObjectHandle<RapidJsonDeserialiser::ObjectFrame<U>> RapidJsonDeserialiser::ArrayFrame<T>::getObject(
+    ObjectHandle<RapidJsonDeserialiser::ObjectFrame> RapidJsonDeserialiser::ArrayFrame::getObject(
         std::size_t at) const {
-        return createHandle<ObjectFrame<U>>(array.get()[at].GetObject());
+        return createHandle<ObjectFrame>(array.get()[at].GetObject());
     }
 
-    template<typename T> requires IterableSerialisableType<T>
-    template<typename U> requires IterableSerialisableType<T>
-    ObjectHandle<RapidJsonDeserialiser::ArrayFrame<U>> RapidJsonDeserialiser::ArrayFrame<T>::getArray(
+    ObjectHandle<RapidJsonDeserialiser::ArrayFrame> RapidJsonDeserialiser::ArrayFrame::getArray(
         std::size_t at) const {
-        return createHandle<ArrayFrame<U>>(array.get()[at].GetArray());
+        return createHandle<ArrayFrame>(array.get()[at].GetArray());
     }
 
-    template<typename T> requires TriviallyIntrospectableType<T>
-    RapidJsonDeserialiser::ValueFrame<T>::ValueFrame(rapidjson::Value const &value_) : value(value_) {
-    }
-
-    template <typename T> requires TriviallyIntrospectableType<T>
-    int RapidJsonDeserialiser::ValueFrame<T>::getType() const {
-        return rapidjsonTypeToJsonNodetype(value.get().GetType());
-    }
-
-    template<typename T> requires TriviallyIntrospectableType<T>
-    std::string_view RapidJsonDeserialiser::ValueFrame<T>::getName() const {
-    }
-
-    template <typename T> requires TriviallyIntrospectableType<T>
-    T RapidJsonDeserialiser::ValueFrame<T>::getValue() const {
-        return read<T>(value.get());
+    template<typename T> requires TriviallyIntrospectableType<T> || std::same_as<T, std::string>
+    T RapidJsonDeserialiser::ArrayFrame::getValue(std::size_t at) const {
+        return read<T>(array.get()[at]);
     }
 
     RapidJsonDeserialiser::Frame::~Frame() = default;
 
-    template <typename T> requires NonTriviallyIntrospectableType<T>
-    RapidJsonDeserialiser::ObjectFrame<T>::~ObjectFrame() = default;
+    RapidJsonDeserialiser::ObjectFrame::~ObjectFrame() = default;
 
-    template <typename T> requires IterableSerialisableType<T>
-    RapidJsonDeserialiser::ArrayFrame<T>::~ArrayFrame() = default;
+    RapidJsonDeserialiser::ArrayFrame::~ArrayFrame() = default;
 
-    template <typename T> requires TriviallyIntrospectableType<T>
-    RapidJsonDeserialiser::ValueFrame<T>::~ValueFrame() = default;
-
-    template <typename T> requires NonTriviallyIntrospectableType<T>
-    ObjectHandle<RapidJsonDeserialiser::Frame> RapidJsonDeserialiser::createFrame(rapidjson::Value const &node) {
-        return createHandle<ObjectFrame<T>>(node.GetObject());
+    RapidJsonDeserialiser::RootFrame::RootFrame(ObjectHandle<const rapidjson::Document> document_) : document(std::move(document_)) {
     }
 
-    template <typename T> requires TriviallyIntrospectableType<T>
-    ObjectHandle<RapidJsonDeserialiser::Frame> RapidJsonDeserialiser::createFrame(rapidjson::Value const &node) {
-        return createHandle<ValueFrame<T>>(node);
+    int RapidJsonDeserialiser::RootFrame::getType() const {
+        return rapidjsonTypeToJsonNodeType(document->GetType());
     }
 
-    template <typename T> requires IterableSerialisableType<T>
-    ObjectHandle<RapidJsonDeserialiser::Frame> RapidJsonDeserialiser::createFrame(rapidjson::Value const &node) {
-        return createHandle<ArrayFrame<T>>(node.GetArray());
+    std::string_view RapidJsonDeserialiser::RootFrame::getName() const {
+        return "";
     }
 
+    bool RapidJsonDeserialiser::RootFrame::isRoot() const {
+        return true;
+    }
+
+    ObjectHandle<RapidJsonDeserialiser::ObjectFrame> RapidJsonDeserialiser::RootFrame::getObject() const {
+        if (getType() == rapidjsonTypeToJsonNodeType(rapidjson::kObjectType)) {
+            return createHandle<ObjectFrame>(document->GetObject());
+        }
+        return nullptr;
+    }
+
+    ObjectHandle<RapidJsonDeserialiser::ArrayFrame> RapidJsonDeserialiser::RootFrame::getArray() const {
+        if (getType() == rapidjsonTypeToJsonNodeType(rapidjson::kArrayType)) {
+            return createHandle<ArrayFrame>(document->GetArray());
+        }
+        return nullptr;
+    }
+
+    template<typename U> requires TriviallyIntrospectableType<U> || std::same_as<U, std::string>
+    U RapidJsonDeserialiser::RootFrame::getValue() const {
+        return read<U>(document);
+    }
+
+    RapidJsonDeserialiser::RootFrame::~RootFrame() = default;
 
     bool RapidJsonDeserialiser::convertBooleanValue(std::string_view value) {
         return value == "true";
@@ -299,6 +285,7 @@ namespace cppengine {
     }
 
     void RapidJsonDeserialiser::beginObject() {
+        // should only ever be called on the root
 
     }
 
@@ -449,8 +436,8 @@ namespace cppengine {
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, std::string &value) {
     }
 
-    RapidJsonDeserialiser::RapidJsonDeserialiser(std::istream &is) : wrapper(is), document(parseStreamAsDocument(wrapper)) {
-        // put the document into the stack as a frame
+    RapidJsonDeserialiser::RapidJsonDeserialiser(std::istream &is) : wrapper(is),
+        frames(std::deque<ObjectHandle<Frame>>{createHandle<RootFrame>(parseStreamAsDocument(wrapper))}) {
     }
 
     RapidJsonDeserialiser::~RapidJsonDeserialiser() = default;
