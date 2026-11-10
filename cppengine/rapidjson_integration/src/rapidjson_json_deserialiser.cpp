@@ -286,7 +286,6 @@ namespace cppengine {
 
     void RapidJsonDeserialiser::beginObject() {
         // should only ever be called on the root
-
     }
 
     void RapidJsonDeserialiser::beginObject(std::string_view name) {
@@ -296,9 +295,11 @@ namespace cppengine {
     }
 
     void RapidJsonDeserialiser::endObject() {
+        frames.pop();
     }
 
     std::size_t RapidJsonDeserialiser::beginArray() {
+        // should only ever be called on the root
     }
 
     std::size_t RapidJsonDeserialiser::beginArray(std::string_view name) {
@@ -308,6 +309,7 @@ namespace cppengine {
     }
 
     void RapidJsonDeserialiser::endArray() {
+        frames.pop();
     }
 
     void RapidJsonDeserialiser::deserialiseValue(char &value) {
