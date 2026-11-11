@@ -6,36 +6,6 @@
 #include <cmath>
 #include <set>
 
-namespace {
-    struct Test {
-        int x = 0;
-        std::string y = "hello";
-        int z[10] {0};
-        std::map<std::string, float> w { {"hi", 0.5f}, {"yo", 1.3f} };
-        std::set<int> u { 69, 420 };
-        std::unordered_map<int, std::string> v { { 67, "hihi" }, { 1337, "bye" } };
-
-    private:
-        int i = 555;
-
-    public:
-        int const &getI() const { return i; }
-        void setI(int i_) { i = i_; }
-    };
-}
-
-DECL_TYPE_DESCRIPTOR(Test);
-
-DECL_TYPE_MEMBERS(Test)
-    DECL_TYPE_MEMBER_FIELD(x),
-    DECL_TYPE_MEMBER_FIELD(y),
-    DECL_TYPE_MEMBER_FIELD(z),
-    DECL_TYPE_MEMBER_FIELD(w),
-    DECL_TYPE_MEMBER_FIELD(u),
-    DECL_TYPE_MEMBER_FIELD(v),
-    DECL_TYPE_MEMBER_ACCESSORS(i, getI, setI)
-END_DECL_TYPE_MEMBERS();
-
 namespace cppgame {
     using namespace cppengine;
     
@@ -95,7 +65,5 @@ namespace cppgame {
         if (scaled) {
             transform->setScale(transform->getScale() + Vector3{scale.x, scale.y, 1.f});
         }
-
-        std::cout << Test{} << std::endl;
     }
 }

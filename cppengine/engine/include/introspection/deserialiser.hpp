@@ -121,6 +121,8 @@ namespace cppengine {
         void deserialise(T &dest);
 
         virtual ~Deserialiser() = 0;
+
+        static ObjectHandle<Deserialiser> createJsonDeserialiser(std::istream &stream);
     };
 
     inline Deserialiser::~Deserialiser() = default;

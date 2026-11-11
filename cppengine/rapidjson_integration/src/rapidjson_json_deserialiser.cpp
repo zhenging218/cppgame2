@@ -53,7 +53,7 @@ namespace {
         }
     }
 
-    template <typename T, typename F> requires (std::unsigned_integral<T> && !std::same_as<T, bool>)
+    template <typename T> requires (std::unsigned_integral<T> && !std::same_as<T, bool>)
     T read(rapidjson::Value const &value) {
         if constexpr (sizeof(T) <= sizeof(unsigned int)) {
             return value.GetUint();
@@ -80,11 +80,30 @@ namespace {
 }
 
 namespace cppengine {
+    ObjectHandle<Deserialiser> Deserialiser::createJsonDeserialiser(std::istream &stream) {
+        return createHandle<RapidJsonDeserialiser>(stream);
+    }
+
     struct RapidJsonDeserialiser::Frame {
         [[nodiscard]] virtual int getType() const = 0;
         [[nodiscard]] virtual std::string_view getName() const = 0;
         [[nodiscard]] virtual bool isRoot() const;
         virtual ~Frame() = 0;
+
+        template <typename T, typename F> requires std::derived_from<F, Frame>
+        static void readValue(T &dest, ObjectHandle<F> frame) {
+            dest = frame->template getValue<T>();
+        }
+
+        template <typename T, typename F> requires std::derived_from<F, Frame>
+        static void readValue(T &dest, ObjectHandle<F> frame, std::string_view name) {
+            dest = frame->template getValue<T>(name);
+        }
+
+        template <typename T, typename F> requires std::derived_from<F, Frame>
+        static void readValue(T &dest, ObjectHandle<F> frame, std::size_t at) {
+            dest = frame->template getValue<T>(at);
+        }
     };
 
     struct RapidJsonDeserialiser::ObjectFrame : Frame {
@@ -268,7 +287,7 @@ namespace cppengine {
 
     template<typename U> requires TriviallyIntrospectableType<U> || std::same_as<U, std::string>
     U RapidJsonDeserialiser::RootFrame::getValue() const {
-        return read<U>(document);
+        return read<U>(*document);
     }
 
     RapidJsonDeserialiser::RootFrame::~RootFrame() = default;
@@ -281,17 +300,23 @@ namespace cppengine {
     }
 
     std::string RapidJsonDeserialiser::getFieldKey() {
-
+        return std::string{static_handle_cast<ObjectFrame>(frames.top())->getName()};
     }
 
     void RapidJsonDeserialiser::beginObject() {
         // should only ever be called on the root
+        auto root = frames.top();
+        frames.emplace(static_handle_cast<RootFrame>(root)->getObject());
     }
 
     void RapidJsonDeserialiser::beginObject(std::string_view name) {
+        auto parent = frames.top();
+        frames.emplace(static_handle_cast<ObjectFrame>(parent)->getObject(name));
     }
 
     void RapidJsonDeserialiser::beginObject(std::size_t at) {
+        auto parent = frames.top();
+        frames.emplace(static_handle_cast<ArrayFrame>(parent)->getObject(at));
     }
 
     void RapidJsonDeserialiser::endObject() {
@@ -300,12 +325,27 @@ namespace cppengine {
 
     std::size_t RapidJsonDeserialiser::beginArray() {
         // should only ever be called on the root
+        auto root = frames.top();
+        auto array = static_handle_cast<RootFrame>(root)->getArray();
+        auto size = array->getSize();
+        frames.emplace(array);
+        return size;
     }
 
     std::size_t RapidJsonDeserialiser::beginArray(std::string_view name) {
+        auto parent = frames.top();
+        auto array = static_handle_cast<ObjectFrame>(parent)->getArray(name);
+        auto size = array->getSize();
+        frames.emplace(array);
+        return size;
     }
 
     std::size_t RapidJsonDeserialiser::beginArray(std::size_t at) {
+        auto parent = frames.top();
+        auto array = static_handle_cast<ArrayFrame>(parent)->getArray(at);
+        auto size = array->getSize();
+        frames.emplace(array);
+        return size;
     }
 
     void RapidJsonDeserialiser::endArray() {
@@ -313,129 +353,214 @@ namespace cppengine {
     }
 
     void RapidJsonDeserialiser::deserialiseValue(char &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(unsigned char &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(short &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(unsigned short &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(int &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(unsigned &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(long &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(unsigned long &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(long long &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(unsigned long long &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(float &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(double &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(bool &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string &value) {
+        auto root = frames.top();
+        Frame::readValue(value, static_handle_cast<RootFrame>(root));
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, char &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
+
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, unsigned char &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, short &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, unsigned short &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, int &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, unsigned &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, long &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, unsigned long &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, long long &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, unsigned long long &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, float &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, double &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, bool &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::string_view name, std::string &value) {
+        auto parent = frames.top();
+        Frame::readValue(value, static_handle_cast<ObjectFrame>(parent), name);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, char &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, unsigned char &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, short &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, unsigned short &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, int &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, unsigned &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, long &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, unsigned long &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, long long &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, unsigned long long &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, float &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, double &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, bool &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     void RapidJsonDeserialiser::deserialiseValue(std::size_t at, std::string &value) {
+        auto array = frames.top();
+        Frame::readValue(value, static_handle_cast<ArrayFrame>(array), at);
     }
 
     RapidJsonDeserialiser::RapidJsonDeserialiser(std::istream &is) : wrapper(is),
