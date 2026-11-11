@@ -12,7 +12,7 @@ namespace cppengine {
     template <typename T>
     struct FieldDescriptorCreator;
 
-    template <typename T, StringLiteral name, typename U, U T::* member, U const &(T::*getter)() const, void (T::*setter)(U const &)>
+    template <typename T, StringLiteral name, typename U, U T::* member, auto getter, auto setter>
     struct FieldDescriptorCreator<MemberDescriptor<T, name, U, member, getter, setter>> {
         static constexpr bool is_const_member = std::is_const<U>::value;
         using member_descriptor_type = MemberDescriptor<T, name, U, member, getter, setter>;
