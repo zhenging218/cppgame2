@@ -115,7 +115,7 @@ namespace cppengine {
         using value_type = std::remove_cvref_t<decltype(std::declval<rapidjson::Value const &>().GetObject())>;
 
         std::string name;
-        std::reference_wrapper<const value_type> object;
+        value_type object;
 
         ObjectFrame(const value_type &object_);
         ObjectFrame(std::string_view name_, const value_type &object_);
@@ -137,7 +137,7 @@ namespace cppengine {
         using value_type = std::remove_cvref_t<decltype(std::declval<rapidjson::Value const &>().GetArray())>;
 
         std::string name;
-        std::reference_wrapper<const value_type> array;
+        value_type array;
 
         ArrayFrame(value_type const &array_);
 
@@ -193,9 +193,9 @@ namespace cppengine {
 
     ObjectHandle<RapidJsonDeserialiser::ObjectFrame> RapidJsonDeserialiser::ObjectFrame::getObject(
         std::string_view fieldName) const {
-        const auto &it = object.get().FindMember(fieldName.data());
+        const auto &it = object.FindMember(fieldName.data());
 
-        if (it != object.get().MemberEnd()) {
+        if (it != object.MemberEnd()) {
             return createHandle<ObjectFrame>(it->name.GetString(), it->value.GetObject());
         }
 
@@ -205,9 +205,9 @@ namespace cppengine {
     ObjectHandle<RapidJsonDeserialiser::ArrayFrame> RapidJsonDeserialiser::ObjectFrame::getArray(
         std::string_view fieldName) const {
 
-        const auto &it = object.get().FindMember(fieldName.data());
+        const auto &it = object.FindMember(fieldName.data());
 
-        if (it != object.get().MemberEnd()) {
+        if (it != object.MemberEnd()) {
             return createHandle<ArrayFrame>(it->value.GetArray());
         }
 
@@ -216,9 +216,9 @@ namespace cppengine {
 
     template <typename T> requires TriviallyIntrospectableType<T> || std::same_as<T, std::string>
     T RapidJsonDeserialiser::ObjectFrame::getValue(std::string_view fieldName) const {
-        const auto &it = object.get().FindMember(fieldName.data());
+        const auto &it = object.FindMember(fieldName.data());
 
-        if (it != object.get().MemberEnd()) {
+        if (it != object.MemberEnd()) {
             return read<T>(it->value);
         }
 
@@ -237,22 +237,22 @@ namespace cppengine {
     }
 
     std::size_t RapidJsonDeserialiser::ArrayFrame::getSize() const {
-        return array.get().Size();
+        return array.Size();
     }
 
     ObjectHandle<RapidJsonDeserialiser::ObjectFrame> RapidJsonDeserialiser::ArrayFrame::getObject(
         std::size_t at) const {
-        return createHandle<ObjectFrame>(array.get()[at].GetObject());
+        return createHandle<ObjectFrame>(array[at].GetObject());
     }
 
     ObjectHandle<RapidJsonDeserialiser::ArrayFrame> RapidJsonDeserialiser::ArrayFrame::getArray(
         std::size_t at) const {
-        return createHandle<ArrayFrame>(array.get()[at].GetArray());
+        return createHandle<ArrayFrame>(array[at].GetArray());
     }
 
     template<typename T> requires TriviallyIntrospectableType<T> || std::same_as<T, std::string>
     T RapidJsonDeserialiser::ArrayFrame::getValue(std::size_t at) const {
-        return read<T>(array.get()[at]);
+        return read<T>(array[at]);
     }
 
     RapidJsonDeserialiser::Frame::~Frame() = default;
