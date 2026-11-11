@@ -53,7 +53,37 @@ SCENARIO("Objects can be serialised if registered") {
         REQUIRE_NOTHROW(serialiser->serialise(test));
 
         THEN("the serialisation is successful") {
-          INFO(oss.str());
+          auto payload = oss.str();
+
+          AND_GIVEN("another object") {
+            Test test2;
+            test2.x = 7;
+            test2.y = "bye";
+
+            for (int & i : test2.z) {
+              i = 20;
+            }
+
+            test2.w = { { "yohoho", 3.14f } };
+            test2.u = { 369 };
+            test2.v = { {123, "foo" }, { 456, "bar" } };
+
+            test2.setI(666);
+
+            AND_GIVEN("a deserialiser") {
+              std::istringstream iss(payload);
+              auto deserialiser = Deserialiser::createJsonDeserialiser(iss);
+
+              WHEN("the payload is desrialised") {
+                REQUIRE_NOTHROW(deserialiser->deserialise(test2));
+
+                THEN("the other object takes the values of the payload") {
+                  REQUIRE(test2.x == 0);
+
+                }
+              }
+            }
+          }
         }
       }
     }

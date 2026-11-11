@@ -10,6 +10,11 @@ namespace {
     cppengine::ObjectHandle<const rapidjson::Document> parseStreamAsDocument(rapidjson::IStreamWrapper &wrapper) {
         cppengine::ObjectHandle<rapidjson::Document> d = cppengine::createHandle<rapidjson::Document>();
         d->ParseStream(wrapper);
+        if (d->HasParseError()) {
+            auto errCode = d->GetParseError();
+
+            throw std::runtime_error(std::format("parse error while reading from istream: {}", static_cast<int>(errCode)));
+        }
         return const_handle_cast<const rapidjson::Document>(d);
     }
 
