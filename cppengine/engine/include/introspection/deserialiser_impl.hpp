@@ -54,7 +54,7 @@ namespace cppengine {
         using key_type = std::remove_cv_t<std::tuple_element_t<0, T>>;
         using value_type = std::remove_cv_t<std::tuple_element_t<1, T>>;
 
-        auto fieldKey = getFieldKey();
+        auto fieldKey = getFieldKey(0);
         value_type pairValue{};
 
         deserialiseValue(fieldKey, pairValue);
@@ -78,7 +78,7 @@ namespace cppengine {
         using key_type = std::remove_cv_t<std::tuple_element_t<0, T>>;
         using value_type = std::remove_cv_t<std::tuple_element_t<1, T>>;
 
-        auto fieldKey = getFieldKey();
+        auto fieldKey = getFieldKey(0);
         value_type pairValue{};
 
         deserialiseValue(fieldKey, pairValue);
@@ -102,7 +102,7 @@ namespace cppengine {
         using key_type = std::remove_cv_t<std::tuple_element_t<0, T>>;
         using value_type = std::remove_cv_t<std::tuple_element_t<1, T>>;
 
-        auto fieldKey = getFieldKey();
+        auto fieldKey = getFieldKey(0);
         value_type pairValue{};
 
         deserialiseValue(fieldKey, pairValue);

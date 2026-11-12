@@ -58,7 +58,7 @@ namespace cppengine {
 
         virtual void processSeparator() = 0;
 
-        virtual std::string getFieldKey() = 0;
+        virtual std::string getFieldKey(std::size_t at) = 0;
 
         virtual void beginObject() = 0;
         virtual void beginObject(std::string_view name) = 0;

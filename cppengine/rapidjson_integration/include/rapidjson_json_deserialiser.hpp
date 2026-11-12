@@ -26,7 +26,7 @@ namespace cppengine {
 
         void processSeparator() override;
 
-        std::string getFieldKey() override;
+        std::string getFieldKey(std::size_t at) override;
 
         void beginObject() override;
         void beginObject(std::string_view name) override;

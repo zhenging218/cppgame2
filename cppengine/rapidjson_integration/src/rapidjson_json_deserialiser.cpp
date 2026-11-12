@@ -122,6 +122,7 @@ namespace cppengine {
 
         [[nodiscard]] int getType() const override;
         [[nodiscard]] std::string_view getName() const override;
+        [[nodiscard]] std::size_t getMemberCount() const;
 
         template <typename T> requires TriviallyIntrospectableType<T> || std::same_as<T, std::string>
         [[nodiscard]] T getValue(std::string_view fieldName) const;
@@ -129,6 +130,8 @@ namespace cppengine {
         [[nodiscard]] ObjectHandle<ObjectFrame> getObject(std::string_view fieldName) const;
 
         [[nodiscard]] ObjectHandle<ArrayFrame> getArray(std::string_view fieldName) const;
+
+        [[nodiscard]] std::string getMemberName(std::size_t at) const;
 
         ~ObjectFrame() override;
     };
@@ -188,7 +191,11 @@ namespace cppengine {
     }
 
     std::string_view RapidJsonDeserialiser::ObjectFrame::getName() const {
-        return "";
+        return name;
+    }
+
+    std::size_t RapidJsonDeserialiser::ObjectFrame::getMemberCount() const {
+        return object.MemberCount();
     }
 
     ObjectHandle<RapidJsonDeserialiser::ObjectFrame> RapidJsonDeserialiser::ObjectFrame::getObject(
@@ -214,6 +221,18 @@ namespace cppengine {
         throw std::runtime_error(std::format("object has no such member {} of type {}", fieldName, jsonNodeTypes[getType()]));
     }
 
+    std::string RapidJsonDeserialiser::ObjectFrame::getMemberName(std::size_t at) const {
+        auto it = object.MemberBegin();
+        auto count = getMemberCount();
+        for (std::size_t i = 0; i < count && it != object.MemberEnd(); ++i, ++it) {
+            if (i == at) {
+                return it->name.GetString();
+            }
+        }
+
+        throw std::runtime_error(std::format("could not get member name of field at position {} in object tree", at));
+    }
+
     template <typename T> requires TriviallyIntrospectableType<T> || std::same_as<T, std::string>
     T RapidJsonDeserialiser::ObjectFrame::getValue(std::string_view fieldName) const {
         const auto &it = object.FindMember(fieldName.data());
@@ -233,7 +252,7 @@ namespace cppengine {
     }
 
     std::string_view RapidJsonDeserialiser::ArrayFrame::getName() const {
-        return "";
+        return name;
     }
 
     std::size_t RapidJsonDeserialiser::ArrayFrame::getSize() const {
@@ -304,8 +323,8 @@ namespace cppengine {
     void RapidJsonDeserialiser::processSeparator() {
     }
 
-    std::string RapidJsonDeserialiser::getFieldKey() {
-        return std::string{static_handle_cast<ObjectFrame>(frames.top())->getName()};
+    std::string RapidJsonDeserialiser::getFieldKey(std::size_t at) {
+        return std::string{static_handle_cast<ObjectFrame>(frames.top())->getMemberName(at)};
     }
 
     void RapidJsonDeserialiser::beginObject() {
