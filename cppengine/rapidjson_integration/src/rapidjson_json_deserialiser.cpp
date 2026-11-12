@@ -69,7 +69,11 @@ namespace {
 
     template <typename T> requires std::is_floating_point_v<T>
     T read(rapidjson::Value const &value) {
-        return value.GetFloat();
+        if constexpr (sizeof(T) <= sizeof(float)) {
+            return value.GetFloat();
+        } else {
+            return value.GetDouble();
+        }
     }
 
     template<typename T> requires std::same_as<T, bool>
