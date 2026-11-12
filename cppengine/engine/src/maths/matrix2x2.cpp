@@ -119,8 +119,4 @@ namespace cppengine {
             m.m00, m.m10, m.m01, m.m11
         };
     }
-
-    std::ostream& operator<<(std::ostream& os, Matrix2x2 const& m) {
-        return os << m.m00 << ", " << m.m01 << ", " << m.m10 << ", " << m.m11;
-    }
 }

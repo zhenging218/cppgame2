@@ -57,14 +57,6 @@ namespace cppengine {
         return *this;
     }
 
-    float& Vector3::operator[](int i) {
-        return idx[i];
-    }
-
-    float const& Vector3::operator[](int i) const {
-        return idx[i];
-    }
-
     Vector3 operator+(Vector3 const& lhs, Vector3 const& rhs) {
         return Vector3{ lhs } += rhs;
     }
@@ -111,9 +103,5 @@ namespace cppengine {
             lhs.z * rhs.x - lhs.x * rhs.z,
             lhs.x * rhs.y - lhs.y * rhs.x
         };
-    }
-
-    std::ostream& operator<<(std::ostream& os, Vector3 const& v) {
-        return os << v.x << ", " << v.y << ", " << v.z;
     }
 }

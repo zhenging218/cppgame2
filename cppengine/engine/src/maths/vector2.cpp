@@ -31,14 +31,6 @@ namespace cppengine {
         return *this;
     }
 
-    float& Vector2::operator[](int i) {
-        return idx[i];
-    }
-
-    float const& Vector2::operator[](int i) const {
-        return idx[i];
-    }
-
     Vector2 operator+(Vector2 const& lhs, Vector2 const& rhs) {
         return Vector2{ lhs } += rhs;
     }
@@ -77,9 +69,5 @@ namespace cppengine {
 
     Vector2 normalise(Vector2 const& v) {
         return Vector2{ v } / magnitude(v);
-    }
-
-    std::ostream& operator<<(std::ostream& os, Vector2 const& v) {
-        return os << v.x << ", " << v.y;
     }
 }

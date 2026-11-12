@@ -24,7 +24,7 @@ namespace cppengine {
          void serialiseValue(std::string_view name, float const &value) override;
          void serialiseValue(std::string_view name, double const &value) override;
          void serialiseValue(std::string_view name, bool const &value) override;
-         void serialiseValue(std::string_view name, std::string const &value) override;
+         void serialiseValue(std::string_view name, std::string_view value) override;
 
         void beginObject() override;
         void beginArray() override;
@@ -42,9 +42,9 @@ namespace cppengine {
         void serialiseValue(const float &value) override;
         void serialiseValue(const double &value) override;
         void serialiseValue(const bool &value) override;
-        void serialiseValue(const std::string &value) override;
+        void serialiseValue(std::string_view value) override;
 
-        void placeSeparator() override;
+        void processSeparator() override;
 
          void endObject() override;
          void endArray() override;

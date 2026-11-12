@@ -13,6 +13,7 @@ set(TEST_TARGET_SRCS
     ${TEST_SRC_DIR}/member_descriptor_test.cpp
     ${TEST_SRC_DIR}/object_handle_test.cpp
     ${TEST_SRC_DIR}/object_allocator_test.cpp
+    ${TEST_SRC_DIR}/json_serialisation_test.cpp
 )
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/catch2)

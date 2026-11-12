@@ -1,53 +1,64 @@
 #ifndef SERIALIZER_IMPL_HPP
 #define SERIALIZER_IMPL_HPP
 
+#include <format>
+
 #include "introspection_traits.hpp"
 #include "serialiser.hpp"
 
 namespace cppengine {
-
-  template <typename ... Visitor>
-  struct FieldSerialiser : Visitor... {
-    using Visitor::operator()...;
-  };
+  template<typename T> requires KeyStringConvertibleType<T>
+  std::string Serialiser::convertKey(T const &key) {
+    if constexpr (std::same_as<std::remove_cv_t<T>, std::string>) {
+      return key;
+    } else if constexpr (std::convertible_to<decltype(key), std::string_view>) {
+      return std::string(key);
+    } else {
+      return std::to_string(key);
+    }
+  }
 
   template <typename T> requires (KeyValuePairType<T>)
   void Serialiser::serialiseKeyValuePair(std::string_view name, T const &value) {
     beginObject(name);
-    serialiseValue(std::get<0>(value), std::get<1>(value));
+    serialiseValue(convertKey(std::get<0>(value)), std::get<1>(value));
     endObject();
   }
 
   template <typename T> requires (KeyValuePairType<T>)
   void Serialiser::serialiseKeyValuePair(T const &value) {
     beginObject();
-    serialiseValue(std::get<0>(value), std::get<1>(value));
+    serialiseValue(convertKey(std::get<0>(value)), std::get<1>(value));
     endObject();
   }
 
-  template<typename T>
+  template<typename T> requires SerialisableType<T>
   void Serialiser::serialiseValue(T const &value) {
-    if constexpr (IterableSerialisableType<T>) {
+    if constexpr(std::is_convertible_v<T, std::string_view>) {
+      serialiseValue(std::string_view{value});
+    } else if constexpr (TriviallyIntrospectableType<T>) {
+      serialiseValue(value);
+    } else if constexpr (IterableSerialisableType<T>) {
       serialiseArray(value);
     } else if constexpr (NonTriviallyIntrospectableType<T>) {
       serialiseObject(value);
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(value);
-    } else {
-      serialiseValue(std::string{TypeTraits<T>::getName()} + "@" + std::string{std::to_string(reinterpret_cast<std::uintptr_t>(&value))});
     }
   }
 
-  template <typename T>
+  template <typename T> requires SerialisableType<T>
   void Serialiser::serialiseValue(std::string_view name, T const &value) {
-    if constexpr (IterableSerialisableType<T>) {
+    if constexpr(std::is_convertible_v<T, std::string_view>) {
+      serialiseValue(name, std::string_view{value});
+    } else if constexpr (TriviallyIntrospectableType<T>) {
+      serialiseValue(name, value);
+    } else if constexpr (IterableSerialisableType<T>) {
       serialiseArray(name, value);
     } else if constexpr (NonTriviallyIntrospectableType<T>) {
       serialiseObject(name, value);
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(name, value);
-    }  else {
-      serialiseValue(name, std::string{TypeTraits<T>::getName()} + "@" + std::string{std::to_string(reinterpret_cast<std::uintptr_t>(&value))});
     }
   }
 
@@ -56,39 +67,35 @@ namespace cppengine {
     [[maybe_unused]] bool first = true;
     (([&] {
           if (!first)
-            placeSeparator();
+            processSeparator();
         first = false;
         v(T{});
     }()), ...);
   }
 
-  template<typename T> requires IterableSerialisableType<T>
-  void Serialiser::serialiseArray(std::string_view name, T const &array) {
+  template<typename T>
+  void Serialiser::serialiseArrayElements(T const &array) {
     auto begin = std::begin(array);
     auto end = std::end(array);
-
-    beginArray(name);
     for (auto i = begin; i != end; i = std::next(i)) {
       serialiseValue(*i);
       if (std::next(i) != end) {
-        placeSeparator();
+        processSeparator();
       }
     }
+  }
+
+  template<typename T> requires IterableSerialisableType<T>
+  void Serialiser::serialiseArray(std::string_view name, T const &array) {
+    beginArray(name);
+    serialiseArrayElements(array);
     endArray();
   }
 
   template<typename T> requires IterableSerialisableType<T>
   void Serialiser::serialiseArray(T const &array) {
-    auto begin = std::begin(array);
-    auto end = std::end(array);
-
     beginArray();
-    for (auto i = begin; i != end; i = std::next(i)) {
-      serialiseValue(*i);
-      if (std::next(i) != end) {
-        placeSeparator();
-      }
-    }
+    serialiseArrayElements(array);
     endArray();
   }
 
@@ -96,7 +103,7 @@ namespace cppengine {
   void Serialiser::serialiseObject(std::string_view name, T const &object) {
     beginObject(name);
     serialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && value) {
-        serialiseValue(value.getName(), object.*value.getMember());
+        serialiseValue(value.getName(), value.get(object));
     });
     endObject();
   }
@@ -105,23 +112,14 @@ namespace cppengine {
   void Serialiser::serialiseObject(T const &object) {
     beginObject();
     serialiseObjectFields(typename TypeMemberTraits<T>::members{}, [&](auto && value) {
-        serialiseValue(value.getName(), object.*value.getMember());
+        serialiseValue(value.getName(), value.get(object));
     });
     endObject();
   }
 
   template<typename T>
   void Serialiser::serialise(T const &src) {
-
-    if constexpr(NonTriviallyIntrospectableType<T> && !IterableSerialisableType<T> && !std::is_convertible_v<T, std::string_view>) {
-      serialiseObject(src);
-    } else if constexpr (IterableSerialisableType<T> && !std::is_convertible_v<T, std::string_view>) {
-      serialiseArray(src);
-    } else {
-      serialiseValue(src);
-    }
-
-
+    serialiseValue(src);
   }
 }
 

@@ -48,7 +48,7 @@ namespace cppengine {
 
         ~GladShaderHandle() override;
 
-        virtual ShaderID getId() const override;
+        ShaderID getId() const override;
     };
 }
 

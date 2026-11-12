@@ -4,6 +4,7 @@
 
 #include <numbers>
 #include <cmath>
+#include <set>
 
 namespace cppgame {
     using namespace cppengine;
@@ -64,6 +65,5 @@ namespace cppgame {
         if (scaled) {
             transform->setScale(transform->getScale() + Vector3{scale.x, scale.y, 1.f});
         }
-
     }
 }

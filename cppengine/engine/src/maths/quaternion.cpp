@@ -74,14 +74,6 @@ namespace cppengine {
         w = w/m;
     }
 
-    float &Quaternion::operator[](int i) {
-        return idx[i];
-    }
-
-    float const &Quaternion::operator[](int i) const {
-        return idx[i];
-    }
-
     Quaternion &Quaternion::operator*=(Quaternion const &other) {
         float result[] = {
             w * other.i + i * other.w + j * other.k - k * other.j,
@@ -115,9 +107,5 @@ namespace cppengine {
         float m = magnitudeImpl(q.i, q.j, q.k, q.w);
 
         return {q.i / m, q.j / m, q.k / m, q.w / m };
-    }
-
-    std::ostream &operator<<(std::ostream &os, Quaternion const &q) {
-        return os << q.i << ", " << q.j << ", " << q.k << ", " << q.w;
     }
 }

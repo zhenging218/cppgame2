@@ -12,21 +12,21 @@ namespace cppengine {
     template <typename T>
     struct FieldDescriptorCreator;
 
-    template <typename T, typename U, U T::* member, StringLiteral name>
-    struct FieldDescriptorCreator<MemberDescriptor<T, U, member, name>> {
+    template <typename T, StringLiteral name, typename U, U T::* member, auto getter, auto setter>
+    struct FieldDescriptorCreator<MemberDescriptor<T, name, U, member, getter, setter>> {
         static constexpr bool is_const_member = std::is_const<U>::value;
-        using member_descriptor_type = MemberDescriptor<T, U, member, name>;
-        using const_getter = void const * (*)(void const *);
-        using non_const_getter = void * (*)(void *);
-        using setter = void (*)(void *, void const *);
+        using member_descriptor_type = MemberDescriptor<T, name, U, member, getter, setter>;
+        using const_getter_type = void const * (*)(void const *);
+        using non_const_getter_type = void * (*)(void *);
+        using setter_type = void (*)(void *, void const *);
 
-        static constexpr const_getter getConstGetter() {
+        static constexpr const_getter_type getConstGetter() {
             return [](void const *owner)->void const * { return &(static_cast<typename member_descriptor_type::owner_type const *>(owner)->*member_descriptor_type::getMember()); };
         }
 
-        static constexpr setter getSetter() {
+        static constexpr setter_type getSetter() {
             if constexpr (is_const_member) {
-                return [](void *owner, void const *data) { throw IllegalFieldOperation(TypeDescriptor::getTypeDescriptor<T>(), TypeDescriptor::getTypeDescriptor<U>(), static_cast<char const *>(name)); };
+                return [](void *, void const *) { throw IllegalFieldOperation(TypeDescriptor::getTypeDescriptor<T>(), TypeDescriptor::getTypeDescriptor<U>(), static_cast<char const *>(name)); };
             } else {
                 return [](void *owner, void const *data) { *(&(static_cast<typename member_descriptor_type::owner_type *>(owner)->*member_descriptor_type::getMember())) = *static_cast<U const *>(data); };
             }
@@ -64,7 +64,7 @@ namespace cppengine {
     }
 
     template <typename T>
-    TypeDescriptorImpl<T>::~TypeDescriptorImpl() {}
+    TypeDescriptorImpl<T>::~TypeDescriptorImpl() = default;
 
     template <typename T>
     std::string_view TypeDescriptorImpl<T>::getName() const {
@@ -73,7 +73,7 @@ namespace cppengine {
 
     template<typename T>
     TypeDescriptor const *TypeDescriptor::getTypeDescriptor() {
-        static TypeDescriptorImpl<typename std::remove_cvref<T>::type> type;
+        static TypeDescriptorImpl<std::remove_cvref_t<T>> type;
         return &type;
     }
 

@@ -5,6 +5,7 @@
 
 #include "reflection/type_descriptor.hpp"
 #include "introspection_traits.hpp"
+#include "memory/object_handle.hpp"
 
 namespace cppengine {
 
@@ -12,16 +13,19 @@ namespace cppengine {
     class Serialiser {
     private:
 
+        template <typename T> requires KeyStringConvertibleType<T>
+        std::string convertKey(T const &key);
+
         template <typename T> requires (KeyValuePairType<T>)
         void serialiseKeyValuePair(std::string_view name, T const &value);
 
         template <typename T> requires (KeyValuePairType<T>)
         void serialiseKeyValuePair(T const &value);
 
-        template <typename T>
+        template <typename T> requires SerialisableType<T>
         void serialiseValue(T const &value);
 
-        template <typename T>
+        template <typename T> requires SerialisableType<T>
         void serialiseValue(std::string_view name, T const &value);
 
         template <typename T>
@@ -32,6 +36,9 @@ namespace cppengine {
 
         template <typename Visitor, typename ... T>
         void serialiseObjectFields(ArgumentList<T...>, Visitor &&v);
+
+        template <typename T>
+        void serialiseArrayElements(T const &array);
 
         template <typename T> requires IterableSerialisableType<T>
         void serialiseArray(std::string_view name, T const &array);
@@ -58,7 +65,7 @@ namespace cppengine {
         virtual void serialiseValue(float const &value) = 0;
         virtual void serialiseValue(double const &value) = 0;
         virtual void serialiseValue(bool const &value) = 0;
-        virtual void serialiseValue(std::string const &value) = 0;
+        virtual void serialiseValue(std::string_view value) = 0;
 
         virtual void serialiseValue(std::string_view name, char const &value) = 0;
         virtual void serialiseValue(std::string_view name, unsigned char const &value) = 0;
@@ -73,9 +80,9 @@ namespace cppengine {
         virtual void serialiseValue(std::string_view name, float const &value) = 0;
         virtual void serialiseValue(std::string_view name, double const &value) = 0;
         virtual void serialiseValue(std::string_view name, bool const &value) = 0;
-        virtual void serialiseValue(std::string_view name, std::string const &value) = 0;
+        virtual void serialiseValue(std::string_view name, std::string_view value) = 0;
 
-        virtual void placeSeparator() = 0;
+        virtual void processSeparator() = 0;
 
         virtual void endObject() = 0;
         virtual void endArray() = 0;
@@ -86,6 +93,8 @@ namespace cppengine {
         void serialise(T const &src);
 
         virtual ~Serialiser() = 0;
+
+        static ObjectHandle<Serialiser> createJsonSerialiser(std::ostream &stream);
     };
 
     inline Serialiser::~Serialiser() = default;
