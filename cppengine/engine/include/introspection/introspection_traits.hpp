@@ -1,6 +1,9 @@
 #ifndef INTROSPECTION_TRAITS_HPP
 #define INTROSPECTION_TRAITS_HPP
 #include <charconv>
+#include <variant>
+
+#include "platform/enum_key_code.hpp"
 
 namespace cppengine {
     template <typename T>
@@ -99,6 +102,24 @@ namespace cppengine {
     concept DeserialisableType = !std::is_const_v<T> && (std::same_as<T, std::string> || TriviallyIntrospectableType<T>
         || IterableSerialisableType<T> || NonTriviallyIntrospectableType<T>
         || KeyValuePairType<T>);
+
+    template <typename T>
+        struct VariantTraits : std::false_type {
+        using variants = ArgumentList<>;
+
+        static constexpr bool serialisable = value;
+    };
+
+    template <typename ... Args>
+    struct VariantTraits<std::variant<Args...>> : std::true_type {
+        using variants = ArgumentList<Args...>;
+
+        static constexpr bool serialisable = value && ((SerialisableType<Args> || DeserialisableType<Args>) &&...);
+
+    };
+
+    template <typename T>
+    concept VariantSerialisableType = VariantTraits<std::remove_cvref_t<T>>::serialisable;
 }
 
 #endif

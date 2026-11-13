@@ -17,6 +17,16 @@ namespace cppengine {
       return std::to_string(key);
     }
   }
+  template<typename T> requires VariantSerialisableType<T>
+  void Serialiser::serialiseVariant(std::string_view name, T const &value) {
+  }
+
+  template<typename T> requires VariantSerialisableType<T>
+  void Serialiser::serialiseVariant(T const &value) {
+    using variants = VariantTraits<T>::variants;
+
+
+  }
 
   template <typename T> requires (KeyValuePairType<T>)
   void Serialiser::serialiseKeyValuePair(std::string_view name, T const &value) {
