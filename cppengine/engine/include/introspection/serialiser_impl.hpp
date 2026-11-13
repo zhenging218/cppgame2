@@ -19,13 +19,22 @@ namespace cppengine {
   }
   template<typename T> requires VariantSerialisableType<T>
   void Serialiser::serialiseVariant(std::string_view name, T const &value) {
+    std::visit(value, [this, &name](auto &&v) {
+      const auto descriptor = TypeDescriptor::getTypeDescriptor<std::remove_cvref_t<decltype(v)>>();
+      beginObject(name);
+      serialiseValue(descriptor->getName(), v);
+      endObject();
+    });
   }
 
   template<typename T> requires VariantSerialisableType<T>
   void Serialiser::serialiseVariant(T const &value) {
-    using variants = VariantTraits<T>::variants;
-
-
+    std::visit(value, [this](auto &&v) {
+      const auto descriptor = TypeDescriptor::getTypeDescriptor<std::remove_cvref_t<decltype(v)>>();
+      beginObject();
+      serialiseValue(descriptor->getName(), v);
+      endObject();
+    });
   }
 
   template <typename T> requires (KeyValuePairType<T>)
@@ -54,6 +63,8 @@ namespace cppengine {
       serialiseObject(value);
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(value);
+    } else if constexpr (VariantSerialisableType<T>) {
+      serialiseVariant(value);
     }
   }
 
@@ -69,6 +80,8 @@ namespace cppengine {
       serialiseObject(name, value);
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(name, value);
+    } else if constexpr (VariantSerialisableType<T>) {
+      serialiseVariant(name, value);
     }
   }
 
