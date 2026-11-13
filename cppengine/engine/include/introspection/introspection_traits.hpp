@@ -130,6 +130,14 @@ namespace cppengine {
 
     template <typename T>
     std::string_view getTypeName() {
+        static_assert(
+                std::is_convertible_v<T, std::string_view>
+                || TriviallyIntrospectableType<T> || NonTriviallyIntrospectableType<T>
+                || IterableSerialisableType<T>
+                || KeyValuePairType<T>
+                || VariantSerialisableType<T>
+                , "could not deduce type name");
+
         if constexpr (std::is_convertible_v<T, std::string_view>) {
             static constexpr char name[] = "string";
             return name;
@@ -147,13 +155,7 @@ namespace cppengine {
             static std::string name = std::format("{}Variant", std::string{getTypeName<typename WritableElementType<T>::type>()});
             return name;
         } else {
-            static_assert(
-                std::is_convertible_v<T, std::string_view>
-                || TriviallyIntrospectableType<T> || NonTriviallyIntrospectableType<T>
-                || IterableSerialisableType<T>
-                || KeyValuePairType<T>
-                || VariantSerialisableType<T>
-                , "could not deduce type name");
+            throw std::runtime_error("could not deduce type name");
         }
     }
 }
