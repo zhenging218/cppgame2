@@ -22,7 +22,8 @@ namespace cppengine {
     std::visit(value, [this, &name](auto &&v) {
       const auto descriptor = TypeDescriptor::getTypeDescriptor<std::remove_cvref_t<decltype(v)>>();
       beginObject(name);
-      serialiseValue(descriptor->getName(), v);
+      serialiseValue("type", descriptor->getName());
+      serialiseValue("value", v);
       endObject();
     });
   }
@@ -32,7 +33,8 @@ namespace cppengine {
     std::visit(value, [this](auto &&v) {
       const auto descriptor = TypeDescriptor::getTypeDescriptor<std::remove_cvref_t<decltype(v)>>();
       beginObject();
-      serialiseValue(descriptor->getName(), v);
+      serialiseValue("type", descriptor->getName());
+      serialiseValue("value", v);
       endObject();
     });
   }
