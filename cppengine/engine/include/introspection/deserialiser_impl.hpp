@@ -10,6 +10,23 @@
 #include "reflection/type_descriptor.hpp"
 
 namespace cppengine {
+
+    template <typename ... Args>
+    std::unordered_map<std::string_view, void(*)(Deserialiser *, std::variant<Args...>&)> const &Deserialiser::getDeserialiserDelegates(ArgumentList<Args...>) {
+        using delegate_type = void(*)(Deserialiser *, std::variant<Args...>&);
+
+        static const std::unordered_map<std::string_view, delegate_type> delegates = {
+            {getTypeName<std::remove_cvref_t<Args>>(),
+                [](Deserialiser *deserialiser, std::variant<Args...> &value) {
+                std::remove_cvref_t<Args> v{};
+                deserialiser->deserialiseValue("value", v);
+                value.template emplace<Args>(std::move(v));
+            }}...
+        };
+
+        return delegates;
+    }
+
     template<typename T> requires StringKeyConvertibleType<T>
     T Deserialiser::convertFieldKey(std::string_view key) {
         using result_type = std::remove_cv_t<T>;
@@ -45,6 +62,63 @@ namespace cppengine {
               first = false;
               v(T{});
           }()), ...);
+    }
+
+    template<typename T> requires VariantDeserialisableType<T>
+    void Deserialiser::deserialiseVariant(std::string_view name, T &value) {
+        auto const &delegates = getDeserialiserDelegates(typename VariantTraits<T>::variants{});
+
+        beginObject(name);
+
+        std::string type{};
+        deserialiseValue("type", type);
+        processSeparator();
+
+        if (auto it = delegates.find(type); it != delegates.end()) {
+            it->second(this, value);
+        } else {
+            throw std::runtime_error(std::format("could not deduce variant type from given type name {}", type));
+        }
+
+        endObject();
+    }
+
+    template<typename T> requires VariantDeserialisableType<T>
+    void Deserialiser::deserialiseVariant(std::size_t at, T &value) {
+        auto const &delegates = getDeserialiserDelegates(typename VariantTraits<T>::variants{});
+
+        beginObject(at);
+
+        std::string type{};
+        deserialiseValue("type", type);
+        processSeparator();
+
+        if (auto it = delegates.find(type); it != delegates.end()) {
+            it->second(this, value);
+        } else {
+            throw std::runtime_error(std::format("could not deduce variant type from given type name {}", type));
+        }
+
+        endObject();
+    }
+
+    template<typename T> requires VariantDeserialisableType<T>
+    void Deserialiser::deserialiseVariant(T &value) {
+        auto const &delegates = getDeserialiserDelegates(typename VariantTraits<T>::variants{});
+
+        beginObject();
+
+        std::string type{};
+        deserialiseValue("type", type);
+        processSeparator();
+
+        if (auto it = delegates.find(type); it != delegates.end()) {
+            it->second(this, value);
+        } else {
+            throw std::runtime_error(std::format("could not deduce variant type from given type name {}", type));
+        }
+
+        endObject();
     }
 
     template<typename T> requires KeyValuePairType<T>
@@ -244,7 +318,7 @@ namespace cppengine {
         endObject();
     }
 
-    template<typename T> requires DeserialisableType<T>
+    template<typename T> requires DeserialisableType<T> || VariantDeserialisableType<T>
     void Deserialiser::deserialiseValue(std::string_view name, T &value) {
         if constexpr (std::same_as<T, std::string> || TriviallyIntrospectableType<T>) {
             deserialiseValue(name, value);
@@ -254,10 +328,12 @@ namespace cppengine {
             deserialiseObject(name, value);
         } else if constexpr (KeyValuePairType<T>) {
             deserialiseKeyValuePair(name, value);
+        } else if constexpr (VariantDeserialisableType<T>) {
+            deserialiseVariant(name, value);
         }
     }
 
-    template<typename T> requires DeserialisableType<T>
+    template<typename T> requires DeserialisableType<T> || VariantDeserialisableType<T>
     void Deserialiser::deserialiseValue(std::size_t at, T &value) {
         if constexpr (std::same_as<T, std::string> || TriviallyIntrospectableType<T>) {
             deserialiseValue(at, value);
@@ -267,10 +343,12 @@ namespace cppengine {
             deserialiseObject(at, value);
         } else if constexpr (KeyValuePairType<T>) {
             deserialiseKeyValuePair(at, value);
+        } else if constexpr (VariantDeserialisableType<T>) {
+            deserialiseVariant(at, value);
         }
     }
 
-    template<typename T> requires DeserialisableType<T>
+    template<typename T> requires DeserialisableType<T> || VariantDeserialisableType<T>
     void Deserialiser::deserialiseValue(T &value) {
         if constexpr (std::same_as<T, std::string> || TriviallyIntrospectableType<T>) {
             deserialiseValue(value);
@@ -280,6 +358,8 @@ namespace cppengine {
             deserialiseObject(value);
         } else if constexpr (KeyValuePairType<T>) {
             deserialiseKeyValuePair(value);
+        } else if constexpr (VariantDeserialisableType<T>) {
+            deserialiseVariant(value);
         }
     }
 

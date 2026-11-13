@@ -27,10 +27,10 @@ namespace cppengine {
         template <typename T> requires (KeyValuePairType<T>)
         void serialiseKeyValuePair(T const &value);
 
-        template <typename T> requires SerialisableType<T>
+        template <typename T> requires SerialisableType<T> || VariantSerialisableType<T>
         void serialiseValue(T const &value);
 
-        template <typename T> requires SerialisableType<T>
+        template <typename T> requires SerialisableType<T> || VariantSerialisableType<T>
         void serialiseValue(std::string_view name, T const &value);
 
         template <typename T>

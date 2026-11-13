@@ -17,26 +17,27 @@ namespace cppengine {
       return std::to_string(key);
     }
   }
+
   template<typename T> requires VariantSerialisableType<T>
   void Serialiser::serialiseVariant(std::string_view name, T const &value) {
-    std::visit(value, [this, &name](auto &&v) {
-      const auto descriptor = TypeDescriptor::getTypeDescriptor<std::remove_cvref_t<decltype(v)>>();
+    std::visit([this, &name](auto &&v) {
       beginObject(name);
-      serialiseValue("type", descriptor->getName());
+      serialiseValue("type", getTypeName<std::remove_cvref_t<decltype(v)>>());
+      processSeparator();
       serialiseValue("value", v);
       endObject();
-    });
+    }, value);
   }
 
   template<typename T> requires VariantSerialisableType<T>
   void Serialiser::serialiseVariant(T const &value) {
-    std::visit(value, [this](auto &&v) {
-      const auto descriptor = TypeDescriptor::getTypeDescriptor<std::remove_cvref_t<decltype(v)>>();
+    std::visit([this](auto &&v) {
       beginObject();
-      serialiseValue("type", descriptor->getName());
+      serialiseValue("type", getTypeName<std::remove_cvref_t<decltype(v)>>());
+      processSeparator();
       serialiseValue("value", v);
       endObject();
-    });
+    }, value);
   }
 
   template <typename T> requires (KeyValuePairType<T>)
@@ -53,7 +54,7 @@ namespace cppengine {
     endObject();
   }
 
-  template<typename T> requires SerialisableType<T>
+  template<typename T> requires SerialisableType<T> || VariantSerialisableType<T>
   void Serialiser::serialiseValue(T const &value) {
     if constexpr(std::is_convertible_v<T, std::string_view>) {
       serialiseValue(std::string_view{value});
@@ -70,7 +71,7 @@ namespace cppengine {
     }
   }
 
-  template <typename T> requires SerialisableType<T>
+  template <typename T> requires SerialisableType<T> || VariantSerialisableType<T>
   void Serialiser::serialiseValue(std::string_view name, T const &value) {
     if constexpr(std::is_convertible_v<T, std::string_view>) {
       serialiseValue(name, std::string_view{value});

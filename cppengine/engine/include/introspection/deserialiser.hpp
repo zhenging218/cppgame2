@@ -8,11 +8,23 @@ namespace cppengine {
     class Deserialiser {
     private:
 
+        template <typename ... Args>
+        static std::unordered_map<std::string_view, void(*)(Deserialiser *, std::variant<Args...>&)> const &getDeserialiserDelegates(ArgumentList<Args...>);
+
         template <typename T> requires StringKeyConvertibleType<T>
         T convertFieldKey(std::string_view key);
 
         template <typename Visitor, typename ... T>
         void deserialiseObjectFields(ArgumentList<T...>, Visitor &&v);
+
+        template <typename T> requires VariantDeserialisableType<T>
+        void deserialiseVariant(std::string_view name, T &value);
+
+        template <typename T> requires VariantDeserialisableType<T>
+        void deserialiseVariant(std::size_t at, T &value);
+
+        template <typename T> requires VariantDeserialisableType<T>
+        void deserialiseVariant(T &value);
 
         template <typename T> requires KeyValuePairType<T>
         void deserialiseKeyValuePair(std::string_view name, T &value);
@@ -44,13 +56,13 @@ namespace cppengine {
         template <typename T>
         void deserialiseObject(T &object);
 
-        template <typename T> requires DeserialisableType<T>
+        template <typename T> requires DeserialisableType<T> || VariantDeserialisableType<T>
         void deserialiseValue(std::string_view name, T &value);
 
-        template <typename T> requires DeserialisableType<T>
+        template <typename T> requires DeserialisableType<T> || VariantDeserialisableType<T>
         void deserialiseValue(std::size_t at, T &value);
 
-        template <typename T> requires DeserialisableType<T>
+        template <typename T> requires DeserialisableType<T> || VariantDeserialisableType<T>
         void deserialiseValue(T &value);
 
     protected:
