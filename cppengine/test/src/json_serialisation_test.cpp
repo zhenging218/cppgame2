@@ -19,6 +19,7 @@ namespace {
     std::map<std::string, float> w;
     std::set<int> u;
     std::unordered_map<int, std::string> v;
+    std::vector<Uniform> r;
 
     private:
       int i = 0;
@@ -32,9 +33,10 @@ namespace {
            std::map<std::string, float> w_,
            std::set<int> u_,
            std::unordered_map<int, std::string> v_,
+           std::vector<Uniform> r_,
            int i_)
         : x(x_), y(std::move(y_)),
-          w(std::move(w_)), u(std::move(u_)), v(std::move(v_)),
+          w(std::move(w_)), u(std::move(u_)), v(std::move(v_)), r(std::move(r_)),
           i(i_)
       {
         std::copy(z_.begin(), z_.end(), z);
@@ -51,7 +53,7 @@ namespace {
     return lhs.x == rhs.x && lhs.y == rhs.y && std::equal(lhs.z, lhs.z + 10, rhs.z) &&
            std::ranges::equal(lhs.w, rhs.w, [](auto const &a, auto const &b)
            { return a.first == b.first && std::abs(b.second - a.second) < 1e-5f; })
-    && lhs.u == rhs.u && lhs.v == rhs.v && lhs.i == rhs.i;
+    && lhs.u == rhs.u && lhs.v == rhs.v  && lhs.r == rhs.r && lhs.i == rhs.i;
   }
 
   bool operator!=(Test const &lhs, Test const &rhs) {
@@ -90,6 +92,7 @@ DECL_TYPE_MEMBERS(Test)
     DECL_TYPE_MEMBER_FIELD(w),
     DECL_TYPE_MEMBER_FIELD(u),
     DECL_TYPE_MEMBER_FIELD(v),
+    DECL_TYPE_MEMBER_FIELD(r),
     DECL_TYPE_MEMBER_ACCESSORS(i, getI, setI)
 END_DECL_TYPE_MEMBERS();
 
@@ -104,6 +107,7 @@ SCENARIO("Objects can be serialised if registered") {
       { {"hi", 0.5f}, {"yo", 1.3f} },
       { 69, 420 },
       { {67, "hihi"}, {1337, "bye"} },
+      { Vector2{123,456}, 7 },
       555
     };
 
@@ -125,6 +129,7 @@ SCENARIO("Objects can be serialised if registered") {
               { {"alpha", 0.25f}, {"beta", -1.5f}, {"gamma", 100.0f} },
               { -5, 0, 7, 1000 },
               { {1, "one"}, {2, "two"}, {-3, "minus three"} },
+              { Vector2{7,12}, 25 },
               999
             };
 
@@ -158,6 +163,7 @@ SCENARIO("Serialised objects survive a round trip") {
       { {"alpha", 0.25f}, {"beta", -1.5f}, {"gamma", 100.0f} },
       { -5, 0, 7, 1000 },
       { {1, "one"}, {2, "two"}, {-3, "minus three"} },
+      { Vector2{7,12}, 25 },
       999
     };
 
@@ -201,6 +207,7 @@ SCENARIO("Deserialising twice into the same object does not accumulate data") {
       { {"alpha", 0.25f}, {"beta", -1.5f}, {"gamma", 100.0f} },
       { -5, 0, 7, 1000 },
       { {1, "one"}, {2, "two"}, {-3, "minus three"} },
+      { Vector2{88,3}, 369 },
       999
     };
 
@@ -213,6 +220,7 @@ SCENARIO("Deserialising twice into the same object does not accumulate data") {
       { {"alpha", 9.0f}, {"stale1", 1.0f}, {"stale2", 2.0f}, {"stale3", 3.0f} },
       { 7, 8, 9, 10, 11, 12 },
       { {1, "STALE"}, {50, "stale50"}, {51, "stale51"}, {52, "stale52"} },
+      { Vector2{3,44}, 88 },
       -1
     };
 
@@ -240,7 +248,7 @@ SCENARIO("Empty containers serialise and deserialise correctly") {
       auto payload = serialiseToString(empty);
 
       THEN("each empty container is written as an empty array") {
-        REQUIRE(countOccurrences(payload, "[]") == 3);
+        REQUIRE(countOccurrences(payload, "[]") == 4);
       }
 
       AND_WHEN("it is deserialised into a fresh object") {
@@ -264,6 +272,7 @@ SCENARIO("Empty containers serialise and deserialise correctly") {
           { {"hi", 0.5f}, {"yo", 1.3f} },
           { 69, 420 },
           { {67, "hihi"}, {1337, "bye"} },
+          { Vector2{123,456}, 7 },
           555
         };
 

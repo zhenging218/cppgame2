@@ -6,6 +6,7 @@
 #include "pod_traits.hpp"
 #include "string_traits.hpp"
 #include "linear_traits.hpp"
+#include "renderer_traits.hpp"
 #include "collection_traits.hpp"
 #include "container_traits.hpp"
 #include "field_descriptor.hpp"
