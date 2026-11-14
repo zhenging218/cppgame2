@@ -95,14 +95,14 @@ namespace cppengine {
     concept DynamicIterableType = BackInsertableType<T> || InsertableType<T>;
 
     template <typename T>
-    concept SerialisableType = std::is_convertible_v<T, std::string_view>
+    concept NonVariantSerialisableType = std::is_convertible_v<T, std::string_view>
         || TriviallyIntrospectableType<T>
         || IterableSerialisableType<T>
         || NonTriviallyIntrospectableType<T>
         || KeyValuePairType<T>;
 
     template <typename T>
-    concept DeserialisableType = !std::is_const_v<T> && (std::same_as<T, std::string> || TriviallyIntrospectableType<T>
+    concept NonVariantDeserialisableType = !std::is_const_v<T> && (std::same_as<T, std::string> || TriviallyIntrospectableType<T>
         || IterableSerialisableType<T> || NonTriviallyIntrospectableType<T>
         || KeyValuePairType<T>);
 
@@ -118,8 +118,8 @@ namespace cppengine {
     struct VariantTraits<std::variant<Args...>> : std::true_type {
         using variants = ArgumentList<Args...>;
 
-        static constexpr bool serialisable = value && ((SerialisableType<Args> || VariantTraits<Args>::serialisable) &&...);
-        static constexpr bool deserialisable = value && ((DeserialisableType<Args> || (!std::is_const_v<Args> && VariantTraits<Args>::deserialisable)) &&...);
+        static constexpr bool serialisable = value && ((NonVariantSerialisableType<Args> || VariantTraits<Args>::serialisable) &&...);
+        static constexpr bool deserialisable = value && ((NonVariantDeserialisableType<Args> || (!std::is_const_v<Args> && VariantTraits<Args>::deserialisable)) &&...);
     };
 
     template <typename T>
@@ -127,6 +127,12 @@ namespace cppengine {
 
     template <typename T>
     concept VariantDeserialisableType = !std::is_const_v<T> && VariantTraits<std::remove_cvref_t<T>>::deserialisable;
+
+    template <typename T>
+    concept DeserialisableType = NonVariantDeserialisableType<T> || VariantDeserialisableType<T>;
+
+    template <typename T>
+    concept SerialisableType = NonVariantSerialisableType<T> || VariantSerialisableType<T>;
 }
 
 #endif

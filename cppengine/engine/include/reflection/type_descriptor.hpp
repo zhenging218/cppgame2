@@ -41,10 +41,13 @@ namespace cppengine {
 
 
 
-    template <typename T>
+    template <typename T> requires std::same_as<T, std::remove_cvref_t<T>>
     class TypeDescriptorImpl final : public TypeDescriptor {
     private:
         friend class TypeDescriptor;
+
+        static TypeDescriptor const *getTypeDescriptor();
+
         TypeDescriptorImpl() = default;
 
     public:
