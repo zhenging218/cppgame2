@@ -37,43 +37,7 @@ namespace cppengine {
         static bool isSuperType(TypeDescriptor const *superType, TypeDescriptor const *subType);
     };
 
-    template <typename T, StringLiteral name, typename U, U T::* member = nullptr, auto getter = nullptr, auto setter = nullptr>
-    struct MemberDescriptor {
-        using owner_type = T;
-        using field_type = U;
 
-        static constexpr bool hasMember = member != nullptr;
-        static constexpr bool hasGetter = !std::is_null_pointer_v<decltype(getter)>;
-        static constexpr bool hasSetter = !std::is_null_pointer_v<decltype(setter)>;
-
-        static_assert((hasMember && !hasGetter && !hasSetter) || (!hasMember && hasGetter && hasSetter),
-            "member descriptors should only be exposing either member or getter/setter");
-
-        static constexpr char const *getName() { return name; }
-        static constexpr field_type owner_type::* getMember() { return member; }
-
-        static constexpr auto getAccessor() {
-            if constexpr (hasGetter) {
-                return getter;
-            } else {
-                return member;
-            }
-        }
-
-        template <typename O> requires std::same_as<std::remove_cvref_t<O>, owner_type>
-        static constexpr auto get(O &&owner)-> decltype(std::invoke(getAccessor(), std::forward<O>(owner))) {
-            return std::invoke(getAccessor(), std::forward<O>(owner));
-        }
-
-        template <typename O, typename V> requires std::derived_from<std::remove_cvref_t<O>, owner_type> && std::is_convertible_v<V, field_type const &>
-        static constexpr void set(O &&owner, V &&value) {
-            if constexpr (hasSetter) {
-                (owner.*setter)(std::forward<V>(value));
-            } else {
-                owner.*member = std::forward<V>(value);
-            }
-        }
-    };
 
     template <typename T>
     class TypeDescriptorImpl final : public TypeDescriptor {
@@ -104,7 +68,10 @@ namespace cppengine {\
         using type = NS_QUALIFIED_TYPE_NAME; \
         using super_type = NS_QUALIFIED_TYPE_NAME; \
         static constexpr bool defined_trait_v = true; \
-        static constexpr char const * getName() { return #NS_QUALIFIED_TYPE_NAME; } \
+        static constexpr bool pod_type_v = false; \
+        static constexpr bool container_type_v = false; \
+        static constexpr StringLiteral name{ #NS_QUALIFIED_TYPE_NAME };\
+        static constexpr char const * getName() { return name.data(); } \
     }; \
 }
 
@@ -115,6 +82,8 @@ namespace cppengine {\
         using type = NS_QUALIFIED_TYPE_NAME; \
         using super_type = NS_QUALIFIED_SUPER_TYPE_NAME; \
         static constexpr bool defined_trait_v = true; \
+        static constexpr bool pod_type_v = false; \
+        static constexpr bool container_type_v = false; \
         static constexpr char const * getName() { return #NS_QUALIFIED_TYPE_NAME; } \
     }; \
 }

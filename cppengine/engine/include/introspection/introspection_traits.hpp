@@ -1,6 +1,10 @@
 #ifndef INTROSPECTION_TRAITS_HPP
 #define INTROSPECTION_TRAITS_HPP
 #include <charconv>
+#include <format>
+#include <variant>
+
+#include "reflection/reflection.hpp"
 
 namespace cppengine {
     template <typename T>
@@ -30,6 +34,8 @@ namespace cppengine {
     {
         { std::from_chars(key.data(), key.data() + key.size(), value) } -> std::same_as<std::from_chars_result>;
     };
+
+
 
     template <typename T>
     concept StringKeyConvertibleType =
@@ -99,6 +105,28 @@ namespace cppengine {
     concept DeserialisableType = !std::is_const_v<T> && (std::same_as<T, std::string> || TriviallyIntrospectableType<T>
         || IterableSerialisableType<T> || NonTriviallyIntrospectableType<T>
         || KeyValuePairType<T>);
+
+    template <typename T>
+        struct VariantTraits : std::false_type {
+        using variants = ArgumentList<>;
+
+        static constexpr bool serialisable = value;
+        static constexpr bool deserialisable = value;
+    };
+
+    template <typename ... Args>
+    struct VariantTraits<std::variant<Args...>> : std::true_type {
+        using variants = ArgumentList<Args...>;
+
+        static constexpr bool serialisable = value && ((SerialisableType<Args> || VariantTraits<Args>::serialisable) &&...);
+        static constexpr bool deserialisable = value && ((DeserialisableType<Args> || (!std::is_const_v<Args> && VariantTraits<Args>::deserialisable)) &&...);
+    };
+
+    template <typename T>
+    concept VariantSerialisableType = VariantTraits<std::remove_cvref_t<T>>::serialisable;
+
+    template <typename T>
+    concept VariantDeserialisableType = !std::is_const_v<T> && VariantTraits<std::remove_cvref_t<T>>::deserialisable;
 }
 
 #endif

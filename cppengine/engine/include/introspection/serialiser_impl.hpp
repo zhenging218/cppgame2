@@ -18,6 +18,30 @@ namespace cppengine {
     }
   }
 
+  template<typename T> requires VariantSerialisableType<T>
+  void Serialiser::serialiseVariant(std::string_view name, T const &value) {
+    std::visit([this, &name](auto &&v) {
+      beginObject(name);
+      auto const &typeName = getTypeName<std::remove_cvref_t<decltype(v)>>();
+      serialiseValue("type", std::string_view(typeName.data(), typeName.size()));
+      processSeparator();
+      serialiseValue("value", v);
+      endObject();
+    }, value);
+  }
+
+  template<typename T> requires VariantSerialisableType<T>
+  void Serialiser::serialiseVariant(T const &value) {
+    std::visit([this](auto &&v) {
+      beginObject();
+      auto const &typeName = getTypeName<std::remove_cvref_t<decltype(v)>>();
+      serialiseValue("type", std::string_view(typeName.data(), typeName.size()));
+      processSeparator();
+      serialiseValue("value", v);
+      endObject();
+    }, value);
+  }
+
   template <typename T> requires (KeyValuePairType<T>)
   void Serialiser::serialiseKeyValuePair(std::string_view name, T const &value) {
     beginObject(name);
@@ -32,7 +56,7 @@ namespace cppengine {
     endObject();
   }
 
-  template<typename T> requires SerialisableType<T>
+  template<typename T> requires SerialisableType<T> || VariantSerialisableType<T>
   void Serialiser::serialiseValue(T const &value) {
     if constexpr(std::is_convertible_v<T, std::string_view>) {
       serialiseValue(std::string_view{value});
@@ -44,10 +68,12 @@ namespace cppengine {
       serialiseObject(value);
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(value);
+    } else if constexpr (VariantSerialisableType<T>) {
+      serialiseVariant(value);
     }
   }
 
-  template <typename T> requires SerialisableType<T>
+  template <typename T> requires SerialisableType<T> || VariantSerialisableType<T>
   void Serialiser::serialiseValue(std::string_view name, T const &value) {
     if constexpr(std::is_convertible_v<T, std::string_view>) {
       serialiseValue(name, std::string_view{value});
@@ -59,6 +85,8 @@ namespace cppengine {
       serialiseObject(name, value);
     } else if constexpr (KeyValuePairType<T>) {
       serialiseKeyValuePair(name, value);
+    } else if constexpr (VariantSerialisableType<T>) {
+      serialiseVariant(name, value);
     }
   }
 

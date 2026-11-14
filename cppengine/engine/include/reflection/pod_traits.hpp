@@ -4,11 +4,14 @@
 #define DECL_POD_TYPE(TYPE_NAME) \
     template <> \
     struct TypeTraits<TYPE_NAME> { \
+        using type = TYPE_NAME; \
         using super_type = TYPE_NAME; \
         static constexpr std::size_t size = sizeof(TYPE_NAME); \
-        static constexpr char const *getName() { return #TYPE_NAME; } \
+        static constexpr StringLiteral name{ #TYPE_NAME };\
+        static constexpr char const *getName() { return name.data(); } \
         static constexpr bool defined_trait_v = true; \
         static constexpr bool pod_type_v = true; \
+        static constexpr bool container_type_v = false; \
     }
 
 namespace cppengine {

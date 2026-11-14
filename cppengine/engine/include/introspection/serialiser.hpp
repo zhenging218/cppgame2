@@ -12,9 +12,14 @@ namespace cppengine {
 
     class Serialiser {
     private:
-
         template <typename T> requires KeyStringConvertibleType<T>
         std::string convertKey(T const &key);
+
+        template <typename T> requires VariantSerialisableType<T>
+        void serialiseVariant(std::string_view name, T const &value);
+
+        template <typename T> requires VariantSerialisableType<T>
+        void serialiseVariant(T const &value);
 
         template <typename T> requires (KeyValuePairType<T>)
         void serialiseKeyValuePair(std::string_view name, T const &value);
@@ -22,10 +27,10 @@ namespace cppengine {
         template <typename T> requires (KeyValuePairType<T>)
         void serialiseKeyValuePair(T const &value);
 
-        template <typename T> requires SerialisableType<T>
+        template <typename T> requires SerialisableType<T> || VariantSerialisableType<T>
         void serialiseValue(T const &value);
 
-        template <typename T> requires SerialisableType<T>
+        template <typename T> requires SerialisableType<T> || VariantSerialisableType<T>
         void serialiseValue(std::string_view name, T const &value);
 
         template <typename T>
