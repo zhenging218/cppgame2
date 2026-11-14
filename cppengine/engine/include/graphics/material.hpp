@@ -19,14 +19,12 @@ namespace cppengine {
     concept UniformType = IsUniformType<T, Uniform>::value;
 
     class Material : public Component {
-
-
-    public:
-        std::string shaderName = DEFAULT_SHADER_NAME;
-
     private:
+
+        std::string shaderName = DEFAULT_SHADER_NAME;
         std::unordered_map<std::string, Uniform> uniforms;
         std::unordered_map<std::string, Texture> textures;
+
     public:
 
         std::string_view getShaderName() const;
@@ -54,9 +52,17 @@ namespace cppengine {
         }
 
         std::unordered_map<std::string, Uniform> const &getUniforms() const;
+
+        ENABLE_REFLECTION();
     };
 }
 
 DECL_TYPE_DESCRIPTOR(cppengine::Material, cppengine::Component)
+
+DECL_TYPE_MEMBERS(cppengine::Material)
+    DECL_TYPE_MEMBER_FIELD(shaderName),
+    DECL_TYPE_MEMBER_FIELD(uniforms),
+    DECL_TYPE_MEMBER_FIELD(textures)
+END_DECL_TYPE_MEMBERS();
 
 #endif

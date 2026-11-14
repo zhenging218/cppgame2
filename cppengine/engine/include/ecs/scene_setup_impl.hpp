@@ -33,8 +33,13 @@ namespace cppengine {
     }
 
     template<typename T> requires ComponentType<T>
-    T *ComponentProxy<T>::operator->() const {
-        return &(*component);
+    template<typename U>
+    void ComponentProxy<T>::set(std::string_view fieldName, U &&value) const {
+        auto fieldList = TypeDescriptor::getTypeDescriptor<T>()->getFields();
+        auto it = std::ranges::find_if(fieldList, [&fieldName](auto const &descriptor) { return fieldName == descriptor.getName(); });
+        if (it != fieldList.end()) {
+            it->set(&(*component), &value);
+        }
     }
 }
 

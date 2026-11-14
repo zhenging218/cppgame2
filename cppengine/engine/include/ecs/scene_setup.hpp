@@ -48,7 +48,8 @@ namespace cppengine {
     public:
         [[nodiscard]] GameObjectProxy getGameObject() const;
 
-        T * operator->() const;
+        template <typename U>
+        void set(std::string_view fieldName, U &&value) const;
     };
 
     class SceneSetup {
