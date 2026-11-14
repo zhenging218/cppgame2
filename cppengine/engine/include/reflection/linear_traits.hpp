@@ -14,6 +14,7 @@
 #include "maths/matrix3x3.hpp"
 #include "maths/matrix4x4.hpp"
 
+#include "string_literal.hpp"
 #include "reflection_traits.hpp"
 
 #define DECL_LINEAR_TYPE(TYPE_NAME) \

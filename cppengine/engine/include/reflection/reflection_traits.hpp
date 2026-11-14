@@ -5,7 +5,7 @@
 #ifndef CPPGAME_REFLECTION_TRAITS_HPP
 #define CPPGAME_REFLECTION_TRAITS_HPP
 
-#include <typeinfo>
+#include "string_literal.hpp"
 
 namespace cppengine {
     template <typename ... Args>
