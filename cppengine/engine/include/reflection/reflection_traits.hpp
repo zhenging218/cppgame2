@@ -24,10 +24,36 @@ namespace cppengine {
     };
 
     template <typename T>
+    struct TypeTraits<const T> : TypeTraits<T> {
+    };
+
+    template <typename T>
     struct TypeMemberTraits {
         static constexpr bool members_defined_v = false;
         using members = ArgumentList<>;
     };
+
+    template <typename T>
+    struct TypeMemberTraits<const T> : TypeMemberTraits<T> {
+    };
+
+    template <typename T> requires TypeTraits<T>::defined_trait_v
+    auto const &getTypeName() {
+        return TypeTraits<T>::name;
+    }
+
+    template <typename T>
+    constexpr auto joinTypeNames(T) = delete;
+
+    template <typename T, typename ... Args>
+    constexpr auto joinTypeNames(ArgumentList<T, Args...>) {
+        return concatLiterals(TypeTraits<T>::name, concatLiterals(StringLiteral{","}, TypeTraits<Args>::name)...);
+    }
+
+    template <>
+    constexpr auto joinTypeNames<ArgumentList<>>(ArgumentList<> list) {
+        return StringLiteral{""};
+    }
 }
 
 #endif //CPPGAME_REFLECTION_TRAITS_HPP

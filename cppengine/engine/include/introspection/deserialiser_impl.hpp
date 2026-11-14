@@ -16,7 +16,7 @@ namespace cppengine {
         using delegate_type = void(*)(Deserialiser *, std::variant<Args...>&);
 
         static const std::unordered_map<std::string_view, delegate_type> delegates = {
-            {getTypeName<std::remove_cvref_t<Args>>(),
+            {std::string_view{getTypeName<Args>().data(), getTypeName<Args>().size()},
                 [](Deserialiser *deserialiser, std::variant<Args...> &value) {
                 std::remove_cvref_t<Args> v{};
                 deserialiser->deserialiseValue("value", v);

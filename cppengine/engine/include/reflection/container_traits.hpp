@@ -2,8 +2,8 @@
 // Created by Admin on 14/11/2026.
 //
 
-#ifndef CPPGAME_COLLECTION_TRAITS_HPP
-#define CPPGAME_COLLECTION_TRAITS_HPP
+#ifndef CONTAINER_TRAITS_CPP
+#define CONTAINER_TRAITS_CPP
 
 #include <vector>
 #include <list>
@@ -67,4 +67,4 @@ namespace cppengine {
 #undef DECL_SINGLE_TEMPLATE_CONTAINER_TYPE
 #undef DECL_DOUBLE_TEMPLATE_CONTAINER_TYPE
 
-#endif //CPPGAME_COLLECTION_TRAITS_HPP
+#endif //CONTAINER_TRAITS_CPP

@@ -4,7 +4,7 @@
 #include <format>
 #include <variant>
 
-#include "platform/enum_key_code.hpp"
+#include "reflection/reflection.hpp"
 
 namespace cppengine {
     template <typename T>
@@ -127,37 +127,6 @@ namespace cppengine {
 
     template <typename T>
     concept VariantDeserialisableType = !std::is_const_v<T> && VariantTraits<std::remove_cvref_t<T>>::deserialisable;
-
-    template <typename T>
-    std::string_view getTypeName() {
-        static_assert(
-                std::is_convertible_v<T, std::string_view>
-                || TriviallyIntrospectableType<T> || NonTriviallyIntrospectableType<T>
-                || IterableSerialisableType<T>
-                || KeyValuePairType<T>
-                || VariantSerialisableType<T>
-                , "could not deduce type name");
-
-        if constexpr (std::is_convertible_v<T, std::string_view>) {
-            static constexpr char name[] = "string";
-            return name;
-        } else if constexpr (TriviallyIntrospectableType<T> || NonTriviallyIntrospectableType<T>) {
-            return TypeDescriptor::getTypeDescriptor<T>()->getName();
-        } else if constexpr (IterableSerialisableType<T>) {
-            static std::string name = std::format("{}Collection", std::string{getTypeName<typename WritableElementType<T>::type>()});
-            return name;
-        } else if constexpr  (KeyValuePairType<T>) {
-            // todo: meta structure for key value pair typedef and concat
-            static std::string name = std::format("{}Pair", std::string{getTypeName<typename WritableElementType<T>::type>()});
-            return name;
-        } else if constexpr (VariantSerialisableType<T>) {
-            // todo: meta structure to get the names of every type in the variant and concat
-            static std::string name = std::format("{}Variant", std::string{getTypeName<typename WritableElementType<T>::type>()});
-            return name;
-        } else {
-            throw std::runtime_error("could not deduce type name");
-        }
-    }
 }
 
 #endif

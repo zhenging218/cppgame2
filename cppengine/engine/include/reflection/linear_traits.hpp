@@ -25,7 +25,7 @@
         static constexpr std::size_t size = sizeof(TYPE_NAME); \
         static constexpr StringLiteral name{ #TYPE_NAME };\
         static constexpr char const *getName() { return name.data(); } \
-        static constexpr bool defined_trait_v = false; \
+        static constexpr bool defined_trait_v = true; \
         static constexpr bool pod_type_v = false; \
         static constexpr bool container_type_v = false; \
     }

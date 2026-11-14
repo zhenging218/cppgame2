@@ -22,7 +22,8 @@ namespace cppengine {
   void Serialiser::serialiseVariant(std::string_view name, T const &value) {
     std::visit([this, &name](auto &&v) {
       beginObject(name);
-      serialiseValue("type", getTypeName<std::remove_cvref_t<decltype(v)>>());
+      auto const &typeName = getTypeName<std::remove_cvref_t<decltype(v)>>();
+      serialiseValue("type", std::string_view(typeName.data(), typeName.size()));
       processSeparator();
       serialiseValue("value", v);
       endObject();
@@ -33,7 +34,8 @@ namespace cppengine {
   void Serialiser::serialiseVariant(T const &value) {
     std::visit([this](auto &&v) {
       beginObject();
-      serialiseValue("type", getTypeName<std::remove_cvref_t<decltype(v)>>());
+      auto const &typeName = getTypeName<std::remove_cvref_t<decltype(v)>>();
+      serialiseValue("type", std::string_view(typeName.data(), typeName.size()));
       processSeparator();
       serialiseValue("value", v);
       endObject();
