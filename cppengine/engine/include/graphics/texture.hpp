@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <string>
 
+#include "reflection/type_descriptor.hpp"
+
 namespace cppengine {
     class Texture {
     private:
@@ -18,7 +20,15 @@ namespace cppengine {
         std::string const &getName() const;
         std::uint64_t getWidth() const;
         std::uint64_t getHeight() const;
+
+        ENABLE_REFLECTION();
     };
 }
+
+DECL_TYPE_DESCRIPTOR(cppengine::Texture);
+
+DECL_TYPE_MEMBERS(cppengine::Texture)
+    DECL_TYPE_MEMBER_FIELD(id)
+END_DECL_TYPE_MEMBERS();
 
 #endif

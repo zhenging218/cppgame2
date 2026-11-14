@@ -55,7 +55,17 @@ namespace cppengine {
         Matrix4x4 const &getMatrix();
 
         ~Transform();
+
+        ENABLE_REFLECTION();
     };
 }
+
+DECL_TYPE_DESCRIPTOR(cppengine::Transform);
+
+DECL_TYPE_MEMBERS(cppengine::Transform)
+    DECL_TYPE_MEMBER_FIELD(position),
+    DECL_TYPE_MEMBER_FIELD(rotation),
+    DECL_TYPE_MEMBER_FIELD(scale)
+END_DECL_TYPE_MEMBERS();
 
 #endif

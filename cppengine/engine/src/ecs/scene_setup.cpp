@@ -26,7 +26,7 @@ namespace cppengine {
     GameObjectProxy SceneSetup::createGameObject(std::string_view name) const {
         const auto [id_, name_] = scene->createEntity(name);
 
-        return GameObjectProxy(id_, this);
+        return {id_, this};
     }
 
     GameObjectProxy SceneSetup::createGameObject() const {

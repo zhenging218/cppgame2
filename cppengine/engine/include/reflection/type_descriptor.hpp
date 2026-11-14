@@ -5,6 +5,8 @@
 #include <span>
 #include <string_view>
 #include "string_literal.hpp"
+#include "reflection_traits.hpp"
+#include "member_descriptor.hpp"
 
 namespace cppengine {
 
@@ -60,6 +62,10 @@ namespace cppengine {
     };
 
 }
+
+#define ENABLE_REFLECTION() \
+    template <typename T> \
+    friend struct cppengine::TypeMemberTraits \
 
 #define DECL_BASE_TYPE(NS_QUALIFIED_TYPE_NAME, ...) \
 namespace cppengine {\
