@@ -26,7 +26,7 @@ namespace cppengine {
 
         static constexpr setter_type getSetter() {
             if constexpr (is_const_member) {
-                return [](void *, void const *) { throw IllegalFieldOperation(TypeDescriptor::getTypeDescriptor<T>(), TypeDescriptor::getTypeDescriptor<U>(), static_cast<char const *>(name)); };
+                return [](void *, void const *) { throw IllegalFieldOperation(TypeDescriptor::getTypeDescriptor<T>(), TypeDescriptor::getTypeDescriptor<U>(), name.data()); };
             } else {
                 return [](void *owner, void const *data) { *(&(static_cast<typename member_descriptor_type::owner_type *>(owner)->*member_descriptor_type::getMember())) = *static_cast<U const *>(data); };
             }

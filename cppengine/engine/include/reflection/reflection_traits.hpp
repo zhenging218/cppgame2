@@ -16,8 +16,10 @@ namespace cppengine {
         using type = T;
         using super_type = T;
         static constexpr std::size_t size = sizeof(T);
-        static constexpr char const *getName() { return typeid(T).name(); }
+        static constexpr StringLiteral name{ "?" };
+        static constexpr char const *getName() { return name.data(); }
         static constexpr bool pod_type_v = false;
+        static constexpr bool container_type_v = false;
         static constexpr bool defined_trait_v = false;
     };
 
