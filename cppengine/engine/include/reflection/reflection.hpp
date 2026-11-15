@@ -13,6 +13,8 @@
 #include "member_descriptor.hpp"
 #include "type_descriptor.hpp"
 #include "type_descriptor_impl.hpp"
+#include "field_descriptor_impl.hpp"
 #include "illegal_field_operation.hpp"
+#include "mismatched_field_type_operation.hpp"
 
 #endif

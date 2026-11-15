@@ -21,14 +21,16 @@ namespace cppengine {
         using setter_type = void (*)(void *, void const *);
 
         static constexpr const_getter_type getConstGetter() {
-            return [](void const *owner)->void const * { return &(static_cast<typename member_descriptor_type::owner_type const *>(owner)->*member_descriptor_type::getMember()); };
+            return [](void const *owner)->void const * {
+                return &member_descriptor_type::get(*static_cast<member_descriptor_type::owner_type const *>(owner));
+            };
         }
 
         static constexpr setter_type getSetter() {
             if constexpr (is_const_member) {
                 return [](void *, void const *) { throw IllegalFieldOperation(TypeDescriptor::getTypeDescriptor<T>(), TypeDescriptor::getTypeDescriptor<U>(), name.data()); };
             } else {
-                return [](void *owner, void const *data) { *(&(static_cast<typename member_descriptor_type::owner_type *>(owner)->*member_descriptor_type::getMember())) = *static_cast<U const *>(data); };
+                return [](void *owner, void const *data) { member_descriptor_type::set(*static_cast<member_descriptor_type::owner_type *>(owner), *static_cast<U const *>(data)); };
             }
         }
 
@@ -51,36 +53,41 @@ namespace cppengine {
         return { FieldDescriptorCreator<MemberDescriptors>::createFieldDescriptor(owner)... };
     }
 
-    template <typename T>
+    template <typename T> requires std::same_as<T, std::remove_cvref_t<T>>
     TypeDescriptor const * TypeDescriptorImpl<T>::getSuperType() const {
         return TypeDescriptor::getTypeDescriptor<typename TypeTraits<typename std::remove_cvref<T>::type>::super_type>();
     }
 
-    template<typename T>
+    template<typename T> requires std::same_as<T, std::remove_cvref_t<T>>
     std::span<const FieldDescriptor> TypeDescriptorImpl<T>::getFields() const {
         static const std::vector<FieldDescriptor> fields = createFieldList(this, typename TypeMemberTraits<T>::members());
 
         return std::span{ fields };
     }
 
-    template <typename T>
+    template <typename T> requires std::same_as<T, std::remove_cvref_t<T>>
     TypeDescriptorImpl<T>::~TypeDescriptorImpl() = default;
 
-    template <typename T>
+    template <typename T> requires std::same_as<T, std::remove_cvref_t<T>>
     std::string_view TypeDescriptorImpl<T>::getName() const {
         return TypeTraits<typename std::remove_cvref<T>::type>::getName();
     }
 
     template<typename T>
     TypeDescriptor const *TypeDescriptor::getTypeDescriptor() {
-        static TypeDescriptorImpl<std::remove_cvref_t<T>> type;
-        return &type;
+        return TypeDescriptorImpl<std::remove_cvref_t<T>>::getTypeDescriptor();
     }
 
     template <typename T>
     bool TypeDescriptor::isSuperType(TypeDescriptor const *subType) {
-        TypeDescriptor const *superType = TypeDescriptor::getTypeDescriptor<typename std::remove_cvref<T>::type>();
+        TypeDescriptor const *superType = TypeDescriptor::getTypeDescriptor<T>();
         return isSuperType(superType, subType);
+    }
+
+    template<typename T> requires std::same_as<T, std::remove_cvref_t<T>>
+    TypeDescriptor const *TypeDescriptorImpl<T>::getTypeDescriptor() {
+        static TypeDescriptorImpl descriptor;
+        return &descriptor;
     }
 
     template <typename T>

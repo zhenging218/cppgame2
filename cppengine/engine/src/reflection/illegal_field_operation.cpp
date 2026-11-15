@@ -10,9 +10,9 @@ namespace cppengine {
 
     }
 
-    char const * IllegalFieldOperation::what() const throw() {
+    char const * IllegalFieldOperation::what() const noexcept {
         return message.c_str();
     }
 
-    IllegalFieldOperation::~IllegalFieldOperation() {}
+    IllegalFieldOperation::~IllegalFieldOperation() = default;
 }

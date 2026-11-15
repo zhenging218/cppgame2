@@ -62,6 +62,30 @@ namespace cppengine {
     DECL_DOUBLE_TEMPLATE_CONTAINER_TYPE(std::multimap);
     DECL_DOUBLE_TEMPLATE_CONTAINER_TYPE(std::unordered_map);
     DECL_DOUBLE_TEMPLATE_CONTAINER_TYPE(std::unordered_multimap);
+
+    template <typename T, std::size_t N>
+    struct TypeTraits<std::array<T, N>> {
+        using type = std::array<T, N>;
+        using super_type = type;
+        static constexpr std::size_t size = sizeof(type);
+        static constexpr StringLiteral name = concatLiterals(StringLiteral{"std::array"}, StringLiteral{"<"}, TypeTraits<T>::name, StringLiteral{">"});
+        static constexpr  char const *getName() { return name.data(); }
+        static constexpr bool defined_trait_v  = true;
+        static constexpr bool pod_type_v = false;
+        static constexpr bool container_type_v = true;
+    };
+
+    template <typename T, std::size_t N>
+    struct TypeTraits<T[N]> {
+        using type = std::array<T, N>;
+        using super_type = type;
+        static constexpr std::size_t size = sizeof(type);
+        static constexpr StringLiteral name = concatLiterals(TypeTraits<T>::name, StringLiteral{"[]"});
+        static constexpr  char const *getName() { return name.data(); }
+        static constexpr bool defined_trait_v  = true;
+        static constexpr bool pod_type_v = false;
+        static constexpr bool container_type_v = true;
+    };
 }
 
 #undef DECL_SINGLE_TEMPLATE_CONTAINER_TYPE

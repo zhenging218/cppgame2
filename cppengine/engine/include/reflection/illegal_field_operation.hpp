@@ -16,7 +16,7 @@ namespace cppengine {
     public:
         IllegalFieldOperation(TypeDescriptor const *owner, TypeDescriptor const *field, std::string_view fieldName);
 
-        [[nodiscard]] char const * what() const throw() override;
+        [[nodiscard]] char const * what() const noexcept override;
         ~IllegalFieldOperation() override;
     };
 }
